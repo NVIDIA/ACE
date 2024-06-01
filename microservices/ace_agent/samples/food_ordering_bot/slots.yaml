@@ -1,0 +1,29 @@
+shortterm_memory_max_turns: 2
+slots:
+  - name: food_quantity
+  - name: food_type
+  - name: food_size
+  - name: food_quantity_remove
+    entity: [food_quantity.remove]
+    default: 'one'
+  - name: food_type_remove
+    entity: [food_type.remove]
+  - name: food_size_remove
+    entity: [food_size.remove]
+
+  - name:  food_name
+    enable_resolution: true
+    synonyms:
+      cheeseburger: ["cheeseburgers", "cheese burger", "cheese burgers"]
+      cola: ["coke"]
+      diet cola: ["diet coke"]
+      regular cola: ["regular coke"]
+
+  - name:  food_name_remove
+    entity: [food_name.remove]
+    enable_resolution: true
+    synonyms:
+      cheeseburger: ["cheeseburgers", "cheese burger", "cheese burgers"]
+      cola: ["coke"]
+      diet cola: ["diet coke"]
+      regular cola: ["regular coke"]

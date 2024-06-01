@@ -1,0 +1,84 @@
+specVersion: 2.5.0
+
+version: 4.0.0
+
+name: ucf-app-speech-bot
+
+description: ACE Agent Food Ordering Bot
+
+dependencies:
+- ucf.svc.riva.speech-skills:2.15.1
+- ucf.svc.ace-agent.chat-engine:4.0.0
+- ucf.svc.ace-agent.chat-controller:4.0.0
+- ucf.svc.ace-agent.plugin-server:4.0.0
+- ucf.svc.ace-agent.web-app:4.0.0
+- ucf.svc.ace-agent.nlp-server:4.0.0
+
+secrets:
+  k8sSecret/ngc-api-key-secret/NGC_CLI_API_KEY:
+    k8sSecret:
+      secretName: ngc-api-key-secret
+      key: NGC_CLI_API_KEY
+  k8sSecret/openai-key-secret/OPENAI_API_KEY:
+    k8sSecret:
+      secretName: openai-key-secret
+      key: OPENAI_API_KEY
+
+components:
+- name: webapp
+  type: ucf.svc.ace-agent.web-app
+  parameters:
+    imagePullSecrets:
+    - name: ngc-docker-reg-secret
+- name: riva-speech
+  type: ucf.svc.riva.speech-skills
+  parameters:
+    imagePullSecrets:
+    - name: ngc-docker-reg-secret
+  secrets:
+    ngc-api-key-secret: k8sSecret/ngc-api-key-secret/NGC_CLI_API_KEY
+- name: nlp-server
+  type: ucf.svc.ace-agent.nlp-server
+  parameters:
+    imagePullSecrets:
+    - name: ngc-docker-reg-secret
+  secrets:
+    ngc-api-key-secret: k8sSecret/ngc-api-key-secret/NGC_CLI_API_KEY
+  files:
+    config_dir: ../../../../samples/food_ordering_bot
+- name: chat-engine
+  type: ucf.svc.ace-agent.chat-engine
+  parameters:
+    imagePullSecrets:
+    - name: ngc-docker-reg-secret
+  secrets:
+    ngc-api-key-secret: k8sSecret/ngc-api-key-secret/NGC_CLI_API_KEY
+    openai-key-secret: k8sSecret/openai-key-secret/OPENAI_API_KEY
+  files:
+    config_dir: ../../../../samples/food_ordering_bot
+- name: chat-controller
+  type: ucf.svc.ace-agent.chat-controller
+  parameters:
+    imagePullSecrets:
+    - name: ngc-docker-reg-secret
+  secrets:
+    ngc-api-key-secret: k8sSecret/ngc-api-key-secret/NGC_CLI_API_KEY
+  files:
+    config_dir: ../../../../samples/food_ordering_bot
+- name: plugin-server
+  type: ucf.svc.ace-agent.plugin-server
+  parameters:
+    imagePullSecrets:
+    - name: ngc-docker-reg-secret
+  secrets:
+    ngc-api-key-secret: k8sSecret/ngc-api-key-secret/NGC_CLI_API_KEY
+  files:
+    config_dir: ../../../../samples/food_ordering_bot
+
+
+connections:
+  chat-engine/plugin-server: plugin-server/http-api
+  chat-engine/nlp-server: nlp-server/api-server
+  chat-controller/riva: riva-speech/riva-speech-api
+  chat-controller/chat-api: chat-engine/http-api
+  webapp/chat-controller: chat-controller/grpc-api

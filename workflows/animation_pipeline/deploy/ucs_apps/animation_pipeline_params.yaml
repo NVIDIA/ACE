@@ -1,0 +1,85 @@
+# SPDX-FileCopyrightText: Copyright (c) 2024 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-License-Identifier: Apache-2.0
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+audio2face:
+  ucfVisibleGpus: [0]
+  configs:
+    a2f_config.yaml:
+      streamNumber: "3"
+      a2eEnabled: "True"
+      a2eInferenceInterval: "5"
+      faceParams: "{}"
+      a2fModelName: "claire_v1.3"
+      a2fDeviceId: "0"
+      a2eEmotionContrast: "1.0"
+      a2eLiveBlendCoef: "0.6"
+      a2eEnablePreferredEmotion: "True"
+      a2ePreferredEmotionStrength: "0.5"
+      a2eEmotionStrength: "0.6"
+      a2eMaxEmotions: "3"
+      addSilencePaddingAfterAudio: "False"
+      queueAfterStreammux: "1"
+      queueAfterA2F: "3000"
+      queueAfterA2E: "30"
+      maxLenUUID: "100"
+      maxSampleRate: "140000"
+      minSampleRate: "16000"
+      lowFps: "29"
+      lowFpsMaxDurationSecond: "7"
+      useFP16A2F: "True"
+      useFP16A2E: "True"
+animation-graph:
+  ucfVisibleGpus: [0]
+  replicas: 1
+  resourceDownload:
+    remoteResourcePath: "nvidia/ucs-ms/default-avatar-scene:1.0.0"
+    secretName: ngc-api-key-secret
+    image: nvcr.io/eevaigoeixww/animation/ngc-resource-downloader:1.0.1
+avatar-renderer-a:
+  ucfVisibleGpus: [0]
+  replicas: 1
+  resourceDownload:
+    remoteResourcePath: "nvidia/ucs-ms/default-avatar-scene:1.0.0"
+    secretName: ngc-api-key-secret
+    image: nvcr.io/eevaigoeixww/animation/ngc-resource-downloader:1.0.1
+  livestream:
+    rtpNegotiationHostMockingEnabled: true
+    host: "127.0.0.1"
+    videoPort: 9020
+    audioPort: 9021
+avatar-renderer-b:
+  ucfVisibleGpus: [1]
+  replicas: 1
+  resourceDownload:
+    remoteResourcePath: "nvidia/ucs-ms/default-avatar-scene:1.0.0"
+    secretName: ngc-api-key-secret
+    image: nvcr.io/eevaigoeixww/animation/ngc-resource-downloader:1.0.1
+  livestream:
+    rtpNegotiationHostMockingEnabled: true
+    host: "127.0.0.1"
+    videoPort: 9030
+    audioPort: 9031
+# avatar-renderer-c:
+#   ucfVisibleGpus: [2]
+#   replicas: 1
+#   resourceDownload:
+#     remoteResourcePath: "nvidia/ucs-ms/default-avatar-scene:1.0.0"
+#     secretName: ngc-api-key-secret
+#     image: nvcr.io/eevaigoeixww/animation/ngc-resource-downloader:1.0.1
+#   livestream:
+#     rtpNegotiationHostMockingEnabled: true
+#     host: "127.0.0.1"
+#     videoPort: 9040
+#     audioPort: 9041

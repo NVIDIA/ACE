@@ -1,0 +1,80 @@
+# SPDX-FileCopyrightText: Copyright (c) 2024 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-License-Identifier: Apache-2.0
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# Quickfix for UCS bug to not link claims and configmaps correctly when using aliases
+global: {}
+ia-animation-graph-microservice: {}
+avatar-renderer-a:
+  applicationSpecs:
+    deployment:
+      containers:
+        ms:
+          command:
+            - bash
+            - /opt/scripts/startup.sh
+            - --/exts/omni.services.transport.server.http/port=$(IAORMS_HTTP_SERVER_PORT)
+            - --/app/printConfig=$(IAORMS_KIT_PRINT_SETTINGS)
+            - --/app/window/width=$(IAORMS_WINDOW_WIDTH)
+            - --/app/window/height=$(IAORMS_WINDOW_HEIGHT)
+            - --enable
+            - omni.kit.telemetry
+            - --/crashreporter/enabled=true
+            - --/crashreporter/data/serviceName=ia-omniverse-renderer-microservice-a-deployment
+            - --/crashreporter/url=https://services.nvidia.com/submit
+            - --/crashreporter/alwaysUpload=true
+            - --/crashreporter/dumpDir=$(IAORMS_SCENE_DIRECTORY)
+avatar-renderer-b:
+  applicationSpecs:
+    deployment:
+      containers:
+        ms:
+          command:
+            - bash
+            - /opt/scripts/startup.sh
+            - --/exts/omni.services.transport.server.http/port=$(IAORMS_HTTP_SERVER_PORT)
+            - --/app/printConfig=$(IAORMS_KIT_PRINT_SETTINGS)
+            - --/app/window/width=$(IAORMS_WINDOW_WIDTH)
+            - --/app/window/height=$(IAORMS_WINDOW_HEIGHT)
+            - --enable
+            - omni.kit.telemetry
+            - --/crashreporter/enabled=true
+            - --/crashreporter/data/serviceName=ia-omniverse-renderer-microservice-a-deployment
+            - --/crashreporter/url=https://services.nvidia.com/submit
+            - --/crashreporter/alwaysUpload=true
+            - --/crashreporter/dumpDir=$(IAORMS_SCENE_DIRECTORY)
+# avatar-renderer-c:
+#   applicationSpecs:
+#     deployment:
+#       containers:
+#         ms:
+#           command:
+#             - bash
+#             - /opt/scripts/startup.sh
+#             - --/exts/omni.services.transport.server.http/port=$(IAORMS_HTTP_SERVER_PORT)
+#             - --/app/printConfig=$(IAORMS_KIT_PRINT_SETTINGS)
+#             - --/app/window/width=$(IAORMS_WINDOW_WIDTH)
+#             - --/app/window/height=$(IAORMS_WINDOW_HEIGHT)
+#             - --enable
+#             - omni.kit.telemetry
+#             - --/crashreporter/enabled=true
+#             - --/crashreporter/data/serviceName=ia-omniverse-renderer-microservice-a-deployment
+#             - --/crashreporter/url=https://services.nvidia.com/submit
+#             - --/crashreporter/alwaysUpload=true
+#             - --/crashreporter/dumpDir=$(IAORMS_SCENE_DIRECTORY)
+#             - --/profiler/enabled=true
+#             - --/app/profilerBackend=tracy
+#             - --/app/profileFromStart=true
+#             - --/profiler/gpu=true
+#             - --/profiler/gpu/tracyinject/enabled=true

@@ -1,0 +1,119 @@
+define user ask current weather
+  "What is the current weather condition in Santa Clara?"
+  "How is the current weather in New York?"
+  "How is the weather condition in Pune?"
+  "Can you tell me the weather conditions in San Francisco?"
+  "What is the temperature in Tokyo?"
+  "Will it be cold in Allardt?"
+  "How is the temperature in Moscow?"
+  "Show me the temperature in San Mateo."
+  "Is it hot in Mumbai?"
+
+define flow current weather
+  user ask current weather
+
+  # Get the location from user's previous spanish query, for which user is asking weather queries.
+  # If no location is provided, just leave the location as ""
+  $location = ...
+
+  if $location
+    $weather_condition = execute plugin(endpoint="weather/weatherstack/get_weather_condition", request_type="get", location=$location)
+    $temperature = execute plugin(endpoint="weather/weatherstack/get_temperature", request_type="get", location=$location)
+
+    bot provide $weather_condition and $temperature
+
+  else
+    bot inform could not find location
+
+define user ask about humidity
+  "What is the humidity in Tokyo?"
+  "How humid was it in Moscow?"
+  "What will the humidity chances be in Santa Clara?"
+  "Please show me the humidity chances in Toronto."
+
+define flow humidity
+  user ask about humidity
+
+  # Get the location from user's previous spanish query, for which user is asking weather queries.
+  # If no location is provided, just leave the location as ""
+  $location = ...
+
+  if $location
+    $humidity = execute plugin(endpoint="weather/weatherstack/get_humidity", request_type="get", location=$location)
+    bot provide $humidity
+  else
+    bot inform could not find location
+
+define user asks whether it is cloudy
+  "Is it cloudy in Bali?"
+  "Will it be cloudy in Moscow?"
+  "Will it be cloudy in Montreal?"
+
+define flow cloudy
+  user asks whether it is cloudy
+
+  # Get the location from user's previous spanish query, for which user is asking weather queries.
+  # If no location is provided, just leave the location as ""
+  $location = ...
+
+  if $location
+    $is_cloudy = execute plugin(endpoint="weather/weatherstack/is_cloudy", request_type="get", location=$location)
+    bot provide $is_cloudy
+  else
+    bot inform could not find location
+
+define user asks weather it is raining
+  "What is the rain forecast for Danville?"
+  "Will it rain in Delhi?"
+  "How much will it rain in San Francisco?"
+  "What are the chances of rain in Santa Clara?"
+  "Is it raining in Santa Clara?"
+
+define flow rainy
+  user asks weather it is raining
+
+  # Get the location from user's previous spanish query, for which user is asking weather queries.
+  # If no location is provided, just leave the location as ""
+  $location = ...
+
+  if $location
+    $is_raining = execute plugin(endpoint="weather/weatherstack/is_raining", request_type="get", location=$location)
+    bot provide $is_raining
+  else
+    bot inform could not find location
+
+define user asks about windspeed
+  "What will the wind speed be in the Bay Area?"
+  "How is the wind speed in Moscow?"
+  "Show me the wind speed in San Mateo."
+
+define flow windy
+  user asks about windspeed
+
+  # Get the location from user's previous spanish query, for which user is asking weather queries.
+  # If no location is provided, just leave the location as ""
+  $location = ...
+
+  if $location
+    $windspeed = execute plugin(endpoint="weather/weatherstack/get_windspeed", request_type="get", location=$location)
+    bot provide $windspeed
+  else
+    bot inform could not find location
+
+define user asks whether it is sunny
+  "Is it sunny in Bali?"
+  "Will it be sunny in Moscow?"
+  "Will it be sunny in Montreal?"
+
+define flow sunny
+  user asks whether it is sunny
+
+  # Get the location from user's previous spanish query, for which user is asking weather queries.
+  # If no location is provided, just leave the location as ""
+  $location = ...
+
+  if $location
+    $is_sunny = execute plugin(endpoint="weather/weatherstack/is_sunny", request_type="get", location=$location)
+    bot provide $is_sunny
+  else
+    bot inform could not find location

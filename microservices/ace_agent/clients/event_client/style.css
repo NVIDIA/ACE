@@ -1,0 +1,144 @@
+.box {
+    height: 100%;
+    width: 1fr;
+    /* border: solid green; */
+}
+
+.border{
+    border: solid lightgray; 
+}
+
+.fill-width {
+    width: 1fr;
+    /* border: solid lightgray;  */
+}
+
+.fill-width-large {
+    width: 2fr;
+    /* border: solid green; */
+}
+
+.third{
+    width: 30%;
+}
+
+.twothirds{
+    width: 70%;
+}
+
+
+.robert {
+    width: 100%;
+    layout: horizontal;
+    background: $boost;
+    height: 10;
+    min-width: 50;
+
+}
+
+.face{
+    width: 40;
+    height: 40;
+}
+
+.info{
+    dock: right;
+}
+
+
+.face{
+    dock: left;
+    row-span: 4;
+    column-span: 4;
+}
+
+.speech{
+    width: 65%;
+}
+
+.modality{
+    padding: 1;
+    margin-left: 0;
+    margin-right: 2;
+    background: darkslategray;
+}
+
+.modality-slim{
+    margin-left: 0;
+    margin-right: 2;
+    background: darkslategray;
+}
+
+.next-step{
+    padding: 1;
+    margin-left: 0;
+    margin-right: 2;
+    background: darksalmon;
+}
+
+.active{
+    background: yellow;
+}
+
+.log{
+    padding: 1;
+    background: darkgray;
+}
+
+Sidebar {
+    width: 50%;
+    background: $panel;
+    transition: offset 400ms in_out_cubic;
+    layer: overlay;
+    dock: right;
+
+}
+
+UIView{
+
+}
+
+UserChoice{
+    height: auto;
+    width: 1fr;
+}
+
+ConfirmationButtons
+{
+    padding-top: 2;
+    layout: horizontal;
+    height: auto;
+    width: 1fr;
+}
+
+UIControlsView{
+    margin-left: 4;
+    margin-right: 4;
+
+}
+
+
+Sidebar:focus-within {
+    offset: 0 0 !important;
+}
+
+Sidebar.-hidden {
+    offset-x: 100%;
+}
+
+Sidebar Title {
+    background: $boost;
+    color: $secondary;
+    padding: 2 4;
+    border-right: vkey $background;
+    dock: top;
+    text-align: center;
+    text-style: bold;
+}
+
+.confirm-button{
+    dock: right
+}
+
+.deny-button{
+}

@@ -1,0 +1,124 @@
+define subflow reset_slots
+  $food_size = None
+  $food_quantity = None
+  $food_size_remove = None
+  $food_quantity_remove = None
+
+define flow add_item
+  user food_order.add_item
+  if not $food_name
+    bot inform could not find food item
+    do reset_slots
+    return
+
+  $food_name_fm = $food_name[0]
+  if $food_size
+    $food_size_fm = $food_size[0]
+  else
+    $food_size_fm = None
+  if $food_quantity
+    $food_quantity_fm = $food_quantity[0]
+  else
+    $food_quantity_fm = None
+
+  $result = execute plugin(\
+    endpoint="food_order/add_item",\
+    request_type="post",\
+    user_id=$user_id, food_name=$food_name_fm,\
+    food_size=$food_size_fm,\
+    food_quantity=$food_quantity_fm\
+  )
+  if $result
+    bot respond with result
+  else
+    bot respond failure
+  do reset_slots
+
+define bot respond with result
+  "{{$result}}"
+
+define flow remove_item
+  user food_order.remove_item
+
+  if not $food_name
+    bot inform could not find food item
+    do reset_slots
+    return
+
+  $food_name_fm = $food_name[0]
+  if $food_size
+    $food_size_fm = $food_size[0]
+  else
+    $food_size_fm = None
+  if $food_quantity
+    $food_quantity_fm = $food_quantity[0]
+  else
+    $food_quantity_fm = None
+
+  $result = execute plugin(\
+    endpoint="food_order/remove_item",\
+    request_type="post",\
+    user_id=$user_id, food_name=$food_name_fm,\
+    food_size=$food_size_fm,\
+    food_quantity=$food_quantity_fm\
+  )
+  bot responds with result
+  do reset_slots
+
+define flow swap_item
+  user food_order.swap_item
+
+  if not $food_name
+    bot "Sorry, I could not find any food items you want to replace with."
+    do reset_slots
+    return
+
+  if not $food_name_remove
+    bot "Sorry, I could not find any food items to be replaced from the cart"
+    do reset_slots
+    return
+
+  $food_name_fm = $food_name[0]
+  $food_name_remove_fm = $food_name_remove[0]
+  if $food_size
+    $food_size_fm = $food_size[0]
+  else
+    $food_size_fm = None
+  if $food_quantity
+    $food_quantity_fm = $food_quantity[0]
+  else
+    $food_quantity_fm = None
+  if $food_size_remove_fm
+    $food_size_remove_fm = $food_size_remove[0]
+  else
+    $food_size_remove_fm = None
+  if $food_quantity_remove_fm
+    $food_quantity_remove_fm = $food_quantity_remove[0]
+  else
+    $food_quantity_remove_fm = None
+
+  $result = execute plugin(endpoint="food_order/replace_items",\
+    request_type="post",\
+    user_id=$user_id,\
+    remove_food_name=$food_name_remove_fm,\
+    remove_food_size=$food_size_remove_fm,\
+    remove_food_quantity=$food_quantity_remove_fm,\
+    add_food_name=$food_name_fm,\
+    add_food_size=$food_size_fm,\
+    add_food_quantity=$food_quantity_fm,\
+  )
+  bot responds with result
+  do reset_slots
+
+define user clear_cart
+  "can you clear my cart"
+  "clear my cart"
+  "please clear my cart"
+
+define flow clear_cart
+  user clear_cart
+  $result = plugin(endpoint="food_order/clear_cart", request_type="post", user_id=$user_id)
+  if $result
+    bot "Sure, I have cleared your cart."
+  else
+    bot "Sorry, I Couldn't clear the cart"

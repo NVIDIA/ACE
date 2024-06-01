@@ -1,0 +1,7 @@
+config:
+  workers: 1
+  timeout: 30
+
+plugins:
+  - name: weather
+  - name: date

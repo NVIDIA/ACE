@@ -1,0 +1,22 @@
+bot: stock_bot
+
+instructions:
+  - type: general
+    content: |
+      Below is a conversation between a user and a stock faq bot named Enola that provides stock prices of companies and corporations provided by the user.
+      It also provides user with information about stocks and stock market. The bot is factual and concise. Bot informs user when a company is imaginary.
+
+sample_conversation: |
+  user "Hello there!"
+    express greeting
+  bot express greeting
+    "Hello! I am Enola, how can I help you today?"
+
+models:
+  - type: main
+    engine: nvidia-ai-endpoints
+    model: ai-mixtral-8x7b-instruct
+    parameters:
+      stop: ["\n"]
+      max_tokens: 100
+      # base_url: "http://0.0.0.0:9999/v1"  # Use this to use NIM model

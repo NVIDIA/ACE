@@ -1,0 +1,72 @@
+# SPDX-FileCopyrightText: Copyright (c) 2024 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-License-Identifier: Apache-2.0
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+specVersion: 2.0.0
+
+version: 1.0.1
+
+name: animation-pipeline
+
+description: A basic deployment configuration for NVIDIA's animation pipeline
+
+dependencies:
+  - ucf.svc.audio2face:1.0.14
+  - ucf.svc.ia-animation-graph-microservice:1.0.1
+  - ucf.svc.ia-omniverse-renderer-microservice:1.0.1
+secrets:
+  k8sSecret/ngc-api-key-secret/NGC_CLI_API_KEY:
+    k8sSecret:
+      secretName: ngc-api-key-secret
+      key: NGC_CLI_API_KEY
+components:
+  - name: audio2face
+    type: ucf.svc.audio2face
+    parameters:
+      imagePullSecrets:
+        - name: ngc-docker-reg-secret
+  - name: animation-graph
+    type: ucf.svc.ia-animation-graph-microservice
+    parameters:
+      imagePullSecrets:
+        - name: ngc-docker-reg-secret
+  - name: avatar-renderer-a
+    type: ucf.svc.ia-omniverse-renderer-microservice
+    parameters:
+      imagePullSecrets:
+        - name: ngc-docker-reg-secret
+  - name: avatar-renderer-b
+    type: ucf.svc.ia-omniverse-renderer-microservice
+    parameters:
+      imagePullSecrets:
+        - name: ngc-docker-reg-secret
+  # - name: avatar-renderer-c
+  #   type: ucf.svc.ia-omniverse-renderer-microservice
+  #   parameters:
+  #     imagePullSecrets:
+  #       - name: ngc-docker-reg-secret
+  - name: fake-rtp-negotiation
+    type: ucf.svc.external-endpoint
+    parameters:
+      service: 0.0.0.0
+      port: 32667
+
+connections:
+  audio2face/a2f-grpc-client: animation-graph/anim-server
+  avatar-renderer-a/anim-source: animation-graph/anim-server
+  avatar-renderer-a/rtp-negot: fake-rtp-negotiation/endpoint
+  avatar-renderer-b/anim-source: animation-graph/anim-server
+  avatar-renderer-b/rtp-negot: fake-rtp-negotiation/endpoint
+  # avatar-renderer-c/anim-source: animation-graph/anim-server
+  # avatar-renderer-c/rtp-negot: fake-rtp-negotiation/endpoint

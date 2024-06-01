@@ -1,0 +1,34 @@
+bot: spanish_bot_nmt
+
+configs:
+  language: en-US
+  request_language: es-US
+  response_language: es-US
+
+instructions:
+  - type: general
+    content: |
+      Below is a conversation between a user and a weather bot that provides real-time weather conditions based on location provided by the user.
+      The bot is factual and concise. It ensures that any location provided by user is not imaginary.
+      It provides user with all weather information. Bot informs user when a location is not on the world map.
+
+sample_conversation: |
+  user "Hello there!"
+    express greeting
+  bot express greeting
+    "Hello!, how can I help you today?"
+
+# Using OpenAI
+models:
+  - type: main
+    engine: openai
+    model: gpt-3.5-turbo-instruct
+    parameters:
+      stop: ["\n"]
+
+nlp_models:
+  - task_name: translate_user_query
+    model_name: megatronnmt_any_en_500m
+
+  - task_name: translate_bot_response
+    model_name: megatronnmt_en_any_500m

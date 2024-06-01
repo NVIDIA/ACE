@@ -1,0 +1,1988 @@
+[{
+  "_id": {
+    "$oid": "615fd4fff89dc8ee7edd59f5"
+  },
+  "menu_item": false,
+  "recommendation_type": [],
+  "synonyms": [],
+  "tags": [
+    "vegetarian",
+    "vegan"
+  ],
+  "variations": [
+    {
+      "name": "",
+      "size": "",
+      "calories": 60,
+      "price": 0.39,
+      "description": "",
+      "image": "images/default.png",
+      "is_default": true
+    }
+  ],
+  "ingredients": [],
+  "toppings": [],
+  "name": "avocado",
+  "item_id": "20",
+  "category": "toppings"
+},{
+  "_id": {
+    "$oid": "615cb3b7e29429a98da46054"
+  },
+  "menu_item": false,
+  "recommendation_type": [],
+  "synonyms": [],
+  "tags": [
+    "vegetarian",
+    "vegan"
+  ],
+  "variations": [
+    {
+      "name": "",
+      "size": "",
+      "calories": 0,
+      "price": 0.49,
+      "description": "",
+      "image": "images/default.png",
+      "is_default": true
+    }
+  ],
+  "ingredients": [],
+  "toppings": [],
+  "name": "garlic",
+  "item_id": "16",
+  "category": "toppings"
+},{
+  "_id": {
+    "$oid": "614ad5186c315ae1cdb3eb14"
+  },
+  "menu_item": true,
+  "recommendation_type": [
+    "toppings"
+  ],
+  "synonyms": [],
+  "tags": [
+    "non-veg",
+    "burger",
+    "beef",
+    "protein",
+    "specials",
+    "gluten"
+  ],
+  "variations": [
+    {
+      "name": "",
+      "size": "regular",
+      "calories": 440,
+      "price": 7.5,
+      "description": "A favorite of protein lovers. It gets its protein from two beef patties. Contains 30 grams of protein.",
+      "image": "images/customize-menu/customize-menu-double-protien-burger.png",
+      "is_default": true
+    }
+  ],
+  "ingredients": [
+    "buns",
+    "beef patty"
+  ],
+  "toppings": [
+    "black bean patty",
+    "extra cheese",
+    "avocado",
+    "pickles",
+    "fried egg"
+  ],
+  "name": "double protein burger",
+  "item_id": "3",
+  "category": "entrees"
+},{
+  "_id": {
+    "$oid": "615cae5de29429a98da46053"
+  },
+  "menu_item": false,
+  "recommendation_type": [],
+  "synonyms": [],
+  "tags": [
+    "vegetarian",
+    "vegan"
+  ],
+  "variations": [
+    {
+      "name": "",
+      "size": "",
+      "calories": 100,
+      "price": 1.29,
+      "description": "",
+      "image": "images/default.png",
+      "is_default": true
+    }
+  ],
+  "ingredients": [],
+  "toppings": [],
+  "name": "black bean patty",
+  "item_id": "15",
+  "category": "toppings"
+},{
+  "_id": {
+    "$oid": "6150ccb1bd31d2c9ba87cc59"
+  },
+  "menu_item": true,
+  "recommendation_type": [],
+  "synonyms": [],
+  "tags": [
+    "vegetarian",
+    "cola",
+    "chilled drink",
+    "cheap",
+    "vegan"
+  ],
+  "variations": [
+    {
+      "name": "",
+      "size": "small",
+      "calories": 150,
+      "price": 1.79,
+      "description": "Fountain beverage. Product of a cola company.",
+      "image": "images/drinks-menu/drinks-menu-coke.png",
+      "is_default": true
+    },
+    {
+      "name": "",
+      "size": "medium",
+      "calories": 200,
+      "price": 1.89
+    },
+    {
+      "name": "",
+      "size": "large",
+      "calories": 250,
+      "price": 1.99
+    }
+  ],
+  "ingredients": [],
+  "toppings": [],
+  "name": "regular cola",
+  "item_id": "10",
+  "category": "drinks"
+},{
+  "_id": {
+    "$oid": "614ad48c6c315ae1cdb3eb12"
+  },
+  "menu_item": true,
+  "recommendation_type": [
+    "salads",
+    "toppings"
+  ],
+  "synonyms": [],
+  "tags": [
+    "non-veg",
+    "burger",
+    "beef",
+    "specials",
+    "gluten",
+    "lactose"
+  ],
+  "variations": [
+    {
+      "name": "",
+      "size": "regular",
+      "calories": 350,
+      "price": 4.5,
+      "description": "A simple, classic cheeseburger made with a 100% pure beef burger. It is seasoned with just a pinch of salt and pepper.",
+      "image": "images/entrees-menu/entree-menu-bacon-cheese-burger.png",
+      "is_default": true
+    }
+  ],
+  "ingredients": [
+    "buns",
+    "beef patty",
+    "cheese",
+    "salt",
+    "pepper"
+  ],
+  "toppings": [
+    "bacon",
+    "fried onions",
+    "extra cheese",
+    "avocado"
+  ],
+  "name": "cheeseburger",
+  "item_id": "17",
+  "category": "entrees"
+},{
+  "_id": {
+    "$oid": "610d264fff213c8cb08e482a"
+  },
+  "menu_item": true,
+  "recommendation_type": [],
+  "synonyms": [],
+  "tags": [
+    "vegetarian",
+    "healthy",
+    "low calorie",
+    "lactose",
+    "nuts"
+  ],
+  "variations": [
+    {
+      "name": "",
+      "size": "regular",
+      "calories": 150,
+      "price": 6.49,
+      "description": "Made of mixed greens. It is topped with crumbled blue cheese and a mix of red and green apples, strawberries and blueberries. Made fresh daily. Served with harvest nut granola and roasted almonds. Pairs well with zesty apple cider vinaigrette.",
+      "image": "images/salads-menu/salad-menu-market-salad.png",
+      "is_default": true
+    }
+  ],
+  "ingredients": [
+    "apples",
+    "strawberries",
+    "blueberries",
+    "granola",
+    "almonds",
+    "apple cider vinaigrette"
+  ],
+  "toppings": [
+    "thousand island dressing",
+    "honey mustard dressing",
+    "ranch dressing"
+  ],
+  "name": "market salad",
+  "item_id": "12",
+  "category": "salads"
+},{
+  "_id": {
+    "$oid": "610d264fff213c8cb08e4798"
+  },
+  "menu_item": true,
+  "recommendation_type": [],
+  "synonyms": [],
+  "tags": [
+    "non-veg",
+    "sandwich",
+    "chicken",
+    "specials",
+    "gluten",
+    "lactose"
+  ],
+  "variations": [
+    {
+      "name": "",
+      "size": "regular",
+      "calories": 440,
+      "price": 5.5,
+      "description": "Made of a boneless breast of chicken seasoned to perfection. It is freshly breaded, pressure cooked in 100% refined peanut oil and served on a toasted, buttered bun with dill pickle chips. Also available on a multigrain bun.",
+      "image": "images/entrees-menu/entree-menu-chicken-sandwich.png",
+      "is_default": true
+    }
+  ],
+  "ingredients": [
+    "buns",
+    "butter",
+    "chicken",
+    "oil"
+  ],
+  "toppings": [
+    "bacon",
+    "pickles"
+  ],
+  "name": "chicken sandwich",
+  "item_id": "22",
+  "category": "entrees"
+},{
+  "_id": {
+    "$oid": "610d264fff213c8cb08e47d1"
+  },
+  "menu_item": true,
+  "recommendation_type": [],
+  "synonyms": [],
+  "tags": [
+    "vegetarian",
+    "fruit",
+    "healthy",
+    "low calorie",
+    "vegan"
+  ],
+  "variations": [
+    {
+      "name": "",
+      "size": "regular",
+      "calories": 150,
+      "price": 6.49,
+      "description": "A nutritious fruit mix for the health conscious. It is made with chopped pieces of red and green apples, mandarin orange segments, fresh strawberry slices, and blueberries, served chilled. Prepared fresh daily.",
+      "image": "images/salads-menu/salad-menu-fruit-salad.png",
+      "is_default": true
+    }
+  ],
+  "ingredients": [
+    "apples",
+    "oranges",
+    "strawberries",
+    "blueberries"
+  ],
+  "toppings": [],
+  "name": "fruit salad",
+  "item_id": "19",
+  "category": "salads"
+},{
+  "_id": {
+    "$oid": "61782e534aebece373989665"
+  },
+  "menu_item": false,
+  "recommendation_type": [],
+  "synonyms": [],
+  "tags": [],
+  "variations": [
+    {
+      "name": "",
+      "size": "",
+      "calories": 100,
+      "price": 0.79,
+      "description": "",
+      "image": "images/default.png",
+      "is_default": true
+    }
+  ],
+  "ingredients": [],
+  "toppings": [],
+  "name": "fried egg",
+  "item_id": "24",
+  "category": "toppings"
+},{
+  "_id": {
+    "$oid": "61523b56f07d2b5b88272f63"
+  },
+  "menu_item": true,
+  "recommendation_type": [],
+  "synonyms": [],
+  "tags": [
+    "vegetarian",
+    "lactose"
+  ],
+  "variations": [
+    {
+      "name": "",
+      "size": "small",
+      "calories": 50,
+      "price": 2.99,
+      "description": "Beverage brewed from steamed milk and espresso, with a bit of froth.",
+      "image": "images/drinks-menu/drinks-menu-coffee.png",
+      "is_default": true
+    },
+    {
+      "name": "",
+      "size": "medium",
+      "calories": 70,
+      "price": 3.29
+    },
+    {
+      "name": "",
+      "size": "large",
+      "calories": 90,
+      "price": 3.49
+    }
+  ],
+  "ingredients": [
+    "milk",
+    "espresso"
+  ],
+  "toppings": [],
+  "name": "coffee",
+  "item_id": "25",
+  "category": "drinks"
+},{
+  "_id": {
+    "$oid": "614fb22ae80afa927e4267cf"
+  },
+  "menu_item": true,
+  "recommendation_type": [],
+  "synonyms": [],
+  "tags": [
+    "fried",
+    "pickles",
+    "vegetarian",
+    "vegan"
+  ],
+  "variations": [
+    {
+      "name": "",
+      "size": "small",
+      "calories": 300,
+      "price": 1.69,
+      "description": "The perfect choice for those who like tang. Made with tangy dill pickles dipped in a smooth flavorful batter. It is fried in olive oil till it is crispy golden brown.",
+      "image": "images/sides-menu/sides-menu-fried-pickles.png",
+      "is_default": true
+    },
+    {
+      "name": "",
+      "size": "medium",
+      "calories": 400,
+      "price": 1.99
+    },
+    {
+      "name": "",
+      "size": "large",
+      "calories": 500,
+      "price": 2.19
+    }
+  ],
+  "ingredients": [
+    "pickles",
+    "oil"
+  ],
+  "toppings": [],
+  "name": "fried pickles",
+  "item_id": "2",
+  "category": "sides"
+},{
+  "_id": {
+    "$oid": "61523a70f07d2b5b88272f61"
+  },
+  "menu_item": true,
+  "recommendation_type": [],
+  "synonyms": [],
+  "tags": [
+    "vegetarian",
+    "low calorie",
+    "vegan"
+  ],
+  "variations": [
+    {
+      "name": "",
+      "size": "small",
+      "calories": 100,
+      "price": 2.59,
+      "description": "A beverage made using three simple ingredients - real lemon juice, cane sugar and water. It is blended with ginger and thyme.",
+      "image": "images/drinks-menu/drinks-menu-lemonade.png",
+      "is_default": true
+    },
+    {
+      "name": "",
+      "size": "medium",
+      "calories": 150,
+      "price": 2.79
+    },
+    {
+      "name": "",
+      "size": "large",
+      "calories": 200,
+      "price": 2.89
+    }
+  ],
+  "ingredients": [
+    "lemon juice",
+    "sugar",
+    "water",
+    "ginger",
+    "thyme"
+  ],
+  "toppings": [],
+  "name": "lemonade",
+  "item_id": "7",
+  "category": "drinks"
+},{
+  "_id": {
+    "$oid": "610d264fff213c8cb08e47bc"
+  },
+  "menu_item": true,
+  "recommendation_type": [],
+  "synonyms": [],
+  "tags": [
+    "non-veg",
+    "nuggets",
+    "chicken",
+    "gluten"
+  ],
+  "variations": [
+    {
+      "name": "",
+      "size": "small",
+      "calories": 250,
+      "price": 3.69,
+      "description": "Made of bite-sized pieces of boneless chicken breast. It is seasoned to perfection, freshly breaded and pressure cooked in 100% refined peanut oil. Available with choice of dipping sauce.",
+      "image": "images/sides-menu/sides-menu-chicken-nuggets.png",
+      "is_default": true
+    },
+    {
+      "name": "",
+      "size": "medium",
+      "calories": 300,
+      "price": 3.99
+    },
+    {
+      "name": "",
+      "size": "large",
+      "calories": 350,
+      "price": 4.29
+    }
+  ],
+  "ingredients": [
+    "chicken",
+    "oil"
+  ],
+  "toppings": ["barbeque sauce", "ketchup", "mayonnaise"],
+  "name": "chicken nuggets",
+  "item_id": "5",
+  "category": "sides"
+},{
+  "_id": {
+    "$oid": "6150cd00bd31d2c9ba87cc5b"
+  },
+  "menu_item": true,
+  "recommendation_type": [],
+  "synonyms": [],
+  "tags": [
+    "vegetarian",
+    "cola",
+    "chilled drink",
+    "low calorie",
+    "cheap",
+    "vegan"
+  ],
+  "variations": [
+    {
+      "name": "",
+      "size": "small",
+      "calories": 0,
+      "price": 1.59,
+      "description": "Zero sugar fountain beverage. Product of a cola company.",
+      "image": "images/drinks-menu/drinks-menu-coke.png",
+      "is_default": true
+    },
+    {
+      "name": "",
+      "size": "medium",
+      "calories": 0,
+      "price": 1.79
+    },
+    {
+      "name": "",
+      "size": "large",
+      "calories": 0,
+      "price": 1.89
+    }
+  ],
+  "ingredients": [],
+  "toppings": [],
+  "name": "diet cola",
+  "item_id": "4",
+  "category": "drinks"
+},{
+  "_id": {
+    "$oid": "62418ce47d8326dec810d250"
+  },
+  "menu_item": false,
+  "recommendation_type": [],
+  "synonyms": [],
+  "tags": [
+    "non-veg"
+  ],
+  "variations": [
+    {
+      "name": "",
+      "size": "",
+      "calories": 100,
+      "price": 0,
+      "description": "",
+      "image": "images/default.png",
+      "is_default": true
+    }
+  ],
+  "ingredients": [],
+  "toppings": [],
+  "name": "eggs",
+  "item_id": "28",
+  "category": "ingredients"
+},{
+  "_id": {
+    "$oid": "614ad4da6c315ae1cdb3eb13"
+  },
+  "menu_item": true,
+  "recommendation_type": [],
+  "synonyms": [],
+  "tags": [
+    "non-veg",
+    "sandwich",
+    "fish",
+    "gluten",
+    "lactose"
+  ],
+  "variations": [
+    {
+      "name": "",
+      "size": "regular",
+      "calories": 440,
+      "price": 5.5,
+      "description": "Our special sandwich made with tuna-fish patty, tartar sauce, and creamy dijon mayonnaise.",
+      "image": "images/entrees-menu/entree-menu-fish-sandwich.png",
+      "is_default": true
+    }
+  ],
+  "ingredients": [
+    "buns",
+    "butter",
+    "tuna fish",
+    "tartar sauce",
+    "mayonnaise"
+  ],
+  "toppings": [
+    "bacon",
+    "pickles"
+  ],
+  "name": "fish sandwich",
+  "item_id": "23",
+  "category": "entrees"
+},{
+  "_id": {
+    "$oid": "614fb14fe80afa927e4267cd"
+  },
+  "menu_item": true,
+  "recommendation_type": [],
+  "synonyms": [],
+  "tags": [
+    "onion",
+    "vegetarian",
+    "cheap",
+    "vegan"
+  ],
+  "variations": [
+    {
+      "name": "",
+      "size": "small",
+      "calories": 350,
+      "price": 1.79,
+      "description": "A crispy delight made from whole white onions. It is battered with a subtle blend of spices, letting the onion's natural sweetness shine through.",
+      "image": "images/sides-menu/sides-menu-onion-rings.png",
+      "is_default": true
+    },
+    {
+      "name": "",
+      "size": "medium",
+      "calories": 450,
+      "price": 2.19
+    },
+    {
+      "name": "",
+      "size": "large",
+      "calories": 550,
+      "price": 2.39
+    }
+  ],
+  "ingredients": [
+    "onions",
+    "oil"
+  ],
+  "toppings": [],
+  "name": "onion rings",
+  "item_id": "8",
+  "category": "sides"
+},{
+  "_id": {
+    "$oid": "62418cbc7d8326dec810d24e"
+  },
+  "menu_item": false,
+  "recommendation_type": [],
+  "synonyms": [],
+  "tags": [
+    "vegetarian",
+    "vegan"
+  ],
+  "variations": [
+    {
+      "name": "",
+      "size": "",
+      "calories": 0,
+      "price": 0,
+      "description": "",
+      "image": "images/default.png",
+      "is_default": true
+    }
+  ],
+  "ingredients": [],
+  "toppings": [],
+  "name": "water",
+  "item_id": "26",
+  "category": "ingredients"
+},{
+  "_id": {
+    "$oid": "610d264fff213c8cb08e481c"
+  },
+  "menu_item": true,
+  "recommendation_type": [],
+  "synonyms": [],
+  "tags": [
+    "non-veg",
+    "healthy",
+    "gluten",
+    "lactose"
+  ],
+  "variations": [
+    {
+      "name": "",
+      "size": "regular",
+      "calories": 400,
+      "price": 5.99,
+      "description": "A classic recipe of romaine lettuce, grape tomatoes, blue cheese dressing. It is tossed on a gentle flame and topped with avocado, bacon, and hard-boiled egg.",
+      "image": "images/salads-menu/salad-menu-cobb-salad.png",
+      "is_default": true
+    }
+  ],
+  "ingredients": [
+    "lettuce",
+    "tomatoes",
+    "cheese",
+    "avocado",
+    "bacon",
+    "eggs"
+  ],
+  "toppings": [
+    "thousand island dressing",
+    "honey mustard dressing",
+    "ranch dressing"
+  ],
+  "name": "cobb salad",
+  "item_id": "11",
+  "category": "salads"
+},{
+  "_id": {
+    "$oid": "62418cce7d8326dec810d24f"
+  },
+  "menu_item": false,
+  "recommendation_type": [],
+  "synonyms": [],
+  "tags": [
+    "vegetarian",
+    "vegan"
+  ],
+  "variations": [
+    {
+      "name": "",
+      "size": "",
+      "calories": 20,
+      "price": 0,
+      "description": "",
+      "image": "images/default.png",
+      "is_default": true
+    }
+  ],
+  "ingredients": [],
+  "toppings": [],
+  "name": "sugar",
+  "item_id": "27",
+  "category": "ingredients"
+},{
+  "_id": {
+    "$oid": "614cdba749e277dc46b04455"
+  },
+  "menu_item": false,
+  "recommendation_type": [],
+  "synonyms": [],
+  "tags": [
+    "vegetarian",
+    "vegan"
+  ],
+  "variations": [
+    {
+      "name": "",
+      "size": "",
+      "calories": 5,
+      "price": 0.49,
+      "description": "",
+      "image": "images/default.png",
+      "is_default": true
+    }
+  ],
+  "ingredients": [],
+  "toppings": [],
+  "name": "pickles",
+  "item_id": "13",
+  "category": "toppings"
+},{
+  "_id": {
+    "$oid": "62418d157d8326dec810d252"
+  },
+  "menu_item": false,
+  "recommendation_type": [],
+  "synonyms": [],
+  "tags": [
+    "non-veg"
+  ],
+  "variations": [
+    {
+      "name": "",
+      "size": "",
+      "calories": 70,
+      "price": 0,
+      "description": "",
+      "image": "images/default.png",
+      "is_default": true
+    }
+  ],
+  "ingredients": [],
+  "toppings": [],
+  "name": "mayonnaise",
+  "item_id": "30",
+  "category": "ingredients"
+},{
+  "_id": {
+    "$oid": "62418cf57d8326dec810d251"
+  },
+  "menu_item": false,
+  "recommendation_type": [],
+  "synonyms": [],
+  "tags": [
+    "vegetarian",
+    "vegan"
+  ],
+  "variations": [
+    {
+      "name": "",
+      "size": "",
+      "calories": 0,
+      "price": 0,
+      "description": "",
+      "image": "images/default.png",
+      "is_default": true
+    }
+  ],
+  "ingredients": [],
+  "toppings": [],
+  "name": "salt",
+  "item_id": "29",
+  "category": "ingredients"
+},{
+  "_id": {
+    "$oid": "62418d3a7d8326dec810d254"
+  },
+  "menu_item": false,
+  "recommendation_type": [],
+  "synonyms": [],
+  "tags": [
+    "vegetarian",
+    "vegan"
+  ],
+  "variations": [
+    {
+      "name": "",
+      "size": "",
+      "calories": 10,
+      "price": 0,
+      "description": "",
+      "image": "images/default.png",
+      "is_default": true
+    }
+  ],
+  "ingredients": [],
+  "toppings": [],
+  "name": "lemon juice",
+  "item_id": "32",
+  "category": "ingredients"
+},{
+  "_id": {
+    "$oid": "62418d2c7d8326dec810d253"
+  },
+  "menu_item": false,
+  "recommendation_type": [],
+  "synonyms": [],
+  "tags": [
+    "vegetarian",
+    "vegan"
+  ],
+  "variations": [
+    {
+      "name": "",
+      "size": "",
+      "calories": 40,
+      "price": 0,
+      "description": "",
+      "image": "images/default.png",
+      "is_default": true
+    }
+  ],
+  "ingredients": [],
+  "toppings": [],
+  "name": "apple cider vinaigrette",
+  "item_id": "31",
+  "category": "ingredients"
+},{
+  "_id": {
+    "$oid": "614ad5966c315ae1cdb3eb15"
+  },
+  "menu_item": false,
+  "recommendation_type": [],
+  "synonyms": [],
+  "tags": [
+    "vegetarian",
+    "vegan"
+  ],
+  "variations": [
+    {
+      "name": "",
+      "size": "",
+      "calories": 30,
+      "price": 0.89,
+      "description": "",
+      "image": "images/cart-small-thumbnails/cart-menu-thumbnail-fried-onions.png",
+      "is_default": true
+    }
+  ],
+  "ingredients": [],
+  "toppings": [],
+  "name": "fried onions",
+  "item_id": "14",
+  "category": "toppings"
+},{
+  "_id": {
+    "$oid": "62418d547d8326dec810d255"
+  },
+  "menu_item": false,
+  "recommendation_type": [],
+  "synonyms": [],
+  "tags": [
+    "vegetarian",
+    "vegan"
+  ],
+  "variations": [
+    {
+      "name": "",
+      "size": "",
+      "calories": 80,
+      "price": 0,
+      "description": "",
+      "image": "images/default.png",
+      "is_default": true
+    }
+  ],
+  "ingredients": [],
+  "toppings": [],
+  "name": "blueberries",
+  "item_id": "33",
+  "category": "ingredients"
+},{
+  "_id": {
+    "$oid": "614fb0b1e80afa927e4267ca"
+  },
+  "menu_item": true,
+  "recommendation_type": [
+    "toppings"
+  ],
+  "synonyms": [],
+  "tags": [
+    "fries",
+    "vegetarian",
+    "vegan"
+  ],
+  "variations": [
+    {
+      "name": "",
+      "size": "small",
+      "calories": 300,
+      "price": 2.69,
+      "description": "A deep fried treat for potato lovers, made of waffle-cut potatoes. It is cooked in canola oil until crispy outside and tender inside. Sprinkled with sea salt for maximum flavor.",
+      "image": "images/sides-menu/sides-menu-french-fries.png",
+      "is_default": true
+    },
+    {
+      "name": "",
+      "size": "medium",
+      "calories": 400,
+      "price": 2.99
+    },
+    {
+      "name": "",
+      "size": "large",
+      "calories": 500,
+      "price": 3.39
+    }
+  ],
+  "ingredients": [
+    "potatoes",
+    "salt",
+    "oil"
+  ],
+  "toppings": [
+    "garlic",
+    "chili cheese"
+  ],
+  "name": "french fries",
+  "item_id": "6",
+  "category": "sides"
+},{
+  "_id": {
+    "$oid": "614ad5ec6c315ae1cdb3eb16"
+  },
+  "menu_item": false,
+  "recommendation_type": [],
+  "synonyms": [],
+  "tags": [
+    "vegetarian",
+    "lactose"
+  ],
+  "variations": [
+    {
+      "name": "",
+      "size": "",
+      "calories": 80,
+      "price": 0.39,
+      "description": "",
+      "image": "images/default.png",
+      "is_default": true
+    }
+  ],
+  "ingredients": [],
+  "toppings": [],
+  "name": "extra cheese",
+  "item_id": "9",
+  "category": "toppings"
+},{
+  "_id": {
+    "$oid": "615fd51bf89dc8ee7edd59f6"
+  },
+  "menu_item": false,
+  "recommendation_type": [],
+  "synonyms": [],
+  "tags": [
+    "vegetarian",
+    "lactose"
+  ],
+  "variations": [
+    {
+      "name": "",
+      "size": "",
+      "calories": 80,
+      "price": 0.29,
+      "description": "",
+      "image": "images/default.png",
+      "is_default": true
+    }
+  ],
+  "ingredients": [],
+  "toppings": [],
+  "name": "chili cheese",
+  "item_id": "21",
+  "category": "toppings"
+},{
+  "_id": {
+    "$oid": "610d264fff213c8cb08e47ac"
+  },
+  "menu_item": false,
+  "recommendation_type": [],
+  "synonyms": [],
+  "tags": [
+    "gluten",
+    "non-veg"
+  ],
+  "variations": [
+    {
+      "name": "",
+      "size": "",
+      "calories": 150,
+      "price": 0.99,
+      "description": "",
+      "image": "images/cart-small-thumbnails/cart-menu-thumbnail-bacon.png",
+      "is_default": true
+    }
+  ],
+  "ingredients": [],
+  "toppings": [],
+  "name": "bacon",
+  "item_id": "1",
+  "category": "toppings"
+},{
+  "_id": {
+    "$oid": "610d264fff213c8cb08e47d3"
+  },
+  "menu_item": true,
+  "recommendation_type": [],
+  "synonyms": [],
+  "tags": [
+    "vegetarian",
+    "healthy",
+    "lactose"
+  ],
+  "variations": [
+    {
+      "name": "",
+      "size": "regular",
+      "calories": 200,
+      "price": 4.89,
+      "description": "A light, simple and healthy choice. made with a fresh bed of mixed greens and vegetables. It is topped with a blend of shredded monterey jack and cheddar cheeses and grape tomatoes. Made fresh daily. Served with charred tomato, crispy red bell peppers and choice of dressing.",
+      "image": "images/salads-menu/salad-menu-side-salad.png",
+      "is_default": true
+    }
+  ],
+  "ingredients": [
+    "cheese",
+    "tomatoes",
+    "bell peppers"
+  ],
+  "toppings": [
+    "thousand island dressing",
+    "honey mustard dressing",
+    "ranch dressing"
+  ],
+  "name": "side salad",
+  "item_id": "18",
+  "category": "salads"
+},{
+  "_id": {
+    "$oid": "62418d607d8326dec810d256"
+  },
+  "menu_item": false,
+  "recommendation_type": [],
+  "synonyms": [],
+  "tags": [
+    "vegetarian",
+    "vegan"
+  ],
+  "variations": [
+    {
+      "name": "",
+      "size": "",
+      "calories": 200,
+      "price": 0,
+      "description": "",
+      "image": "images/default.png",
+      "is_default": true
+    }
+  ],
+  "ingredients": [],
+  "toppings": [],
+  "name": "oil",
+  "item_id": "34",
+  "category": "ingredients"
+},{
+  "_id": {
+    "$oid": "62418d6d7d8326dec810d257"
+  },
+  "menu_item": false,
+  "recommendation_type": [],
+  "synonyms": [],
+  "tags": [
+    "vegetarian",
+    "vegan"
+  ],
+  "variations": [
+    {
+      "name": "",
+      "size": "",
+      "calories": 90,
+      "price": 0,
+      "description": "",
+      "image": "images/default.png",
+      "is_default": true
+    }
+  ],
+  "ingredients": [],
+  "toppings": [],
+  "name": "potatoes",
+  "item_id": "35",
+  "category": "ingredients"
+},{
+  "_id": {
+    "$oid": "62418d807d8326dec810d258"
+  },
+  "menu_item": false,
+  "recommendation_type": [],
+  "synonyms": [],
+  "tags": [
+    "non-veg",
+    "gluten"
+  ],
+  "variations": [
+    {
+      "name": "",
+      "size": "",
+      "calories": 150,
+      "price": 0,
+      "description": "",
+      "image": "images/default.png",
+      "is_default": true
+    }
+  ],
+  "ingredients": [],
+  "toppings": [],
+  "name": "bacon",
+  "item_id": "36",
+  "category": "ingredients"
+},{
+  "_id": {
+    "$oid": "62418da37d8326dec810d25a"
+  },
+  "menu_item": false,
+  "recommendation_type": [],
+  "synonyms": [],
+  "tags": [
+    "vegetarian",
+    "vegan"
+  ],
+  "variations": [
+    {
+      "name": "",
+      "size": "",
+      "calories": 2,
+      "price": 0,
+      "description": "",
+      "image": "images/default.png",
+      "is_default": true
+    }
+  ],
+  "ingredients": [],
+  "toppings": [],
+  "name": "ginger",
+  "item_id": "38",
+  "category": "ingredients"
+},{
+  "_id": {
+    "$oid": "62418d957d8326dec810d259"
+  },
+  "menu_item": false,
+  "recommendation_type": [],
+  "synonyms": [],
+  "tags": [
+    "vegetarian",
+    "vegan"
+  ],
+  "variations": [
+    {
+      "name": "",
+      "size": "",
+      "calories": 60,
+      "price": 0,
+      "description": "",
+      "image": "images/default.png",
+      "is_default": true
+    }
+  ],
+  "ingredients": [],
+  "toppings": [],
+  "name": "avocado",
+  "item_id": "37",
+  "category": "ingredients"
+},{
+  "_id": {
+    "$oid": "62418db17d8326dec810d25b"
+  },
+  "menu_item": false,
+  "recommendation_type": [],
+  "synonyms": [],
+  "tags": [
+    "vegetarian",
+    "vegan"
+  ],
+  "variations": [
+    {
+      "name": "",
+      "size": "",
+      "calories": 20,
+      "price": 0,
+      "description": "",
+      "image": "images/default.png",
+      "is_default": true
+    }
+  ],
+  "ingredients": [],
+  "toppings": [],
+  "name": "tomatoes",
+  "item_id": "39",
+  "category": "ingredients"
+},{
+  "_id": {
+    "$oid": "62418dcc7d8326dec810d25c"
+  },
+  "menu_item": false,
+  "recommendation_type": [],
+  "synonyms": [],
+  "tags": [
+    "vegetarian",
+    "vegan"
+  ],
+  "variations": [
+    {
+      "name": "",
+      "size": "",
+      "calories": 60,
+      "price": 0,
+      "description": "",
+      "image": "images/default.png",
+      "is_default": true
+    }
+  ],
+  "ingredients": [],
+  "toppings": [],
+  "name": "tartar sauce",
+  "item_id": "40",
+  "category": "ingredients"
+},{
+  "_id": {
+    "$oid": "62418ddb7d8326dec810d25d"
+  },
+  "menu_item": false,
+  "recommendation_type": [],
+  "synonyms": [],
+  "tags": [
+    "vegetarian",
+    "vegan"
+  ],
+  "variations": [
+    {
+      "name": "",
+      "size": "",
+      "calories": 5,
+      "price": 0,
+      "description": "",
+      "image": "images/default.png",
+      "is_default": true
+    }
+  ],
+  "ingredients": [],
+  "toppings": [],
+  "name": "pickles",
+  "item_id": "41",
+  "category": "ingredients"
+},{
+  "_id": {
+    "$oid": "62418dfc7d8326dec810d25f"
+  },
+  "menu_item": false,
+  "recommendation_type": [],
+  "synonyms": [],
+  "tags": [
+    "vegetarian",
+    "vegan"
+  ],
+  "variations": [
+    {
+      "name": "",
+      "size": "",
+      "calories": 0,
+      "price": 0,
+      "description": "",
+      "image": "images/default.png",
+      "is_default": true
+    }
+  ],
+  "ingredients": [],
+  "toppings": [],
+  "name": "thyme",
+  "item_id": "43",
+  "category": "ingredients"
+},{
+  "_id": {
+    "$oid": "62418def7d8326dec810d25e"
+  },
+  "menu_item": false,
+  "recommendation_type": [],
+  "synonyms": [],
+  "tags": [
+    "vegetarian",
+    "nuts"
+  ],
+  "variations": [
+    {
+      "name": "",
+      "size": "",
+      "calories": 115,
+      "price": 0,
+      "description": "",
+      "image": "images/default.png",
+      "is_default": true
+    }
+  ],
+  "ingredients": [],
+  "toppings": [],
+  "name": "granola",
+  "item_id": "42",
+  "category": "ingredients"
+},{
+  "_id": {
+    "$oid": "62418e0f7d8326dec810d260"
+  },
+  "menu_item": false,
+  "recommendation_type": [],
+  "synonyms": [],
+  "tags": [
+    "non-veg"
+  ],
+  "variations": [
+    {
+      "name": "",
+      "size": "",
+      "calories": 200,
+      "price": 0,
+      "description": "",
+      "image": "images/default.png",
+      "is_default": true
+    }
+  ],
+  "ingredients": [],
+  "toppings": [],
+  "name": "beef patty",
+  "item_id": "44",
+  "category": "ingredients"
+},{
+  "_id": {
+    "$oid": "62418e247d8326dec810d261"
+  },
+  "menu_item": false,
+  "recommendation_type": [],
+  "synonyms": [],
+  "tags": [
+    "vegetarian",
+    "gluten"
+  ],
+  "variations": [
+    {
+      "name": "",
+      "size": "",
+      "calories": 50,
+      "price": 0,
+      "description": "",
+      "image": "images/default.png",
+      "is_default": true
+    }
+  ],
+  "ingredients": [],
+  "toppings": [],
+  "name": "apples",
+  "item_id": "45",
+  "category": "ingredients"
+},{
+  "_id": {
+    "$oid": "62418e4c7d8326dec810d264"
+  },
+  "menu_item": false,
+  "recommendation_type": [],
+  "synonyms": [],
+  "tags": [
+    "non-veg"
+  ],
+  "variations": [
+    {
+      "name": "",
+      "size": "",
+      "calories": 200,
+      "price": 0,
+      "description": "",
+      "image": "images/default.png",
+      "is_default": true
+    }
+  ],
+  "ingredients": [],
+  "toppings": [],
+  "name": "tuna fish",
+  "item_id": "48",
+  "category": "ingredients"
+},{
+  "_id": {
+    "$oid": "62418e8b7d8326dec810d268"
+  },
+  "menu_item": false,
+  "recommendation_type": [],
+  "synonyms": [],
+  "tags": [
+    "non-veg"
+  ],
+  "variations": [
+    {
+      "name": "",
+      "size": "",
+      "calories": 250,
+      "price": 0,
+      "description": "",
+      "image": "images/default.png",
+      "is_default": true
+    }
+  ],
+  "ingredients": [],
+  "toppings": [],
+  "name": "chicken",
+  "item_id": "52",
+  "category": "ingredients"
+},{
+  "_id": {
+    "$oid": "62418e2f7d8326dec810d262"
+  },
+  "menu_item": false,
+  "recommendation_type": [],
+  "synonyms": [],
+  "tags": [
+    "vegetarian",
+    "vegan",
+    "gluten"
+  ],
+  "variations": [
+    {
+      "name": "",
+      "size": "",
+      "calories": 135,
+      "price": 0,
+      "description": "",
+      "image": "images/default.png",
+      "is_default": true
+    }
+  ],
+  "ingredients": [],
+  "toppings": [],
+  "name": "buns",
+  "item_id": "46",
+  "category": "ingredients"
+},{
+  "_id": {
+    "$oid": "62418e5b7d8326dec810d265"
+  },
+  "menu_item": false,
+  "recommendation_type": [],
+  "synonyms": [],
+  "tags": [
+    "vegetarian",
+    "lactose"
+  ],
+  "variations": [
+    {
+      "name": "",
+      "size": "",
+      "calories": 100,
+      "price": 0,
+      "description": "",
+      "image": "images/default.png",
+      "is_default": true
+    }
+  ],
+  "ingredients": [],
+  "toppings": [],
+  "name": "milk",
+  "item_id": "49",
+  "category": "ingredients"
+},{
+  "_id": {
+    "$oid": "62418e3d7d8326dec810d263"
+  },
+  "menu_item": false,
+  "recommendation_type": [],
+  "synonyms": [],
+  "tags": [
+    "vegetarian",
+    "vegan"
+  ],
+  "variations": [
+    {
+      "name": "",
+      "size": "",
+      "calories": 30,
+      "price": 0,
+      "description": "",
+      "image": "images/default.png",
+      "is_default": true
+    }
+  ],
+  "ingredients": [],
+  "toppings": [],
+  "name": "bell peppers",
+  "item_id": "47",
+  "category": "ingredients"
+},{
+  "_id": {
+    "$oid": "62418e6a7d8326dec810d266"
+  },
+  "menu_item": false,
+  "recommendation_type": [],
+  "synonyms": [],
+  "tags": [
+    "vegetarian",
+    "vegan"
+  ],
+  "variations": [
+    {
+      "name": "",
+      "size": "",
+      "calories": 5,
+      "price": 0,
+      "description": "",
+      "image": "images/default.png",
+      "is_default": true
+    }
+  ],
+  "ingredients": [],
+  "toppings": [],
+  "name": "lettuce",
+  "item_id": "50",
+  "category": "ingredients"
+},{
+  "_id": {
+    "$oid": "62418e767d8326dec810d267"
+  },
+  "menu_item": false,
+  "recommendation_type": [],
+  "synonyms": [],
+  "tags": [
+    "vegetarian",
+    "vegan"
+  ],
+  "variations": [
+    {
+      "name": "",
+      "size": "",
+      "calories": 60,
+      "price": 0,
+      "description": "",
+      "image": "images/default.png",
+      "is_default": true
+    }
+  ],
+  "ingredients": [],
+  "toppings": [],
+  "name": "oranges",
+  "item_id": "51",
+  "category": "ingredients"
+},{
+  "_id": {
+    "$oid": "62418eee7d8326dec810d26c"
+  },
+  "menu_item": false,
+  "recommendation_type": [],
+  "synonyms": [],
+  "tags": [
+    "vegetarian",
+    "lactose"
+  ],
+  "variations": [
+    {
+      "name": "",
+      "size": "",
+      "calories": 100,
+      "price": 0,
+      "description": "",
+      "image": "images/default.png",
+      "is_default": true
+    }
+  ],
+  "ingredients": [],
+  "toppings": [],
+  "name": "butter",
+  "item_id": "56",
+  "category": "ingredients"
+},{
+  "_id": {
+    "$oid": "62418eab7d8326dec810d269"
+  },
+  "menu_item": false,
+  "recommendation_type": [],
+  "synonyms": [],
+  "tags": [
+    "vegetarian",
+    "vegan"
+  ],
+  "variations": [
+    {
+      "name": "",
+      "size": "",
+      "calories": 5,
+      "price": 0,
+      "description": "",
+      "image": "images/default.png",
+      "is_default": true
+    }
+  ],
+  "ingredients": [],
+  "toppings": [],
+  "name": "espresso",
+  "item_id": "53",
+  "category": "ingredients"
+},{
+  "_id": {
+    "$oid": "62418ed17d8326dec810d26a"
+  },
+  "menu_item": false,
+  "recommendation_type": [],
+  "synonyms": [],
+  "tags": [
+    "vegetarian",
+    "vegan"
+  ],
+  "variations": [
+    {
+      "name": "",
+      "size": "",
+      "calories": 35,
+      "price": 0,
+      "description": "",
+      "image": "images/default.png",
+      "is_default": true
+    }
+  ],
+  "ingredients": [],
+  "toppings": [],
+  "name": "strawberries",
+  "item_id": "54",
+  "category": "ingredients"
+},{
+  "_id": {
+    "$oid": "62418efa7d8326dec810d26d"
+  },
+  "menu_item": false,
+  "recommendation_type": [],
+  "synonyms": [],
+  "tags": [
+    "vegetarian",
+    "vegan"
+  ],
+  "variations": [
+    {
+      "name": "",
+      "size": "",
+      "calories": 5,
+      "price": 0,
+      "description": "",
+      "image": "images/default.png",
+      "is_default": true
+    }
+  ],
+  "ingredients": [],
+  "toppings": [],
+  "name": "onions",
+  "item_id": "57",
+  "category": "ingredients"
+},{
+  "_id": {
+    "$oid": "62418ee17d8326dec810d26b"
+  },
+  "menu_item": false,
+  "recommendation_type": [],
+  "synonyms": [],
+  "tags": [
+    "vegetarian",
+    "lactose"
+  ],
+  "variations": [
+    {
+      "name": "",
+      "size": "",
+      "calories": 80,
+      "price": 0,
+      "description": "",
+      "image": "images/default.png",
+      "is_default": true
+    }
+  ],
+  "ingredients": [],
+  "toppings": [],
+  "name": "cheese",
+  "item_id": "55",
+  "category": "ingredients"
+},{
+  "_id": {
+    "$oid": "62418f1e7d8326dec810d26f"
+  },
+  "menu_item": false,
+  "recommendation_type": [],
+  "synonyms": [],
+  "tags": [
+    "vegetarian",
+    "nuts"
+  ],
+  "variations": [
+    {
+      "name": "",
+      "size": "",
+      "calories": 35,
+      "price": 0,
+      "description": "",
+      "image": "images/default.png",
+      "is_default": true
+    }
+  ],
+  "ingredients": [],
+  "toppings": [],
+  "name": "almonds",
+  "item_id": "59",
+  "category": "ingredients"
+},{
+  "_id": {
+    "$oid": "62418f077d8326dec810d26e"
+  },
+  "menu_item": false,
+  "recommendation_type": [],
+  "synonyms": [],
+  "tags": [
+    "vegetarian",
+    "vegan"
+  ],
+  "variations": [
+    {
+      "name": "",
+      "size": "",
+      "calories": 0,
+      "price": 0,
+      "description": "",
+      "image": "images/default.png",
+      "is_default": true
+    }
+  ],
+  "ingredients": [],
+  "toppings": [],
+  "name": "pepper",
+  "item_id": "58",
+  "category": "ingredients"
+},{
+  "_id": {
+    "$oid": "62baba050371b57e7ebb1b61"
+  },
+  "menu_item": false,
+  "recommendation_type": [],
+  "synonyms": [],
+  "tags": [
+    "vegetarian",
+    "vegan"
+  ],
+  "variations": [
+    {
+      "name": "",
+      "size": "",
+      "calories": 111,
+      "price": 0.6,
+      "description": "",
+      "image": "images/default.png",
+      "is_default": true
+    }
+  ],
+  "ingredients": [],
+  "toppings": [],
+  "name": "thousand island dressing",
+  "item_id": "60",
+  "category": "toppings"
+},{
+  "_id": {
+    "$oid": "62baba2e0371b57e7ebb1b62"
+  },
+  "menu_item": false,
+  "recommendation_type": [],
+  "synonyms": [],
+  "tags": [
+    "vegetarian",
+    "vegan",
+    "lactose"
+  ],
+  "variations": [
+    {
+      "name": "",
+      "size": "",
+      "calories": 80,
+      "price": 0.45,
+      "description": "",
+      "image": "images/default.png",
+      "is_default": true
+    }
+  ],
+  "ingredients": [],
+  "toppings": [],
+  "name": "ranch dressing",
+  "item_id": "61",
+  "category": "toppings"
+},{
+  "_id": {
+    "$oid": "62baba500371b57e7ebb1b63"
+  },
+  "menu_item": false,
+  "recommendation_type": [],
+  "synonyms": [],
+  "tags": [
+    "vegetarian",
+    "vegan"
+  ],
+  "variations": [
+    {
+      "name": "",
+      "size": "",
+      "calories": 80,
+      "price": 0.35,
+      "description": "",
+      "image": "images/default.png",
+      "is_default": true
+    }
+  ],
+  "ingredients": [],
+  "toppings": [],
+  "name": "honey mustard dressing",
+  "item_id": "62",
+  "category": "toppings"
+},{
+  "_id": {
+    "$oid": "62babb440371b57e7ebb1b64"
+  },
+  "menu_item": false,
+  "recommendation_type": [],
+  "synonyms": [],
+  "tags": [
+    "vegetarian",
+    "vegan"
+  ],
+  "variations": [
+    {
+      "name": "",
+      "size": "",
+      "calories": 40,
+      "price": 0.35,
+      "description": "",
+      "image": "images/default.png",
+      "is_default": true
+    }
+  ],
+  "ingredients": [],
+  "toppings": [],
+  "name": "barbeque sauce",
+  "item_id": "63",
+  "category": "toppings"
+},{
+  "_id": {
+    "$oid": "62babba00371b57e7ebb1b65"
+  },
+  "menu_item": false,
+  "recommendation_type": [],
+  "synonyms": [],
+  "tags": [
+    "vegetarian",
+    "vegan"
+  ],
+  "variations": [
+    {
+      "name": "",
+      "size": "",
+      "calories": 20,
+      "price": 0.2,
+      "description": "",
+      "image": "images/default.png",
+      "is_default": true
+    }
+  ],
+  "ingredients": [],
+  "toppings": [],
+  "name": "ketchup",
+  "item_id": "64",
+  "category": "toppings"
+},{
+  "_id": {
+    "$oid": "62babbf30371b57e7ebb1b66"
+  },
+  "menu_item": false,
+  "recommendation_type": [],
+  "synonyms": [],
+  "tags": [
+    "non-veg"
+  ],
+  "variations": [
+    {
+      "name": "",
+      "size": "",
+      "calories": 70,
+      "price": 0.3,
+      "description": "",
+      "image": "images/default.png",
+      "is_default": true
+    }
+  ],
+  "ingredients": [],
+  "toppings": [],
+  "name": "mayonnaise",
+  "item_id": "65",
+  "category": "toppings"
+}]

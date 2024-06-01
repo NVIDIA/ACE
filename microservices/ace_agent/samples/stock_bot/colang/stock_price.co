@@ -1,0 +1,38 @@
+define user asks stock price
+  "What is the stock price of Microsoft?"
+  "How much does an Nvidia stock cost"
+  "what is the value of amazon stock?"
+  "What is it's stock price?"
+
+define flow
+  user asks stock price
+
+  $count = 0
+  while $count < 3
+    # Generate the company name from user's input. If the company name is not specified, return "unknown".
+    # Return only the name of the company in quotes, not an expression to calculate the name of the company.
+    # For example, if the input is "What is the share price of Amazon?", return "Amazon"
+    # For example, if the input is "How much does a share of microsoft cost?", return "microsoft"
+    $company_name = ...
+
+    if $company_name == "unknown"
+      if $global_company_name == None
+        bot asks company name
+        user tells company name
+        $count = $count + 1
+      else
+        break
+    else
+      $global_company_name = $company_name
+      break
+
+  if $count == 3
+    bot inform maximum tries exceeded
+    return
+
+  $global_intent = "price"
+  $price = execute plugin(endpoint="/stock/get_stock_price", company_name=$global_company_name)
+  if not $price
+    bot respond that it could not find the stock price
+  else
+    bot tell stock price

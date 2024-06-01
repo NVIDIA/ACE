@@ -1,0 +1,272 @@
+############################################################################
+#           Pipeline YAML generated using ACE Agent Model Utils                   
+############################################################################
+# Pipeline Mode of ACE Agent Model Utils allows you to run multiple tasks in
+# seqeunce using yaml format. 
+# You can create pipeline config yaml manually or using template task of
+# ACE Agent Model Utils. Template task will generate yaml for given tasks with all
+# default values for arguments. You review the default values and update
+# based on your requirements. You can refer documentation present in comments
+# for each argument for more details
+
+# You need to update all fields marked as {UPDATE}, otherwise error will be
+# thrown while running pipeline.
+#############################################################################
+# PIPELINE for Intent Slot Model from training to deployment
+#
+# - Export Dataset to Intent Slot NEMO format
+# - Train Intent Slot model using TAO Toolkit
+# - Export Models in required format TLT -> RIVA -> RMIR
+# - Upload Models to NGC
+# - Deploying the trained model using Riva Speech Server
+#############################################################################
+
+pipeline_name: intent_slot # Unique name for the pipeline. This is optional field
+
+# Arguments under global config are shared with all tasks. You can always override 
+# values from global config using task specific config. For example if the task 
+# accept version argument, but same is not specified in task config, then value 
+# from global section will be picked. You can even refer gloabl argument in task 
+# config using $argument_name. So below version argument, can be referred as $version 
+# in task configs. 
+global:
+    version: '1'
+    model_name: "{UPDATE}"
+    result_path: "./results"
+
+# Add arguments config for tasks which need to be executed as part of the pipeline.
+# Tasks will be executed one by one in order specified here. You can refer arguments 
+# from the task config in subsquent configs in pipeline using $_name.argument_name. 
+# Each task expose some output values which will be resolved during runtime from 
+# previously executed tasks, you can refer those in subsequent tasks using 
+# $_name.output_name. Check generated task config template for more details on output 
+# values.
+tasks:
+  - _name: task_export_dataset_intent_slot_0
+    task_name: task.export_dataset.intent_slot  # type: str
+    # help: Export multiple Intent Slot datasets as Single dataset. Both NeMo / YAML format will be saved
+    dataset_name: '{UPDATE}' # type: str
+    # help: Name of the dataset, will be used for creating export directory
+    version: '$version' # type: str
+    # help: Version string for the exported dataset, will be used for creating export directory
+    result_path: ./exported_datasets # type: str
+    # help: Result directory where exported datasets to be stored
+    dataset_paths: '{UPDATE}' # type: list
+    # help: List of dataset paths, which need to exported as single dataset. Allowed formats : NEMO and YAML format Intent Slot Datasets
+    validation_split: 0.1 # type: float
+    # help: Fraction of the data to be used as validation set, only used when dev yaml dataset not provided. Split will be done for each dataset_path individually
+    max_validation_examples: 10000 # type: int
+    # help: Maximum examples per intent used for validation set, will be used during validation split to limit number of validation examples
+    min_validation_examples: 1 # type: int
+    # help: Minimum examples per intent used for validation set, Make sure you have good number of training examples
+
+    # Output Param: task_export_dataset_intent_slot_0.unique_result_path
+    # type: str
+    # help: Unique result directory for each dataset name and verison, will default to `{result_path}/{dataset_name}/{version}`
+
+    # Output Param: task_export_dataset_intent_slot_0.nemo_export_path
+    # type: str
+    # help: Directory path for exported Intent Slot dataset in NEMO format
+
+    # Output Param: task_export_dataset_intent_slot_0.yaml_export_path
+    # type: str
+    # help: Directory path for exported Intent Slot dataset in YAML format
+
+  - _name: task_train_intent_slot_1
+    task_name: task.train.intent_slot  # type: str
+    # help: Train Intent Slot Classification Model
+    model_name: $model_name # type: str
+    # help: Name of the model, will be used for creating result directory
+    version: $version # type: str
+    # help: Version string for the generated model, will be used for creating result directory
+    platform: local # type: str
+    # choices: ['local', 'ngc']
+    # help: Platform for running model training, use ngc platfrom for training using NGC Batch
+    result_path: $result_path # type: str
+    # help: Base directory where resulting models to be stored, default to ./results
+    gpus: 1 # type: int
+    # help: Number of gpus to be used for training
+    model_encryption_key: tlt_encode # type: str
+    # help: Key which will be used for encrypting trained model
+    training_precision: '16' # type: str
+    # choices: ['16', '32']
+    # help: Precision for model training, set to 16 for mixed precision training
+    training_amp_level: O1 # type: str
+    # choices: ['O0', 'O1', 'O2']
+    # help: For mixed precision use O1 and O2 amp_level to enable the AMP
+    gpu_memory: '32' # type: str
+    # help: Optional flag for training on NGC platform, GPU memory required per instance for NGC Jobs. Check NGC Batch for available choices
+    dataset_path: $task_export_dataset_intent_slot_0.nemo_export_path # type: str
+    # help: Directory path for Nemo format Intent Slot Classification dataset
+    epochs: 50 # type: int
+    # help: Max number of epochs for training to be executed
+    lr: 5e-05 # type: float
+    # help: Learning rate to be used for the training
+    batch_size: 32 # type: int
+    # help: Batch size used for the training
+    weight_decay: 0.0 # type: float
+    # help: Weight decay to be used with optimizer during training
+    pretrained_model_name: bert-base-uncased # type: str
+    # help: Name of pretrained langauge model for training, recommended bert-base-uncased and distilbert-base-uncased
+    max_seq_length: 128 # type: int
+    # help: Maximum sequence length to be used for BERT/ DistilBERT models during training
+    intent_loss_weight: 0.6 # type: float
+    # help: Parameter indicating balance of training loss between intent and slot losses. Increase to give more weightage to Intent Classification, Slot classification might degrade
+    num_head_output_layers: 1 # type: int
+    # choices: [1, 2]
+    # help: Number of dense layers to be used for LM classifier head
+    class_balancing: weighted_loss # type: str
+    # choices: ['null', 'weighted_loss']
+    # help: Use weighted_loss for using class weights for training loss, Recommended for imbalanced training datasets
+
+    # Output Param: task_train_intent_slot_1.unique_result_path
+    # type: str
+    # help: Unique result directory for each model name and verison, will default to `{result_path}/{model_name}/{version}`
+
+    # Output Param: task_train_intent_slot_1.train_logs_path
+    # type: str
+    # help: Directory which will store training checkpoints and logs, will default to `{unique_result_path}/train` 
+
+    # Output Param: task_train_intent_slot_1.tlt_model_path
+    # type: str
+    # help: Path for the saved trained TLT model (.tlt), will default to `{train_logs_path}/checkpoints/trained-model.tlt
+
+
+  - _name: task_evaluate_intent_slot_3
+    task_name: task.evaluate.intent_slot  # type: str
+    # help: Evaluate Intent Slot Classification Model
+    model_name: $model_name # type: str
+    # help: Name of the model for evaluation, will be used for creating result directory
+    version: $version # type: str
+    # help: Version string for the model, will be used for creating result directory
+    platform: local # type: str
+    # choices: ['local', 'ngc']
+    # help: Platform for running model evaluation
+    tlt_model_path: $task_train_intent_slot_1.tlt_model_path # type: str
+    # help: File path for TLT model checkpoint to be used for evaluation
+    result_path: $result_path # type: str
+    # help: Base directory where resulting models and logs to be stored
+    gpus: 1 # type: int
+    # help: Number of gpus to be used for evaluation, Only integer value allowed
+    batch_size: 32 # type: int
+    # help: Batch size to be used for evaluation run
+    model_encryption_key: tlt_encode # type: str
+    # help: Encryption key used for models during training
+    gpu_memory: '32' # type: str
+    # help: Optional flag for evaluation on NGC platform, GPU memory required per instance for NGC Jobs. Check NGC Batch for available choices
+    dataset_path: $task_export_dataset_intent_slot_0.nemo_export_path # type: str
+    # help: Directory path containing Nemo format Intent Slot Classification dataset. Use export_dataset for converting YAML datasets to NEMO
+    test_file_prefix: dev # type: str
+    # help: File prefix used for test dataset files, Expected test files {prefix}.tsv and {prefix}_slots.tsv
+
+    # Output Param: task_evaluate_intent_slot_3.unique_result_path
+    # type: str
+    # help: Unique result directory for each model name and verison, will default to `{result_path}/{model_name}/{version}`
+
+    # Output Param: task_evaluate_intent_slot_3.evaluate_logs_path
+    # type: str
+    # help: Directory which will store evaluation logs, will default to `{unique_result_path}/evaluate` 
+
+  - _name: task_infer_intent_slot_4
+    task_name: task.infer.intent_slot  # type: str
+    # help: Inference Intent Slot Classification Model
+    model_name: $model_name # type: str
+    # help: Name of the model, will be used for creating result directory
+    version: $version # type: str
+    # help: Version string for the model, will be used for creating result directory
+    tlt_model_path: $task_train_intent_slot_1.tlt_model_path # type: str
+    # help: File path for TLT model checkpoint (.tlt) to be used for Inference
+    queries: ["This is test query"] # type: list
+    # help: Queries for Inference, List of strings or text files containing one query per line
+    result_path: $result_path # type: str
+    # help: Base Directory where resulting logs and inference results to be stored
+    gpus: 1 # type: int
+    # help: Number of gpus to be used for Inference
+    model_encryption_key: tlt_encode # type: str
+    # help: Encryption key used for models during training
+
+    # Output Param: task_infer_intent_slot_4.unique_result_path
+    # type: str
+    # help: Unique result directory for each model name and verison, will default to `{result_path}/{model_name}/{version}`
+
+    # Output Param: task_infer_intent_slot_4.infer_logs_path
+    # type: str
+    # help: Directory which will store infer logs, will default to `{unique_result_path}/infer` 
+
+  - _name: task_export_model_RIVA_intent_slot_5
+    task_name: task.export_model.RIVA.intent_slot  # type: str
+    # help: Export Intent Slot Classification TLT model to RIVA format
+    model_name: $model_name # type: str
+    # help: Name of the model, will be used for creating export directory and RIVA filename
+    version: $version # type: str
+    # help: Version string for the exported model, will be used for creating export directory
+    tlt_model_path: $task_train_intent_slot_1.tlt_model_path # type: str
+    # help: File path for trained TLT model checkpoint (.tlt)
+    result_path: $result_path # type: str
+    # help: Base directory where resulting models to be stored
+    gpus: 1 # type: int
+    # help: Number of gpus to be used during model export
+    model_encryption_key: tlt_encode # type: str
+    # help: Encryption key used for models during training
+
+    # Output Param: task_export_model_RIVA_intent_slot_5.unique_result_path
+    # type: str
+    # help: Unique result directory for each model name and verison, will default to `{result_path}/{model_name}/{version}`
+
+    # Output Param: task_export_model_RIVA_intent_slot_5.export_logs_path
+    # type: str
+    # help: Directory which will store export logs, will default to `{unique_result_path}/export` 
+
+    # Output Param: task_export_model_RIVA_intent_slot_5.riva_model_path
+    # type: str
+    # help: File path for exported RIVA model
+
+  - _name: task_export_model_RMIR_intent_slot_6
+    task_name: task.export_model.RMIR.intent_slot  # type: str
+    # help: Export Intent Slot Classification RIVA model to RMIR format
+    model_name: $model_name # type: str
+    # help: Name of the model, will be used for creating export directory and RMIR filename. This will be used for setting domain_name in RMIR config wherever required
+    version: $version # type: str
+    # help: Version string for the exported model, will be used for creating export directory
+    riva_model_path: $task_export_model_RIVA_intent_slot_5.riva_model_path # type: str
+    # help: File path for RIVA model checkpoint (.riva)
+    result_path: $result_path # type: str
+    # help: Base directory where resulting models to be stored
+    gpus: '1' # type: str
+    # help: GPUS to be used for model export, allowed formats - "3"[use total 3 gpus], "device=0,1"[use device 0 & 1], "all"[use all gpus]
+    model_encryption_key: tlt_encode # type: str
+    # help: Encryption key used for models during training
+    batch_size: 8 # type: int
+    # help: Batch size to be used during Inference in Triton Server
+    max_seq_length: 128 # type: int
+    # help: Maximum sequence length to be used during inference for BERT/ DistilBERT models
+
+    # Output Param: task_export_model_RMIR_intent_slot_6.unique_result_path
+    # type: str
+    # help: Unique result directory for each model name and verison, will default to `{result_path}/{model_name}/{version}`
+
+    # Output Param: task_export_model_RMIR_intent_slot_6.rmir_model_path
+    # type: str
+    # help: File path for the exported RMIR model
+
+  - _name: task_upload_model_7
+    task_name: task.upload.model  # type: str
+    # help: Upload Model to NGC. Allowed formats TLT, RMIR, RIVA and TRT Model plans
+    model_name: $model_name # type: str
+    # help: Name of the model, will be used for creating unique NGC path
+    version: $version # type: str
+    # help: Version string for the model, will be used during NGC upload
+    model_format: RMIR # type: str
+    # choices: {'RIVA', 'TRT_PLANS', 'TLT', 'RMIR'}
+    # help: Choose format of the model for the upload
+    model_path: $task_export_model_RMIR_intent_slot_6.rmir_model_path # type: str
+    # help: File path or Directory containing the model which needs to be uploaded to NGC
+    ngc_path: "" # type: str
+    # help: NGC path where to upload the model. Format: ngc_org/[ngc_team/]model_name:version. If not provided, will be auto generated by following format
+    remove_old_version: true # type: bool
+    # help: Acknowledge removing older model with same version tag at the given ngc_path
+    precision: FP16 # type: str
+    # choices: ['FP16', 'FP32']
+    # help: Precision the model was trained with, used while creating NGC model
+    short_desc: NLP Model # type: str
+    # help: Short description of the model, used while creating NGC model

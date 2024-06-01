@@ -1,0 +1,5 @@
+chat-engine:
+  botConfigName: rag_bot_config.yml
+
+plugin-server:
+  pluginConfigPath: "plugin_config.yaml"
