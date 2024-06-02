@@ -5,10 +5,12 @@ NVIDIA ACE is a suite of technologies that help developers bring digital humans 
 
 ![](https://lh7-us.googleusercontent.com/FJKnZYOQX34lHQ_OccHOvSXFfsFg3RyY1LWgg9_s5NA1RrQr4XH8cA5T3CvuQmysig74EpxQFbOwN4OP-CpQgYNGbjIpC6ior7YlhYPdqMI95fP-_Kv5dkZB_RSegAQ-m6-yzN2n-uwFjDAZB1rlPKQ)
 
-On this Git repo, you will find samples and reference applications using ACE NIMs and microservices.  However, these microservices can be obtained through an evaluation license of NVIDIA AI Enterprise through NGC.
+On this Git repo, you will find samples and reference applications using ACE NIMs and microservices.  However, these microservices can be obtained through an evaluation license of NV AI Enterprise(NVAIE) through NGC.
 
-- [Try NIM For Digital Human](https://build.nvidia.com/explore/gaming)
-- [ACE Microservices](https://catalog.ngc.nvidia.com/?filters=&orderBy=scoreDESC&query=ace&page=&pageSize=)
+1. [Try NIM For Digital Human](https://build.nvidia.com/explore/gaming)
+2. [Get NVIDIA AI Enterprise](https://docs.nvidia.com/ai-enterprise/latest/quick-start-guide/index.html#getting-your-nvidia-grid-software)
+3. [Download ACE Microservices](https://catalog.ngc.nvidia.com/?filters=&orderBy=scoreDESC&query=ace&page=&pageSize=)
+
 
 ACE Technologies
 ------
@@ -19,7 +21,7 @@ ACE Technologies
 |             Riva      Text-to-Speech            |                            Text   -&gt; Speech                          |        NVIDIA   AI Enterprise      |              X            |         Coming   Soon       |
 |                    Audio2Face                   |           Audio   -&gt; Blendshapes      for   Facial Lip-sync          |        NVIDIA   AI Enterprise      |              X            |         Coming   Soon       |
 |                     AnimGraph                   |                          Animation   controller                         |        NVIDIA   AI Enterprise      |              X            |                             |
-|         Omniverse RTX Renderer Microservice     |                     Omniverse   Based Pixel Streamer                    |        NVIDIA   AI Enterprise      |              X            |                             |
+|             Omniverse RTX Rendering Microservice           |                     Omniverse   Based Pixel Streamer                    |        NVIDIA   AI Enterprise      |              X            |                             |
 |                     ACE Agent                   |                Conversational   Controller, RAG Workflows               |        NVIDIA   AI Enterprise      |              X            |                             |
 |           Maxine Speech   Live Portrait         |                    2D   Picture Lipsync and Animation                   |     Early   Access   Evaluation    |              X            |                             |
 |                Nemotron-3 4.5B SLM              |                          Small   Language Model                         |      Early   Access Evaluation     |        Coming   Soon      |               X             |
