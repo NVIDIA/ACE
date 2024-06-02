@@ -5,9 +5,7 @@ NVIDIA ACE is a suite of technologies that help developers bring digital humans 
 
 ![](https://lh7-us.googleusercontent.com/FJKnZYOQX34lHQ_OccHOvSXFfsFg3RyY1LWgg9_s5NA1RrQr4XH8cA5T3CvuQmysig74EpxQFbOwN4OP-CpQgYNGbjIpC6ior7YlhYPdqMI95fP-_Kv5dkZB_RSegAQ-m6-yzN2n-uwFjDAZB1rlPKQ)
 
-On this Git repo, you will find samples and reference applications using ACE NIMs and microservices.  However, these microservices can be obtained through an evaluation license of NV AI Enterprise(NVAIE) through NGC.
-
-
+On this Git repo, you will find samples and reference applications using ACE NIMs and microservices.  However, these microservices can be obtained through an evaluation license of NVIDIA AI Enterprise through NGC.
 
 - [Try NIM For Digital Human](https://build.nvidia.com/explore/gaming)
 - [ACE Microservices](https://catalog.ngc.nvidia.com/?filters=other%7CACE%7Cace&orderBy=weightPopularDESC&query=&page=&pageSize=)
@@ -76,7 +74,7 @@ Full ACE [developer documenation](https://docs.nvidia.com/ace/latest)
 |NVIDIA Maxine Live Portrait|[Documentation](https://registry.ngc.nvidia.com/orgs/eevaigoeixww/teams/live-portrait-ms/resources/live_portrait_user_guide)|Coming soon! |
 |NVIDIA Avatar Configurator & Avatar Customization|[Documentation](https://docs.nvidia.com/ace/latest/modules/avatar_customization/Avatar_Configurator.html)|Coming soon! |
 |NVIDIA Animation Graph Microservice|[Documentation](https://docs.nvidia.com/ace/latest/modules/animation_graph_microservice/index.html)|Coming soon! |
-|NVIDIA Omniverse Renderer Microservice|[Documenation](https://docs.nvidia.com/ace/latest/modules/omniverse_renderer_microservice/index.html)|Coming soon! |
+|NVIDIA Omniverse Renderer Microservice|[Documentation](https://docs.nvidia.com/ace/latest/modules/omniverse_renderer_microservice/index.html)|Coming soon! |
 
 ### Example Workflows
 
