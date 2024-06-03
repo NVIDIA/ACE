@@ -67,7 +67,7 @@ Full ACE [developer documenation](https://docs.nvidia.com/ace/latest/index.html)
 | Component | Documentation | Video/Tutorial |
 | ------ | ------ | ------ |
 |      Getting Started  |        | [NVIDIA Docker Setup](https://youtu.be/2uWXeIol468), [Install Kubernetes](https://www.youtube.com/watch?v=ACIkyiWglW4) |
-|     NVIDIA UCS   | [Documentation](https://registry.ngc.nvidia.com/orgs/eevaigoeixww/teams/ucf-25-release/resources/ucs_tools/version) ||
+|     NVIDIA UCS   | [Documentation](https://catalog.ngc.nvidia.com/orgs/nvidia/teams/ucs-ms/resources/ucs_tools/version) ||
 |NVIDIA Audio2Face| [Documentation](https://docs.nvidia.com/ace/latest/modules/a2f-docs/index.html) | Coming soon! |
 |NVIDIA Riva ASR| [Documentation](https://docs.nvidia.com/deeplearning/riva/user-guide/docs/asr/asr-overview.html)|Coming soon! |
 |NVIDIA Riva TTS| [Documentation](https://docs.nvidia.com/deeplearning/riva/user-guide/docs/tts/tts-overview.html)|Coming soon! |
