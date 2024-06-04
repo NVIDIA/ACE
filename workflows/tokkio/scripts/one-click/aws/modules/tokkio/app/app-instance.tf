@@ -1,0 +1,31 @@
+# SPDX-FileCopyrightText: Copyright (c) 2024 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-License-Identifier: LicenseRef-NvidiaProprietary
+#
+# NVIDIA CORPORATION, its affiliates and licensors retain all intellectual
+# property and proprietary rights in and to this material, related
+# documentation and any modifications thereto. Any use, reproduction,
+# disclosure or distribution of this material and related documentation
+# without an express license agreement from NVIDIA CORPORATION or
+# its affiliates is strictly prohibited.
+
+module "app_instance" {
+  source                = "../../aws/ec2"
+  for_each              = toset(var.instance_suffixes)
+  instance_type         = local.app_instance_details.instance_type
+  instance_name         = format("%s-%s", local.name, each.key)
+  ami_lookup            = local.app_ami_lookup
+  ec2_key               = var.base_config.keypair.name
+  root_volume_type      = local.app_instance_details.root_volume_type
+  root_volume_size      = local.app_instance_details.root_volume_size
+  instance_profile_name = aws_iam_instance_profile.instance.name
+  vpc_id                = var.base_config.networking.vpc_id
+  subnet_id             = element(var.base_config.networking.private_subnet_ids, 0)
+  additional_sg_ids     = var.base_config.app_sg_ids
+  include_public_ip     = false
+  user_data = templatefile("${path.module}/user-data/user-data.sh.tpl", {
+    name           = local.name
+    config_bucket  = var.base_config.config_bucket
+    config_scripts = local.config_scripts
+  })
+  ebs_block_devices = local.app_instance_details.data_disks
+}

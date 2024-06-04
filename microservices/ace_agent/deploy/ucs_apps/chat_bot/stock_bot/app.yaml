@@ -4,7 +4,7 @@ version: 4.0.0
 
 name: ucf-app-chat-bot
 
-description: ACE Agent Food Ordering Bot
+description: ACE Agent Stock Bot UCS Application
 
 dependencies:
 - ucf.svc.ace-agent.chat-engine:4.0.0

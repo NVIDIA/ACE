@@ -1,5 +1,9 @@
 # Audio2Face Microservice
 
+This repository stores resources presented in [Audio2Face Microservice documentation](https://docs.nvidia.com/ace/latest/modules/a2f-docs/text/getting_started/quick_start.html).
+
+Here is a quick overview of the available Audio2Face resources:
+
 * `example_audio/` folder:
   * Contains example audio files.
 * `proto/` folder:

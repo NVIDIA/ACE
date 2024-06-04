@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="Tokkio_example.png" alt="ACE">
+  <img src="avatar_collage.jpg" alt="ACE">
 </p>
 
 Tokkio Reference Workflow

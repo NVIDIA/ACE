@@ -1,0 +1,10 @@
+**.terraform/
+**terraform.tfstate
+**terraform.tfstate.backup**
+**.terraform.lock.hcl
+**ignore.auto.tfvars
+**tfplan
+**gcp-credentials/
+**logs/
+.vscode
+**deploy/
