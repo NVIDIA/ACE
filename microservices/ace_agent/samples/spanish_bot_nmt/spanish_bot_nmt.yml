@@ -5,6 +5,8 @@ configs:
   request_language: es-US
   response_language: es-US
 
+streaming: false
+
 instructions:
   - type: general
     content: |
