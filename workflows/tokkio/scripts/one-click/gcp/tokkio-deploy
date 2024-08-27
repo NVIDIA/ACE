@@ -75,7 +75,8 @@ function terraform_install() {
       if [[ -f "${HOME}/bin/terraform" ]]; then
         rm "${HOME}/bin/terraform"
       fi
-      tfswitch 1.2.4
+      mkdir -p "${HOME}/bin"
+      tfswitch -b "${HOME}/bin/terraform" 1.2.4
     } > /dev/null
   fi
 }

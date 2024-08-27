@@ -8,7 +8,7 @@ NVIDIA ACE is a suite of technologies that help developers bring digital humans 
 On this Git repo, you will find samples and reference applications using ACE NIMs and microservices.  However, these microservices can be obtained through an evaluation license of NV AI Enterprise(NVAIE) through NGC.
 
 1. [Try NIM For Digital Human](https://build.nvidia.com/explore/gaming)
-2. [Get NVIDIA AI Enterprise](https://enterpriseproductregistration.nvidia.com/?LicType=EVAL&ProductFamily=NVAIEnterprise)
+2. [Get NVIDIA AI Enterprise](https://docs.nvidia.com/ai-enterprise/latest/quick-start-guide/index.html#getting-your-nvidia-grid-software)
 3. [Download ACE Microservices](https://catalog.ngc.nvidia.com/?filters=&orderBy=scoreDESC&query=ace&page=&pageSize=)
 
 
