@@ -1,0 +1,444 @@
+---
+chat-controller:
+  ipaDictPath: cmudict_ipa.txt
+  pipelineParams:
+    grpc_server:
+      nvidia::rrt::BotRuntimeGrpc:
+        virtual_assistant_num_instances: 10
+    riva_asr:
+      RivaASR:
+        enable_profanity_filter: false
+    riva_logger:
+      RivaLogger:
+        enable_logging: true
+    speech_pipeline_manager:
+      SpeechPipelineManager:
+        always_on: true
+        initial_state: INIT
+        tts_eos_delay_ms: 0
+    riva_tts:
+      RivaTTS:
+        audio_start_threshold_ms: 2000
+        chunk_duration_ms: 600
+        sample_rate: 16000
+        send_audio_in_realtime: true
+        voice_name: English-US.Male-1
+  speechConfigPath: speech_config.yaml
+  wordBoostFilePath: asr_words_to_boost_conformer.txt
+  configNgcPath: "nvidia/ace/tokkio_plugin_retail:4.1.0"
+  pipeline: avatar_umim
+chat-engine:
+  enableUserAttention: "true"
+  interface: event
+  logLevel: INFO
+  botConfigName: tokkio_food_ordering_bot_config.yaml
+  configNgcPath: nvidia/ace/tokkio_plugin_retail:4.1.0
+ds-visionai:
+  checkInterval: '1'
+  jitterbufferLatency: 2000
+  peerPadIdSameAsSourceId: 'true'
+  redisCfg:
+    payloadkey: message
+    topic: visionai
+  rtspReconnectInterval: 10
+  streammuxResolution:
+    height: 720
+    width: 1280
+  videoSink: none
+  ucfVisibleGpus:
+    - 0
+mongodb:
+  storageClaims:
+    local-storage:
+      spec:
+        resources:
+          requests:
+            storage: 1Gi
+occupancy-alerts:
+  analytics:
+    fov:
+      metrics:
+        storage:
+          granularity15MinRetentionMsec: 604800000
+          granularity15SecRetentionMsec: 86400000
+          granularity1MinRetentionMsec: 604800000
+          granularity1SecRetentionMsec: 86400000
+    gazeROI:
+      frameBuffer: 5
+    lipActivity:
+      frameBuffer: 0
+    roi:
+      frameBuffer: 35
+      metrics:
+        storage:
+          granularity15MinRetentionMsec: 604800000
+          granularity15SecRetentionMsec: 86400000
+          granularity1MinRetentionMsec: 604800000
+          granularity1SecRetentionMsec: 86400000
+      pixelBuffer: 25
+    stateManagement:
+      classTargets:
+        - Face
+      sensor:
+        maxIdleTimeSec: 60
+  metadataStream: visionai
+  plugins:
+    - className: core.analytics.plugins.ue.ue.UserEngagement
+      config:
+        exponentialSmootheningAlpha: 0.4
+        resultRetensionWindowMaxSize: 3600
+      name: UserEngagement
+  sensorTemplate:
+    alert_rules:
+      fov:
+        rules:
+          - count_threshold: 1
+            id: dm_fov
+            parameters:
+              - name: time_interval_up
+                value: 0.25
+              - name: time_interval_down
+                value: 2
+            rule_id: fov_occupancy_threshold
+            rule_type: occupancy_threshold_switch
+            time_interval: 1
+            type: fov
+      roi:
+        rules: []
+      tripwire:
+        rules: []
+      user_engagement:
+        rules:
+          - id: UE_CONFIG_1
+            name: ALERT_RULE_1
+            rule_type: zone_change
+            time_interval: 1
+    gaze_rois: []
+    rois: []
+    tripwires: []
+    user_engagement:
+      - angleBuffer: 5
+        frameBuffer: 2
+        id: UE_CONFIG_1
+        zones:
+          - from_angle: 0
+            id: ENGAGED
+            name: Near to Camera
+            to_angle: 35
+          - from_angle: 35
+            id: DISTRACTED
+            name: Away from Camera
+            to_angle: 100
+          - from_angle: 100
+            id: DISENGAGED
+            name: Away from Camera
+            to_angle: 180
+  sensors:
+    - alert_rules:
+        fov:
+          rules:
+            - count_threshold: 1
+              id: dm_fov
+              parameters:
+                - name: time_interval_up
+                  value: 1
+                - name: time_interval_down
+                  value: 2
+              rule_id: fov_occupancy_threshold_default
+              rule_type: occupancy_threshold_switch
+              time_interval: 1
+              type: fov
+        roi:
+          rules: []
+        tripwire:
+          rules: []
+      sensorId: drive-thru-0
+  storageClaims:
+    data:
+      spec:
+        resources:
+          requests:
+            storage: 1Gi
+  vstEventsStream: vst_events
+  vstEventsStreamIntegration: 0
+occupancy-alerts-api:
+  configs:
+    cv_config.yaml:
+      data:
+        metadata:
+          maxTimeRangeInMSec: 500000
+          minTimeRangeInMSec: 0
+        trajectory:
+          maxTimeRangeInMSec: 500000
+          minTimeRangeInMSec: 0
+  storageClaims:
+    data:
+      spec:
+        resources:
+          requests:
+            storage: 1Gi
+plugin-server:
+  pluginConfigPath: plugin_config.yaml
+  configNgcPath: nvidia/ace/tokkio_plugin_retail:4.1.0
+  pluginConfig:
+    config:
+      workers: 4
+    plugins:
+      food_order:
+        parameters:
+          cart_url: http://tokkio-cart-manager-deployment-tokkio-cart-manager:7007
+          menu_rag_url: http://catalog-rag-deployment-service:8080
+          ui_server_url: http://tokkio-ui-server-deployment-tokkio-ui-svr-svc:32362
+redis:
+  storageClaims:
+    data:
+      spec:
+        resources:
+          requests:
+            storage: 100Mi
+redis-timeseries:
+  storageClaims:
+    data:
+      spec:
+        resources:
+          requests:
+            storage: 100Mi
+riva-speech:
+  modelRepoGenerator:
+    clearAllRMIRSAndModels: false
+    ngcModelConfigs:
+      triton0:
+        models:
+          - nvidia/ace/rmir_asr_parakeet_1-1b_en_us_str_vad:2.17.0
+          - nvidia/riva/rmir_tts_fastpitch_hifigan_en_us_ipa:2.17.0
+  persistentVolumeClaim:
+    keepPVC: true
+  riva:
+    visibleGpus: '0'
+tokkio-ingress-mgr:
+  accessControlAllowOrigin: \*
+  bypassTokenValidation: false
+  enableCookie: 'true'
+  enableRedisPubsubListener: 'true'
+  enableRedisTsListener: 'true'
+  enableSessionRefresh: 'true'
+  enableSessionTrigger: 'false'
+  enableStarFleetProd: false
+  enableStarFleetStg: false
+  enableTracing: 'false'
+  maxNumSession: '6'
+  otelExporterOtlpEndpoint: http://0.0.0.0:4317
+  otelExporterOtlpProtocol: grpc
+  tokenMaxAge: '40'
+  tokenTTL: '30'
+tokkio-ui-server:
+  botMSMaxRetry: '120'
+  botMSPartialTranscript: '1'
+  botMSRetryInterval: '500'
+  cartProtocol: http
+  cartSuffix: ''
+  consoleLogLevel: debug
+  fileLogLevel: debug
+  menuProtocol: http
+  menuSuffix: /api
+  redisAceAgentKey: ace_agent_system_events
+  redisFovKey: emdat_alert_events
+  redisMaxRetry: '60'
+  redisMlopsKey: mlops_ui
+  redisRatingKey: user_rating
+  redisRetryInterval: '1000'
+  redisUiActionServerKey: ui_events
+  redisVstKey: vst_events
+  redisWdmKeyPrefix: wdm_error_events
+  vmsProtocol: http
+  vmsSuffix: /api
+vms:
+  applicationSpecs:
+    vms:
+      containers:
+        vms-container:
+          env:
+            - name: NODE_IP
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.hostIP
+      securityContext:
+        fsGroup: 1000
+  configs:
+    rtsp_streams.json:
+      streams:
+        - audio:
+            bits_per_sample: 32
+            codec: pcm
+            enabled: true
+            port: 30032
+            sample_rate_Hz: 44100
+          enabled: false
+          name: Tokkio_Avatar
+          stream_in: udp
+          video:
+            codec: h264
+            framerate: 30
+            port: 30031
+    vst_config.json:
+      data:
+        always_recording: true
+        enable_avsync_udp_input: true
+        enable_silent_audio_in_udp_input: false
+        enable_udp_input_dump: false
+        gpu_indices: []
+        use_software_path: false
+        use_standalone_udp_input: false
+        use_webrtc_hw_dec: true
+        use_webrtc_inbuilt_encoder: ''
+        webrtc_in_fixed_resolution: 1280x720
+        webrtc_in_max_framerate: 30
+        webrtc_out_default_resolution: 1920x1080
+        webrtc_out_enc_preset: ultra_fast
+        webrtc_out_enc_quality_tuning: ultra_low_latency
+        webrtc_out_set_idr_interval: 30
+        use_external_peerconnection: false
+      debug:
+        enable_network_bandwidth_notification: true
+      network:
+        coturn_turnurl_list_with_secret: null
+        enable_grpc: true
+        grpc_server_port: 50051
+        max_webrtc_in_connections: 20
+        max_webrtc_out_connections: 20
+        ntp_servers: null
+        reverse_proxy_server_address: 0.0.0.0:100
+        rtsp_streaming_over_tcp: true
+        static_turnurl_list:
+          - username:password@0.0.0.0:3478
+        stunurl_list:
+          - stun.l.google.com:19302
+          - stun1.l.google.com:19302
+        twilio_account_sid: '0000000000000000000000000000000000'
+        twilio_auth_token: '00000000000000000000000000000000'
+        udp_drop_on_latency: false
+        udp_latency_ms: 200
+        use_coturn_auth_secret: false
+        use_reverse_proxy: false
+        use_twilio_stun_turn: false
+        webrtc_in_audio_sender_max_bitrate: 128000
+        webrtc_in_video_bitrate_thresold_percentage: 50
+        webrtc_in_video_degradation_preference: detail
+        webrtc_in_video_sender_max_framerate: 30
+        webrtc_port_range:
+          max: 30030
+          min: 30001
+        webrtc_video_quality_tunning:
+          resolution_1080:
+            bitrate_range:
+              - 10000
+              - 35000
+            bitrate_start: 25000
+            qp_range_I:
+              - 10
+              - 30
+            qp_range_P:
+              - 10
+              - 30
+          resolution_1440:
+            bitrate_range:
+              - 20000
+              - 55000
+            bitrate_start: 50000
+            qp_range_I:
+              - 0
+              - 15
+            qp_range_P:
+              - 0
+              - 15
+          resolution_2160:
+            bitrate_range:
+              - 30000
+              - 80000
+            bitrate_start: 70000
+            qp_range_I:
+              - 0
+              - 20
+            qp_range_P:
+              - 0
+              - 20
+          resolution_480:
+            bitrate_range:
+              - 800
+              - 3000
+            bitrate_start: 1000
+            qp_range_I:
+              - 10
+              - 30
+            qp_range_P:
+              - 10
+              - 30
+          resolution_720:
+            bitrate_range:
+              - 3000
+              - 10000
+            bitrate_start: 5000
+            qp_range_I:
+              - 10
+              - 30
+            qp_range_P:
+              - 10
+              - 30
+      notifications:
+        enable_notification: true
+        message_broker_topic: vst_events
+        redis_server_env_var: REDIS_TIMESERIES_REDIS_TIMESERIES_SVC_SERVICE_HOST:6379
+        use_message_broker: redis
+      security:
+        enable_user_cleanup: true
+        multi_user_extra_options:
+          - Secure
+          - SameSite=none
+        session_max_age_sec: 2592000
+        use_http_digest_authentication: false
+        use_https: false
+        use_multi_user: false
+    vst_storage.json:
+      total_video_storage_size_MB: 100000
+  storageClaims:
+    local-storage:
+      spec:
+        resources:
+          requests:
+            storage: 10Gi
+  ucfVisibleGpus:
+    - 0
+animation-graph:
+  animationServer:
+    maxStreamCapacity: 6
+  ucfVisibleGpus:
+    - 3
+  resourceDownload:
+    image: nvcr.io/nvidia/ace/ngc-resource-downloader:1.1.4
+    remoteResourcePath: nvidia/ace/default-avatar-scene:1.0.0
+    secretName: ngc-api-key-secret
+audio2face-with-emotion:
+  configs:
+    a2f_config.yaml:
+      streamNumber: '6'
+      a2eEnabled: 'False'
+      a2eInferenceInterval: '10'
+      a2fModelName: claire_v1.3
+  ucfVisibleGpus:
+    - 0
+avatar-renderer:
+  deployment:
+    gpuAllocLimit: 2
+  replicas: 6
+  ucfVisibleGpus:
+    - 1
+    - 2
+    - 3
+  livestream:
+    audioDelay: 0.13
+  resourceDownload:
+    image: nvcr.io/nvidia/ace/ngc-resource-downloader:1.1.4
+    remoteResourcePath: nvidia/ace/default-avatar-scene:1.0.0
+    secretName: ngc-api-key-secret
+renderer-sdr:
+  sdrMaxReplicas: '6'

@@ -1,0 +1,47 @@
+---
+- hosts: all
+  become: true
+  become_method: sudo
+  tasks:
+  - name: gather the package facts
+    package_facts:
+      manager: auto
+  - name: add apt signing key
+    when: "'nvidia-container-toolkit' not in ansible_facts.packages"
+    apt_key:
+      url: https://nvidia.github.io/libnvidia-container/gpgkey
+      keyring: /usr/share/keyrings/nvidia-container-toolkit-keyring.gpg
+      state: present
+  - name: add repos
+    when: "'nvidia-container-toolkit' not in ansible_facts.packages"
+    block:
+    - name: fetch repo urls
+      uri:
+        url: "https://nvidia.github.io/libnvidia-container/{{ ansible_distribution | lower }}{{ ansible_distribution_version }}/libnvidia-container.list"
+        return_content: true
+      register: repos_file
+    - name: prepare repo urls
+      shell: "echo '{{ repos_file.content }}' | sed 's#deb https://#deb [signed-by=/usr/share/keyrings/nvidia-container-toolkit-keyring.gpg] https://#g' | grep -v '^[[:space:]]*#'"
+      register: repos
+    - name: add repos to sources
+      apt_repository:
+        repo: "{{ item }}"
+        state: present
+        filename: nvidia-container-toolkit
+      with_items: "{{ repos.stdout_lines }}"
+  - name: force an apt update
+    when: "'nvidia-container-toolkit' not in ansible_facts.packages"
+    apt:
+      update_cache: true
+    changed_when: false
+    register: update
+    retries: 10
+    until: update is success
+  - name: install nvidia-container-toolkit
+    when: "'nvidia-container-toolkit' not in ansible_facts.packages"
+    apt:
+      name: nvidia-container-toolkit
+      state: present
+    register: nvidia_container_toolkit_check
+    retries: 10
+    until: nvidia_container_toolkit_check is success

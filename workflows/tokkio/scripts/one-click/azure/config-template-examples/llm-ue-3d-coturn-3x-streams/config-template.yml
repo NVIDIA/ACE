@@ -1,0 +1,103 @@
+schema_version: '0.0.7'
+name: '<replace-with-unique-deployment-name>'
+spec:
+  infra:
+    csp: 'azure'
+    backend:
+      tenant_id: "{{ lookup('env', 'ARM_TENANT_ID') }}"
+      subscription_id: "{{ lookup('env', 'ARM_SUBSCRIPTION_ID') }}"
+      client_id: "{{ lookup('env', 'ARM_CLIENT_ID') }}"
+      client_secret: "{{ lookup('env', 'ARM_CLIENT_SECRET') }}"
+      resource_group_name: '<replace-with-pre-requisites-resource-group-name>'
+      storage_account_name: '<replace-with-state-storage-account-name>'
+      container_name: '<replace-with-state-storage-container-name>'
+    provider:
+      tenant_id: "{{ lookup('env', 'ARM_TENANT_ID') }}"
+      subscription_id: "{{ lookup('env', 'ARM_SUBSCRIPTION_ID') }}"
+      client_id: "{{ lookup('env', 'ARM_CLIENT_ID') }}"
+      client_secret: "{{ lookup('env', 'ARM_CLIENT_SECRET') }}"
+    configs:
+      cns:
+        override_values:
+          cns_nvidia_driver: yes
+          gpu_driver_version: "535.161.08"
+      user_access_cidrs:
+        - '<replace-with-cidr-from-where-infra-is-accessed-using-ssh>'
+      dev_access_cidrs:
+        - '<replace-with-cidr-from-where-application-ui-and-api-is-accessed>'
+      location: '<replace-with-resources-deployment-region>'
+      ssh_public_key: "{{ lookup('file', lookup('env', 'HOME') + '<replace-with-relative-path-of-public-ssh-key-w.r.t.-user-home-directory>') }}"
+      ssh_private_key_path: "{{ lookup('env', 'HOME') + '<replace-with-relative-path-of-private-ssh-key-w.r.t.-user-home-directory>' }}"
+      dns_and_certs_configs:
+        resource_group: '<replace-with-pre-requisites-resource-group-name>'
+        dns_zone: '<replace-with-your-base-domain>'
+        wildcard_cert: '<replace-with-the-name-of-the-wildcard-certificate-of-the-above-base-domain>'
+      include_ui_custom_domain: false
+      clusters:
+        app:
+          private_instance: true
+          master:
+            size: 'Standard_NC64as_T4_v3'
+          features:
+            cns: true
+            app: true
+        turn:
+          private_instance: false
+          master:
+            size: 'Standard_B2s_v2'
+          features:
+            coturn: true
+  platform:
+    configs:
+      k8s_secrets:
+        - name: 'ngc-api-key-secret'
+          type: 'Opaque'
+          entries:
+            - key: NGC_CLI_API_KEY
+              value: "{{ lookup('env', 'NGC_CLI_API_KEY') }}"
+        - name: 'ngc-docker-reg-secret'
+          type: 'dockerconfigjson'
+          registry_name: "nvcr.io"
+          username: '$oauthtoken'
+          password: "{{ lookup('env', 'NGC_CLI_API_KEY') }}"
+    secrets:
+      ngc_cli_api_key: "{{ lookup('env', 'NGC_CLI_API_KEY') }}"
+  app:
+    configs:
+      app_settings:
+        helm_chart:
+          repo:
+            chart_name: 'ucs-tokkio-app-base-3-stream-llm-rag-3d-ue'
+            user_value_override_files: ['<replace-with-absolute-path-of-user-helm-override-values.yml>']
+        k8s_secrets:
+          - name: 'ngc-api-key-secret'
+            type: 'Opaque'
+            entries:
+              - key: NGC_CLI_API_KEY
+                value: "{{ lookup('env', 'NGC_CLI_API_KEY') }}"
+          - name: 'openai-key-secret'
+            type: 'Opaque'
+            entries:
+              - key: OPENAI_API_KEY
+                value: "{{ lookup('env', 'OPENAI_API_KEY') }}"
+          - name: 'nvidia-api-key-secret'
+            type: 'Opaque'
+            entries:
+              - key: NVIDIA_API_KEY
+                value: "{{ lookup('env', 'NVIDIA_API_KEY') }}"
+          - name: 'ngc-docker-reg-secret'
+            type: 'dockerconfigjson'
+            registry_name: "nvcr.io"
+            username: '$oauthtoken'
+            password: "{{ lookup('env', 'NGC_CLI_API_KEY') }}"
+          - name: 'ghcr-docker-reg-secret'
+            type: 'dockerconfigjson'
+            registry_name: "ghcr.io"
+            username: "{{ lookup('env', 'GITHUB_USERNAME') }}"
+            password: "{{ lookup('env', 'GITHUB_ACCESS_TOKEN') }}"
+      ui_settings:
+        user_env_vars:
+          APP_TITLE: "NVIDIA LLM APP"
+          APPLICATION_TYPE: "custom"
+    secrets:
+      ngc_cli_api_key: "{{ lookup('env', 'NGC_CLI_API_KEY') }}"

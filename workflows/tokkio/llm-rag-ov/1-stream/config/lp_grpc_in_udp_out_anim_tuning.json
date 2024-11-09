@@ -1,0 +1,95 @@
+{
+    "lp_config": {
+      "animation_cropping_mode": "ANIMATION_CROPPING_MODE_BLEND",
+      "model_selection": "MODEL_SELECTION_PERF",
+      "eye_blink_config": {
+        "blink_frequency": {
+          "value": 15,
+          "unit": "UNIT_TIMES_PER_MINUTE"
+        },
+        "blink_duration": {
+          "value": 6,
+          "unit": "UNIT_FRAME"
+        }
+      },
+      "gaze_look_away_config": {
+        "enable_gaze_look_away": false,
+        "max_look_away_offset": {
+          "value": 20,
+          "unit": "UNIT_DEGREE_ANGLE"
+        },
+        "min_look_away_interval": {
+          "value": 240,
+          "unit": "UNIT_FRAME"
+        },
+        "look_away_interval_range": {
+          "value": 60,
+          "unit": "UNIT_FRAME"
+        }
+      },
+      "mouth_expression_config": {
+        "mouth_expression_multiplier": 1.0
+      }
+    },
+    "endpoint_config": {
+      "input_media_config": {
+        "audio_input_config": {
+          "stream_config": {
+            "stream_type": "GRPC"
+          },
+          "channels": 1,
+          "channel_index": 0,
+          "layout": "AUDIO_LAYOUT_INTERLEAVED",
+          "sample_rate_hz": 16000,
+          "chunk_duration_ms": 33,
+          "encoding": "AUDIO_ENCODING_RAW",
+          "decoder_config": {
+            "raw_dec_config": {
+              "format": "AUDIO_FORMAT_S16LE"
+            }
+          }
+        }
+      },
+      "output_media_config": {
+        "audio_output_config": {
+          "stream_config": {
+            "stream_type": "UDP",
+            "udp_params": {
+              "host": "127.0.0.1",
+              "port": "9017"
+            }
+          },
+          "payloader_config": {
+            "type": "PAYLOADER_RTP"
+          },
+          "sample_rate_hz": 16000,
+          "chunk_duration_ms": 33,
+          "encoding": "AUDIO_ENCODING_RAW",
+          "encoder_config": {
+            "raw_enc_config": {
+              "format": "AUDIO_FORMAT_S16BE"
+            }
+          }
+        },
+        "video_output_config": {
+          "stream_config": {
+            "stream_type": "UDP",
+            "udp_params": {
+                "host": "127.0.0.1",
+                "port": "9019"
+              }
+          },
+          "payloader_config": {
+            "type": "PAYLOADER_RTP"
+          },
+          "encoding": "H264",
+          "encoder_config": {
+            "h264_enc_config": {
+              "idr_frame_interval": 30
+            }
+          }
+        }
+      }
+    },
+    "quality_profile": "SPEECH_LP_QUALITY_PROFILE_LOW_LATENCY"
+  }

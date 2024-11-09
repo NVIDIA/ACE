@@ -1,0 +1,28 @@
+---
+- hosts: all
+  gather_facts: yes
+  become: false
+  tasks:
+  - name: fail if no pods
+    kubernetes.core.k8s_info:
+      kubeconfig: "{{ task_config.kubeconfig | default(omit) }}"
+      namespace: "{{ task_config.namespace | default(omit) }}"
+      kind: Pod
+    retries: "{{ task_config.retries | default(20) }}"
+    delay: "{{ task_config.delay | default(30) }}"
+    register: namespace_pods_list
+    until: namespace_pods_list.resources is defined and namespace_pods_list.resources | length > 0
+    when: state == "present" and not ansible_check_mode
+  - name: fail if pending pods
+    kubernetes.core.k8s_info:
+      kubeconfig: "{{ task_config.kubeconfig | default(omit) }}"
+      namespace: "{{ task_config.namespace | default(omit) }}"
+      kind: Pod
+      field_selectors:
+      - status.phase!=Succeeded
+      - status.phase!=Running
+    retries: "{{ task_config.retries | default(20) }}"
+    delay: "{{ task_config.delay | default(30) }}"
+    register: namespace_pending_pods_list
+    until: namespace_pods_list.resources is defined and namespace_pending_pods_list.resources | length == 0
+    when: state == "present" and not ansible_check_mode

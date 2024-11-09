@@ -1,6 +1,5 @@
-
-resource "azurerm_resource_group" "this" {
+resource "azurerm_resource_group" "default" {
   name     = var.name
-  location = var.region
-  tags     = var.additional_tags
+  location = var.location
+  tags     = var.tags
 }

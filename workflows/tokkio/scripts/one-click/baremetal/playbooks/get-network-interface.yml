@@ -1,0 +1,19 @@
+---
+- hosts: all
+  gather_facts: yes
+  become: false
+  tasks:
+    - name: get network_interface_name
+      shell: ip route | grep default | awk '{print $5}'
+      register: network_interface_name
+    - name: Ensure destination directory exists
+      file:
+        path: "{{ dist_dir }}/{{ ansible_hostname }}"
+        state: directory
+        mode: '0755'
+      delegate_to: localhost
+    - name: publish network_interface_name
+      delegate_to: localhost
+      copy:
+        content: "{{ network_interface_name.stdout }}"
+        dest: "{{ dist_dir }}/{{ ansible_hostname }}/nic_name"

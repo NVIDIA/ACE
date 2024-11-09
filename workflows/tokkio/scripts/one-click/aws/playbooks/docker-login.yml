@@ -1,0 +1,16 @@
+---
+- hosts: all
+  gather_facts: no
+  become: false
+  tasks:
+  - name: login to docker registry
+    docker_login:
+      registry: "{{ task_config.registry }}"
+      username: "{{ task_config.username }}"
+      password: "{{ task_config.password }}"
+    when: state == "present" and not ansible_check_mode and dry_run_mode != "true"
+  - name: logout of docker registry
+    docker_login:
+      registry: "{{ task_config.registry }}"
+      state: absent
+    when: state != "present" and not ansible_check_mode and dry_run_mode != "true"

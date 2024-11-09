@@ -1,0 +1,47 @@
+---
+- hosts: master
+  gather_facts: no
+  become: false
+  tasks:
+  - name: check if cluster is ready
+    shell: kubectl get --raw='/readyz'
+    ignore_errors: true
+    no_log: true
+    register: cluster_ready_result
+    when: state == "present" and not ansible_check_mode and dry_run_mode != "true"
+  - name: publish cluster readiness
+    delegate_to: localhost
+    copy:
+      content: "{{ cluster_ready_result.rc == 0 }}"
+      dest: "{{ tmp_task_dir }}/cluster-ready"
+    when: state == "present" and not ansible_check_mode and dry_run_mode != "true"
+  - name: check if cluster is live
+    shell: kubectl get --raw='/livez'
+    ignore_errors: true
+    no_log: true
+    register: cluster_live_result
+    when: state == "present" and not ansible_check_mode and dry_run_mode != "true"
+  - name: publish cluster liveness
+    delegate_to: localhost
+    copy:
+      content: "{{ cluster_live_result.rc == 0 }}"
+      dest: "{{ tmp_task_dir }}/cluster-live"
+    when: state == "present" and not ansible_check_mode and dry_run_mode != "true"
+- hosts: all
+  gather_facts: no
+  become: false
+  tasks:
+  - name: register cluster readiness
+    set_fact:
+      cluster_ready: "{{ lookup('file', tmp_task_dir + '/cluster-ready') }}"
+    when: state == "present" and not ansible_check_mode and dry_run_mode != "true"
+  - name: register cluster liveness
+    set_fact:
+      cluster_live: "{{ lookup('file', tmp_task_dir + '/cluster-live') }}"
+    when: state == "present" and not ansible_check_mode and dry_run_mode != "true"
+- name: install cns
+  when: state == "present" and not ansible_check_mode and dry_run_mode != "true" and not (cluster_ready and cluster_live)
+  import_playbook: "../cns/playbooks/cns-installation.yaml"
+- name: uninstall cns
+  when: state != "present" and not ansible_check_mode and dry_run_mode != "true"
+  import_playbook: "../cns/playbooks/cns-uninstall.yaml"

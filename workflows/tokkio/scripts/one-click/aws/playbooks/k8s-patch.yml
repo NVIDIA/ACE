@@ -1,0 +1,14 @@
+---
+- hosts: all
+  gather_facts: yes
+  tasks:
+  - name: apply patch
+    ignore_errors: "{{ task_config.ignore_errors | default(false) }}"
+    kubernetes.core.k8s_json_patch:
+      kubeconfig: "{{ task_config.kubeconfig | default(omit) }}"
+      api_version: "{{ task_config.api_version | default('v1') }}"
+      kind: "{{ task_config.kind }}"
+      namespace: "{{ task_config.namespace }}"
+      name: "{{ task_config.name }}"
+      patch:
+        "{{ task_config.patch }}"

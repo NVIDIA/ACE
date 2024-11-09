@@ -1,0 +1,4 @@
+---
+- name: validate cns
+  when: state == "present" and not ansible_check_mode and dry_run_mode == "true"
+  import_playbook: "../cns/playbooks/cns-validation.yaml"

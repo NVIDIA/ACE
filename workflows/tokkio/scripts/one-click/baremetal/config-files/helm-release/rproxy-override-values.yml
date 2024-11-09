@@ -1,0 +1,6 @@
+rProxySpec:
+  publicInterfaceName: "{{ task_vars.network_interface_name }}"
+  privateInterfaceName: "{{ task_vars.network_interface_name }}"
+  imagePullSecrets:
+  - name: ngc-docker-reg-secret
+  checkIPUri: "http://checkip.amazonaws.com"

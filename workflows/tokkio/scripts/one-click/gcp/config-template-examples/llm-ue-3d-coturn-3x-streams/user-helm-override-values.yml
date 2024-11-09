@@ -1,0 +1,20 @@
+ia-unreal-renderer-microservice:
+  applicationSpecs:
+    deployment:
+      initContainers:
+      - env:
+        - name: REMOTE_RESOURCE_PATH
+          value: "{'metahumanPak': '', 'scenePak': '', 'unrealEngineProject': '<replace-with-your-unreal-renderer-asset-ngc-resource-path>'}"
+        - name: DESTINATION_RESOURCE_PATH
+          value: /home/interactive-avatar
+        - name: NVIDIA_VISIBLE_DEVICES
+          value: 1,2,3
+        envFrom:
+        - secretRef:
+            name: ngc-api-key-secret
+        image: nvcr.io/nvidia/ace/ngc-resource-downloader:1.1.4
+        imagePullPolicy: IfNotPresent
+        name: init
+        volumeMounts:
+        - mountPath: /home/interactive-avatar
+          name: asset-volume

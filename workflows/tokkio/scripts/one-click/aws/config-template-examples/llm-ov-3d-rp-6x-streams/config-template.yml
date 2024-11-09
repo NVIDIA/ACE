@@ -1,0 +1,100 @@
+schema_version: '0.0.7'
+name: '<replace-with-unique-deployment-name>'
+spec:
+  infra:
+    csp: 'aws'
+    backend:
+      access_key: "{{ lookup('env', 'AWS_ACCESS_KEY_ID') }}"
+      secret_key: "{{ lookup('env', 'AWS_SECRET_ACCESS_KEY') }}"
+      dynamodb_table: '<replace-with-dynamo-db-table-name>'
+      bucket: '<replace-with-state-bucket-name>'
+      region: '<replace-with-state-bucket-region>'
+      encrypt: true
+    provider:
+      access_key: "{{ lookup('env', 'AWS_ACCESS_KEY_ID') }}"
+      secret_key: "{{ lookup('env', 'AWS_SECRET_ACCESS_KEY') }}"
+    configs:
+      cns:
+        override_values:
+          cns_nvidia_driver: yes
+      user_access_cidrs:
+        - '<replace-with-cidr-from-where-infra-is-accessed-using-ssh>'
+      dev_access_cidrs:
+        - '<replace-with-cidr-from-where-application-ui-and-api-is-accessed>'
+      region: '<replace-with-resources-deployment-region>'
+      ssh_public_key: "{{ lookup('file', lookup('env', 'HOME') + '<replace-with-relative-path-of-public-ssh-key-w.r.t.-user-home-directory>') }}"
+      ssh_private_key_path: "{{ lookup('env', 'HOME') + '<replace-with-relative-path-of-private-ssh-key-w.r.t.-user-home-directory>' }}"
+      base_domain: '<replace-with-your-base-domain>'
+      cdn_cache_enabled: false
+      turn_server_provider: 'rp'
+      clusters:
+        app:
+          private_instance: true
+          master:
+            type: 'g5.12xlarge'
+          features:
+            cns: true
+            app: true
+        turn:
+          private_instance: false
+          master:
+            type: 't3.large'
+          features:
+            cns: true
+            rp: true
+  platform:
+    configs:
+      k8s_secrets:
+        - name: 'ngc-api-key-secret'
+          type: 'Opaque'
+          entries:
+            - key: NGC_CLI_API_KEY
+              value: "{{ lookup('env', 'NGC_CLI_API_KEY') }}"
+        - name: 'ngc-docker-reg-secret'
+          type: 'dockerconfigjson'
+          registry_name: "nvcr.io"
+          username: '$oauthtoken'
+          password: "{{ lookup('env', 'NGC_CLI_API_KEY') }}"
+    secrets:
+      ngc_cli_api_key: "{{ lookup('env', 'NGC_CLI_API_KEY') }}"
+  app:
+    configs:
+      app_settings:
+        helm_chart:
+          repo:
+            chart_name: 'ucs-tokkio-app-base-6-stream-llm-rag-3d-ov'
+        k8s_secrets:
+          - name: 'ngc-api-key-secret'
+            type: 'Opaque'
+            entries:
+              - key: NGC_CLI_API_KEY
+                value: "{{ lookup('env', 'NGC_CLI_API_KEY') }}"
+          - name: 'openai-key-secret'
+            type: 'Opaque'
+            entries:
+              - key: OPENAI_API_KEY
+                value: "{{ lookup('env', 'OPENAI_API_KEY') }}"
+          - name: 'nvidia-api-key-secret'
+            type: 'Opaque'
+            entries:
+              - key: NVIDIA_API_KEY
+                value: "{{ lookup('env', 'NVIDIA_API_KEY') }}"
+          - name: 'ngc-docker-reg-secret'
+            type: 'dockerconfigjson'
+            registry_name: "nvcr.io"
+            username: '$oauthtoken'
+            password: "{{ lookup('env', 'NGC_CLI_API_KEY') }}"
+      turn_server_settings:
+        rp:
+          k8s_secrets:
+            - name: 'ngc-docker-reg-secret'
+              type: 'dockerconfigjson'
+              registry_name: "nvcr.io"
+              username: '$oauthtoken'
+              password: "{{ lookup('env', 'NGC_CLI_API_KEY') }}"
+      ui_settings:
+        user_env_vars:
+          APP_TITLE: "NVIDIA LLM APP"
+          APPLICATION_TYPE: "custom"
+    secrets:
+      ngc_cli_api_key: "{{ lookup('env', 'NGC_CLI_API_KEY') }}"

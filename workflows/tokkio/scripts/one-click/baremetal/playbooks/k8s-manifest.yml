@@ -1,0 +1,25 @@
+---
+- hosts: all
+  gather_facts: yes
+  tasks:
+  - name: download manifest from url
+    set_fact:
+      manifest_from_url_path: "{{ ansible_user_dir }}/{{ task_config.url | basename }}"
+    when: task_config.url is defined
+  - name: download manifest from url
+    ignore_errors: "{{ task_config.ignore_errors | default(false) }}"
+    get_url:
+      url: "{{ task_config.url }}"
+      dest: "{{ manifest_from_url_path }}"
+      mode: '0664'
+    when: task_config.url is defined
+  - name: install manifest
+    ignore_errors: "{{ task_config.ignore_errors | default(false) }}"
+    kubernetes.core.k8s:
+      kubeconfig: "{{ task_config.kubeconfig | default(omit) }}"
+      state: "{{ state | default('present') }}"
+      namespace: "{{ task_config.namespace | default(omit) }}"
+      kind: "{{ task_config.kind | default(omit) }}"
+      src: "{{ manifest_from_url_path | default(omit) }}"
+      definition:
+        "{{ task_config.definition | default(omit) }}"
