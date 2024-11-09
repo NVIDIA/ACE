@@ -1,0 +1,20 @@
+import core
+import llm
+
+flow guardrails
+    activate general
+    activate current date
+    activate open domain
+    activate weather
+    activate off topic
+
+flow technical helper
+    activate notification of undefined flow start "¡He encontrado algún problema técnico!"
+    activate notification of colang errors "¡He encontrado algún problema técnico!"
+    activate automating intent detection
+    activate generating user intent for unhandled user utterance
+    activate polling llm request response
+
+flow main
+    activate technical helper
+    activate guardrails

@@ -1,0 +1,128 @@
+define user queries about stocks
+  "What is a stock?"
+  "define stocks"
+  "How do you describe a stock?"
+
+define flow
+  user queries about stocks
+  bot responds with definition of stocks
+
+
+define user queries about primary markets and secondary markets
+  "What are primary markets?"
+  "What are secondary markets?"
+  "Difference between primary markets and secondary markets"
+  "what are different types of stock market?"
+
+define flow
+  user queries about types of stock market
+  bot responds with information on types of stock market
+
+
+define user queries about share markets
+  "What is share market?"
+  "define share market"
+  "Explain share market."
+
+define flow
+  user queries about share markets
+  bot responds with information about share markets
+
+
+define user queries about stock indices
+  "What is a stock index?"
+  "What are stock indices?"
+  "describe stock index"
+
+define flow
+  user queries about stock indices
+  bot responds with information about stock indices
+
+
+define user queries about broker
+  "Define a broker"
+  "Who is a broker?"
+  "What is the role of a broker in share market?"
+
+define flow
+  user queries about broker
+  bot responds with information about broker
+
+
+define user queries about ipo
+  "What is ipo?"
+  "define ipo"
+  "Explain ipo."
+  "What is initial public offer?"
+
+define flow
+  user queries about ipo
+  bot responds with information about ipo
+
+
+define user queries high level categories of stocks
+  "What are different types of stocks?"
+  "What are different categories of stocks?"
+  "Categories of stocks."
+
+define flow
+  user queries high level categories of stocks
+  bot responds with high level categories of stocks
+
+
+define user queries about types of stocks based on market capitalization
+  "What are different types of stocks based on market capitalization?"
+  "List difeerent types of stocks based on market capitalization."
+
+define flow
+  user queries about types of stocks based on market capitalization
+  bot responds with types of stocks based on market capitalization
+
+
+define user queries about types of stocks based on ownership
+  "What are different types of stocks based on ownership?"
+  "List difeerent types of stocks based on ownership."
+
+define flow
+  user queries about types of stocks based on ownership
+  bot responds with types of stocks based on ownership
+
+
+define user queries about types of stocks based on fundamentals
+  "What are different types of stocks based on fundamentals?"
+  "List difeerent types of stocks based on fundamentals."
+
+define flow
+  user queries about types of stocks based on fundamentals
+  bot responds with types of stocks based on fundamentals
+
+
+define user queries about types of stocks based on price volatility
+  "What are different types of stocks based on price volatility?"
+  "List difeerent types of stocks based on price volatility."
+
+define flow
+  user queries about types of stocks based on price volatility
+  bot responds with types of stocks based on price volatility
+
+
+define user queries about types of stocks based on profit sharing
+  "What are different types of stocks based on profit sharing?"
+  "List difeerent types of stocks based on profit sharing."
+
+define flow
+  user queries about types of stocks based on profit sharing
+  bot responds with types of stocks based on profit sharing
+
+
+define user queries about types of stocks based on economic trends
+  "What are different types of stocks based on economic trends?"
+  "List difeerent types of stocks based on economic trends."
+
+define flow
+  user queries about types of stocks based on economic trends
+  bot responds with types of stocks based on economic trends
+
+
+define bot remove last message
+  "(remove last message)"

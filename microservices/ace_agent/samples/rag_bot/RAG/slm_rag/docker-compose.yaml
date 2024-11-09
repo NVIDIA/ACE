@@ -1,0 +1,54 @@
+include:
+  - path:
+    - ../docker-compose-vectordb.yaml
+
+services:
+  chain-server:
+    container_name: rag-application-text-chatbot-langchain
+    image: nvcr.io/nvidia/aiworkflows/rag-application-text-chatbot-langchain:24.08
+    volumes:
+      - ./prompt.yaml:/prompt.yaml
+    command: --port 8081 --host 0.0.0.0
+    environment:
+      EXAMPLE_PATH: 'basic_rag/langchain'
+      APP_VECTORSTORE_URL: "http://milvus:19530"
+      APP_VECTORSTORE_NAME: "milvus"
+      APP_LLM_MODELNAME: ${APP_LLM_MODELNAME:-"nvidia/nemotron-mini-4b-instruct"}
+      APP_LLM_MODELENGINE: nvidia-ai-endpoints
+      APP_LLM_SERVERURL: ${APP_LLM_SERVERURL:-""}
+      APP_EMBEDDINGS_MODELNAME: ${APP_EMBEDDINGS_MODELNAME:-"nvidia/nv-embedqa-e5-v5"}
+      APP_EMBEDDINGS_MODELENGINE: nvidia-ai-endpoints
+      APP_EMBEDDINGS_SERVERURL: ${APP_EMBEDDINGS_SERVERURL:-""}
+      NVIDIA_API_KEY: ${NVIDIA_API_KEY:-""}
+      COLLECTION_NAME: canonical_rag_langchain
+      APP_RETRIEVER_TOPK: 4
+      APP_RETRIEVER_SCORETHRESHOLD: 0.25
+      APP_TEXTSPLITTER_CHUNKSIZE: 506
+      APP_TEXTSPLITTER_CHUNKOVERLAP: 200
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4317
+      OTEL_EXPORTER_OTLP_PROTOCOL: grpc
+      ENABLE_TRACING: false
+      LOGLEVEL: ${LOGLEVEL:-INFO}
+    ports:
+    - "8081:8081"
+    expose:
+    - "8081"
+    shm_size: 5gb
+  rag-playground:
+    container_name: rag-playground
+    image: nvcr.io/nvidia/aiworkflows/rag-playground:24.08
+    environment:
+      CHAIN_SERVER: "http://chain-server"
+      CHAIN_SERVER_PORT: "8081"
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4317
+      OTEL_EXPORTER_OTLP_PROTOCOL: grpc
+      ENABLE_TRACING: false
+    ports:
+    - "3001:3001"
+    expose:
+    - "3001"
+    depends_on:
+    - chain-server
+networks:
+  default:
+    name: nvidia-rag

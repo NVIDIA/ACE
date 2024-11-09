@@ -1,0 +1,14 @@
+import core
+import llm
+
+flow technical helper
+    activate notification of undefined flow start "I have encountered some technical issue!"
+    activate notification of colang errors "I have encountered some technical issue!"
+
+flow chitchat
+    user said something
+    llm continue interaction
+
+flow main
+    activate technical helper
+    activate chitchat

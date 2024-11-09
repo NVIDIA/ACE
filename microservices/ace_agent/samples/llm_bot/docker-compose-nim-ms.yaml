@@ -1,0 +1,25 @@
+services:
+  nemollm-inference:
+    container_name: nemollm-inference-microservice
+    image: nvcr.io/nim/meta/llama3-8b-instruct:1.0.3
+    volumes:
+    - ${MODEL_DIRECTORY}:/opt/nim/.cache
+    user: "${USERID}"
+    ports:
+    - "8010:8000"
+    environment:
+      NGC_API_KEY: ${NGC_CLI_API_KEY}
+    shm_size: 20gb
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: ${INFERENCE_GPU_COUNT:-all}
+              # device_ids: ['${LLM_MS_GPU_ID:-0}']
+              capabilities: [gpu]
+    healthcheck:
+      test: ["CMD", "python3", "-c", "import requests; requests.get('http://localhost:8000/v1/health/ready')"]
+      interval: 10s
+      timeout: 20s
+      retries: 100

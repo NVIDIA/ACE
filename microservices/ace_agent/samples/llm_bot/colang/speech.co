@@ -1,0 +1,80 @@
+import core
+import timing
+import avatars
+
+@override
+flow fail all bot actions $stop_flows_list=["_bot_say","bot gesture","bot posture"]
+  """
+  Stop list of flows, used to reset conversation flow during Barge In and other cases
+  """
+  $count = 0
+  while $count < len($stop_flows_list):
+    send StopFlow(flow_id=$stop_flows_list[$count])
+    $count = $count + 1
+
+flow handle user transcript with interruption $mode="interim" $stop_flows_list=["_bot_say","bot gesture","bot posture"]
+  """
+  Partial transcript / UtteranceUserAction.TranscriptUpdated() : Every user audio chunk ( typically 160 ms ) generates updated transcript from ASR model. This updated transcript is referred as partial transcript.
+  Interim transcript / UtteranceUserAction.TranscriptUpdated(stability=1.0): When we observe atleast 240 ms of silence in user audio, we pass generated partial transcript for LM processing in ASR pipeline. This transcript is more accurate and stability 1.0 in UtteranceUserAction.TranscriptUpdated() indicate that.
+  Final transcript / UtteranceUserAction.Finished() : Transcript after detecting end of user utterance. Typically we wait for 800 ms silence to mark end of user audio.
+  
+  In this flow, we use change in partial transcript for stopping bot actions. You can decide between partial, interim and final for triggering downstream pipeline/LLM call.
+  """
+
+  global $partial_transcript
+  when user said something as $final
+    $is_spurious = await IsSpuriousAction(query=$final.transcript)
+    if $is_spurious
+      log "Ignoring spurious / filler final transcript `{$final.transcript}`"
+      $partial_transcript = None
+    elif not $partial_transcript or $mode == "final"
+      log "Using final transcript `{$final.transcript}` and user mode {$mode} transcripts"
+      fail all bot actions $stop_flows_list=$stop_flows_list
+      send PartialUserUtteranceAvailable(transcript=$final.transcript, utterance_action_uid=$final.context.user_said.event.action_uid)
+    elif $partial_transcript != $final.transcript
+      log "final transcript `{$final.transcript}` doesn't match with last interim transcript"
+      $partial_transcript = None
+      fail all bot actions $stop_flows_list=$stop_flows_list
+      send PartialUserUtteranceAvailable(transcript=$final.transcript, utterance_action_uid=$final.context.user_said.event.action_uid)
+    else
+      log "Ignoring final transcript `{$final.transcript}`, active {$mode} transcript `{$partial_transcript}`"
+      $partial_transcript = None
+  orwhen user saying something as $partial
+    $is_spurious = await IsSpuriousAction(query=$partial.transcript)
+    if $is_spurious
+      log "Ignoring spurious / filler partial transcript `{$partial.transcript}`"
+    elif $partial_transcript != $partial.transcript and $mode == "partial"
+      log "Active partial transcript `{$partial_transcript}` doesn't match with new partial transcript `{$partial.transcript}`"
+      fail all bot actions $stop_flows_list=$stop_flows_list
+      $partial_transcript = $partial.transcript
+      send PartialUserUtteranceAvailable(transcript=$partial.transcript, utterance_action_uid=$partial.context.user_saying.event.action_uid)
+    elif $partial_transcript != $partial.transcript and $mode == "interim" and $partial.context.user_saying.event.stability == 1.0
+      log "Active interim transcript `{$partial_transcript}` doesn't match with new interim transcript `{$partial.transcript}`"
+      fail all bot actions $stop_flows_list=$stop_flows_list
+      $partial_transcript = $partial.transcript
+      send PartialUserUtteranceAvailable(transcript=$partial.transcript, utterance_action_uid=$partial.context.user_saying.event.action_uid)
+    elif $partial_transcript != $partial.transcript
+      log "Interruption using new partial/interim transcript `{$partial.transcript}`,  was active {$mode} transcript `{$partial_transcript}`"
+      $partial_transcript = None
+      fail all bot actions $stop_flows_list=$stop_flows_list
+    else 
+      log "Ignoring partial/interim transcript `{$partial.transcript}`, matching with active {$mode} transcript {$partial_transcript}"
+
+@meta(user_action='user said "{$transcript}"')
+flow user partially said $text -> $transcript
+  """Wait for a user to have said given text."""
+  if $text
+    match PartialUserUtteranceAvailable(transcript=$text) as $event
+  else
+    match PartialUserUtteranceAvailable() as $event
+  $transcript = $event.transcript
+  log "User partial said `{$transcript}`"
+  return $transcript
+
+@meta(user_action='user said "{$transcript}"')
+flow user partially said something -> $transcript
+  """Wait for a user to have said something."""
+  match PartialUserUtteranceAvailable() as $event
+  $transcript = $event.transcript
+  log "User partial said something `{$transcript}`"
+  return $transcript
