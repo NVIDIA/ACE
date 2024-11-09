@@ -1,0 +1,86 @@
+
+/*
+ * SPDX-FileCopyrightText: Copyright (c) 2024 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+ * SPDX-License-Identifier: Apache-2.0
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+import { useEffect, useRef } from "react";
+import {
+  BotChatMessage,
+  ChatMessageContentType,
+  ChatMessageTextContent,
+  UserChatMessage,
+} from "../../../../shared/types";
+import useRealTimeVolume from "../../utils/useRealTimeVolume";
+import useRequestAnimationFrame from "../../utils/useRequestAnimationFrame";
+import ConversationMessage from "../ConversationMessage";
+import Loading from "../Loading";
+import "./index.css";
+
+interface Props {
+  emoji: string | null;
+  isBotTyping: boolean;
+  messages: (BotChatMessage | UserChatMessage)[];
+  audioSource: AudioNode;
+}
+
+export default function BotFace({
+  emoji,
+  messages,
+  isBotTyping,
+  audioSource,
+}: Props) {
+  const bottom = useRef<HTMLDivElement>(null);
+  const realTimeVolume = useRealTimeVolume(audioSource);
+  useRequestAnimationFrame();
+
+  useEffect(() => {
+    bottom.current?.scrollIntoView();
+  }, [messages]);
+
+  const isBotActivelySpeaking = realTimeVolume !== 0;
+
+  const styles: React.CSSProperties = {};
+  if (isBotActivelySpeaking) {
+    styles[
+      "boxShadow"
+    ] = `0 0 0px ${realTimeVolume}px var(--bot-volume-active-box-shadow-bg)`;
+    styles["borderColor"] = "var(--active-audio-border-color)";
+  }
+
+  return (
+    <div className="bot-face">
+      <div className="bot-face-emoji-container">
+        <div className="bot-face-emoji" style={styles}>
+          {isBotTyping ? <Loading /> : emoji}
+        </div>
+      </div>
+      <div className="bot-face-history">
+        {messages
+          .filter(
+            (message) => message.content.type === ChatMessageContentType.TEXT
+          )
+          .map((message, i) => (
+            <ConversationMessage
+              key={i}
+              authorType={message.author}
+              messageContent={message.content as ChatMessageTextContent}
+            />
+          ))}
+        <div ref={bottom}></div>
+      </div>
+    </div>
+  );
+}

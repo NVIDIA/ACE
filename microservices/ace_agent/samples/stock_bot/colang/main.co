@@ -1,0 +1,23 @@
+import core
+import llm
+
+flow guardrails
+    activate general
+    activate stock faq
+    activate stock price
+    activate ticker symbol
+    activate profanity rail
+    activate off topic
+
+flow technical helper
+    activate notification of undefined flow start "I have encountered some technical issue!"
+    activate notification of colang errors "I have encountered some technical issue!"
+    activate automating intent detection
+    activate tracking bot talking state
+    activate tracking user talking state
+    activate generating user intent for unhandled user utterance
+    activate polling llm request response
+
+flow main
+    activate technical helper
+    activate guardrails

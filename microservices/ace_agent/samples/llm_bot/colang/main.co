@@ -1,0 +1,22 @@
+import core
+
+flow technical helper
+  activate notification of undefined flow start "I have encountered some technical issue!"
+  activate notification of colang errors "I have encountered some technical issue!"
+  activate handle user transcript with interruption $mode="interim" $stop_flows_list=["_bot_say","generate response"]
+
+flow generate response $transcript
+  """Flow name is used in interruption logic `fail all bot actions` for stoping active llm and bot say events"""
+  log "Started External LLM action"
+  $response = await ExternalLLMAction(query=$transcript,min_wait_time=0.3)
+  log "Finished External LLM action, Response for {$transcript} : {$response}"
+  bot say $response
+
+flow dialog rails
+  user partially said something as $ref
+  generate response $ref.transcript
+
+
+flow main
+  activate technical helper
+  activate dialog rails

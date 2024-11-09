@@ -1,0 +1,11 @@
+bot: llm_bot
+
+colang_version: "2.x"
+
+storage: 
+  name: cache
+
+configs:
+  use_stateful_guardrails: True
+
+models: []

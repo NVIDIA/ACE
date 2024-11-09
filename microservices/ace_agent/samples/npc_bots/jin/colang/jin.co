@@ -1,0 +1,29 @@
+import core
+
+flow technical helper
+  activate notification of undefined flow start "Excuse me, what did you say?"
+  activate notification of colang errors "Excuse me, what did you say?"
+  activate handle user transcript with interruption $mode="interim" $stop_flows_list=["_bot_say","generate slm response"]
+
+flow generate slm response $transcript
+  $request_id = await InvokeStreamingChatAction(endpoint="/slm_responder/chat",question=$transcript,chat_history=True)
+  if $request_id
+    $response = await StreamingResponseChatAction(endpoint="/slm_responder/chat",request_id=$request_id)
+    if not $response
+      bot say "Sorry I could not connect to the SLM endpoint"
+    log "response from SLM: {$response}"
+    while $response
+      bot say $response
+      $response = await StreamingResponseChatAction(endpoint="/slm_responder/chat",request_id=$request_id)
+      log "response from SLM: {$response}"
+
+flow conversation with jin
+  user partially said something as $ref
+  if not $player_name
+    $player_name = "Kai"
+  log "user said {$ref.transcript}" 
+  generate slm response $ref.transcript
+
+flow main
+  activate technical helper
+  activate conversation with jin  

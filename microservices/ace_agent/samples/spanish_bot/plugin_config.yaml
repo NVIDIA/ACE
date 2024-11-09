@@ -1,0 +1,8 @@
+config:
+  workers: 1
+  timeout: 30
+
+plugins:
+  # Default fulfillments
+  - name: date
+  - name: weather

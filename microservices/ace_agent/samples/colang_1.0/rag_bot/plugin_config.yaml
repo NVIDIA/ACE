@@ -1,0 +1,13 @@
+config:
+  workers: 1
+  timeout: 30
+
+plugins:
+  - name: rag
+    path: plugins/rag.py
+    parameters:
+      RAG_SERVER_URL: "http://localhost:8081"
+      # STOP_WORDS: ["\n"]  # Optional parameters for RAG
+      # TEMPERATURE: 0.2
+      # TOP_K: 0.7
+      # MAX_TOKENS: 200

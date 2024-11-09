@@ -1,0 +1,54 @@
+
+/*
+ * SPDX-FileCopyrightText: Copyright (c) 2024 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+ * SPDX-License-Identifier: Apache-2.0
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+ 
+ .bouncing-bullet {
+  display: inline-block;
+  width: 5px;
+  height: 5px;
+  border-radius: 100%;
+  background: #ccc;
+  animation: bounce 1s;
+  transform: translateY(0px);
+  animation-iteration-count: infinite;
+  margin: 0 2px;
+}
+
+.bouncing-bullet:nth-child(n + 1) {
+  animation-delay: 200ms;
+}
+.bouncing-bullet:nth-child(n + 2) {
+  animation-delay: 400ms;
+}
+.bouncing-bullet:nth-child(n + 3) {
+  animation-delay: 600ms;
+}
+
+@keyframes bounce {
+  0% {
+    transform: translateY(-3px);
+    -webkit-animation-timing-function: ease-in;
+  }
+  20% {
+    transform: translateY(3px);
+    -webkit-animation-timing-function: ease-in;
+  }
+  100% {
+    transform: translateY(-3px);
+    -webkit-animation-timing-function: ease-in;
+  }
+}

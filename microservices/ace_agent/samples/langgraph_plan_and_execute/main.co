@@ -1,0 +1,21 @@
+import core
+
+flow technical helper
+  activate notification of undefined flow start "I have encountered some technical issue!"
+  activate notification of colang errors "I have encountered some technical issue!"
+
+flow langgraph
+  user said something as $ref
+  log "user said {$ref.transcript}"
+  $request_id =  await InvokeStreamingChatAction(question=$ref.transcript, endpoint="langgraph/chat", request_timeout=60)
+  if $request_id
+    $response = await StreamingResponseChatAction(endpoint="langgraph/chat", request_id=$request_id, timeout=60)
+    if not $response
+      bot say "Sorry I could not connect to the langgraph endpoint"
+    while $response
+      bot say $response
+      $response = await StreamingResponseChatAction(endpoint="langgraph/chat", request_id=$request_id, timeout=60)
+
+flow main
+  activate technical helper
+  activate langgraph

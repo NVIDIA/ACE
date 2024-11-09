@@ -1,0 +1,27 @@
+import core
+import avatars
+import llm
+
+# CHANGE 1: Make greeting multimodal
+@meta(bot_intent=True)
+flow bot express greeting
+  (bot express "Hi there!"
+    or bot express "Welcome!"
+    or bot express "Hello!")
+    and bot gesture "Wave with one hand"
+
+# The main flow is the entry point
+@meta(exclude_from_llm=True)
+flow main
+
+  # Technical flows, see Colang 2.0 documentation for more details
+  activate notification of undefined flow start
+  activate notification of colang errors
+  activate tracking bot talking state
+
+  # CHANGE 2: The bot greets the user and a welcome message is shown on the UI
+  start scene show short information "Welcome to this tutorial interaction" as $intro_ui
+  bot express greeting
+
+  # This will prevent the main flow finishing ever
+  wait indefinitely

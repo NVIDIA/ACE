@@ -1,0 +1,25 @@
+flow user expressed greeting
+  user said "Buenos días"
+    or user said "Buenas tardes"
+    or user said "Buenas noches"
+    or user said "Adiós"
+    or user said "Gracias"
+    or user said "Hola"
+
+flow user asked how are you
+  user said "¿Cómo estás?"
+    or user said "¿Cómo está usted?"
+
+flow bot greets to user
+  user expressed greeting
+  $greeting = ..."Generate greeting in spanish. Enclose the greeting in quotes"
+  bot say "{$greeting}"
+
+flow bot reply to how are you
+  user asked how are you
+  $response = ..."Reply to previous query in spanish. Enclose the reply in quotes"
+  bot say "{$response}"
+
+flow general
+  activate bot greets to user
+  activate bot reply to how are you

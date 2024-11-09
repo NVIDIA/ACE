@@ -1,0 +1,11 @@
+{
+  "compilerOptions": {
+    "resolveJsonModule": true,
+    "moduleResolution": "Node",
+    "lib": ["ES2023"],
+    "module": "ES2022",
+    "target": "ES2022",
+    "skipLibCheck": true
+  },
+  "exclude": ["**/*.test.ts"]
+}
