@@ -1,0 +1,124 @@
+---
+- hosts: all
+  become: true
+  become_method: sudo
+  vars:
+    gpu_driver_version: "{{ task_config.gpu_driver_version | default('550.54.15') }}"
+  tasks:
+  - name: check nvidia driver modules are loaded
+    shell: lsmod | grep -i nvidia
+    register: nvidia_mod
+    when: state == "present" and not ansible_check_mode and dry_run_mode != "true"
+    no_log: true
+    failed_when: false
+  - name: check nvidia-smi loaded
+    shell: nvidia-smi
+    register: nvidia_smi
+    when: state == "present" and not ansible_check_mode and dry_run_mode != "true"
+    no_log: true
+    failed_when: false
+  - name: get current driver version
+    shell: nvidia-smi --query-gpu=driver_version --format=csv,noheader --id=0
+    register: current_driver_version
+    when: state == "present" and not ansible_check_mode and dry_run_mode != "true" and nvidia_smi.rc == 0
+    no_log: true
+    failed_when: false
+  - name: check if driver installation is required
+    set_fact:
+      install_driver: "{{ state == 'present' and not ansible_check_mode and dry_run_mode != 'true' and (nvidia_mod.rc >= 1 or nvidia_smi.rc >= 1 or current_driver_version.stdout != gpu_driver_version) }}"
+  - name: unload nvidia
+    when: (state != "present" and not ansible_check_mode and dry_run_mode != "true") or install_driver
+    shell: /usr/bin/nvidia-uninstall --silent; kill -9 $(lsof /dev/nvidia* | awk '{print $2}' | grep -v PID | uniq); rmmod nvidia_uvm; rmmod nvidia_drm; rmmod nvidia_modeset; rmmod nvidia
+    become: true
+    failed_when: false
+  - name: nvidia driver clean up
+    when: (state != "present" and not ansible_check_mode and dry_run_mode != "true") or install_driver
+    block:
+    - name: remove ubuntu unattended upgrades to prevent apt lock
+      ansible.builtin.apt:
+        name: unattended-upgrades
+        state: absent
+        purge: yes
+      register: apt_cleanup
+      retries: 10
+      until: apt_cleanup is success
+    - name: remove old apt repository
+      apt_repository:
+        repo: ppa:graphics-drivers/ppa
+        state: absent
+      register: ppa_clean
+      retries: 10
+      until: ppa_clean is success
+    - name: remove nvidia packages
+      apt:
+        name:
+        - "*cuda*"
+        - "libnvidia-cfg1-*"
+        - "libnvidia-common-*"
+        - "libnvidia-compute-*"
+        - "libnvidia-decode-*"
+        - "libnvidia-encode-*"
+        - "libnvidia-extra-*"
+        - "libnvidia-fbc1-*"
+        - "libnvidia-gl-*"
+        - "nvidia-compute-utils-*"
+        - "nvidia-dkms-*"
+        - "nvidia-driver-*"
+        - "nvidia-kernel-common-*"
+        - "nvidia-kernel-source-*"
+        - "nvidia-modprobe"
+        - "nvidia-prime"
+        - "nvidia-settings"
+        - "nvidia-utils-*"
+        - "screen-resolution-extra"
+        - "xserver-xorg-video-nvidia-*"
+        - "gdm*"
+        - "xserver-xorg-*"
+        autoremove: yes
+        purge: yes
+        state: absent
+      register: nvidia_cleanup
+      retries: 10
+      until: nvidia_cleanup is success
+    - name: remove old keyring
+      shell:
+        cmd: "apt-key del 7fa2af80"
+  - name: update ubuntu system
+    become: true
+    when: install_driver
+    ignore_errors: true
+    block:
+    - name: force an apt update
+      apt:
+        update_cache: true
+      changed_when: false
+      register: update
+      retries: 10
+      until: update is success
+    - name: ensure build-essential is installed
+      apt:
+        name: build-essential
+        state: present
+      register: build_essential_check
+      retries: 10
+      until: build_essential_check is success
+    - name: ensure kmod is installed
+      apt:
+        name: kmod
+        state: present
+      register: kmod_check
+      retries: 10
+      until: kmod_check is success
+  - name: install nvidia trd driver
+    become: true
+    when: install_driver
+    ignore_errors: true
+    block:
+    - name: temporarily adjust account password policy to allow for successful nvidia driver install
+      shell: chage -d 1 root
+    - name: install driver packages
+      shell: "BASE_URL=https://us.download.nvidia.com/tesla; curl -fSsl -O $BASE_URL/{{ gpu_driver_version }}/NVIDIA-Linux-{{ ansible_architecture }}-{{ gpu_driver_version }}.run; chmod +x ./NVIDIA-Linux-{{ ansible_architecture }}-{{ gpu_driver_version }}.run; sh ./NVIDIA-Linux-{{ ansible_architecture }}-{{ gpu_driver_version }}.run --silent"
+  - name: enable nvidia persistence daemon
+    become: true
+    when: install_driver
+    shell: nvidia-persistenced

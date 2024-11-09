@@ -1,0 +1,29 @@
+---
+- hosts: localhost
+  connection: local
+  gather_facts: no
+  become: false
+  tasks:
+  - name: delete any existing output file
+    file:
+      path: "{{ output_file }}"
+      state: absent
+  - name: create output file
+    file:
+      path: "{{ output_file }}"
+      state: touch
+  - name: populate output file
+    copy:
+      content: "{{ expression | to_nice_yaml(indent=2) }}"
+      dest: "{{ output_file }}"
+    when: output_format is defined and output_format == "yaml"
+  - name: populate output file
+    copy:
+      content: "{{ expression | to_nice_json(indent=2) }}"
+      dest: "{{ output_file }}"
+    when: output_format is defined and output_format == "json"
+  - name: populate output file
+    copy:
+      content: "{{ expression }}"
+      dest: "{{ output_file }}"
+    when: output_format is not defined or output_format not in ["yaml", "json"]

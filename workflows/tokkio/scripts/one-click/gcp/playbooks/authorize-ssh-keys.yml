@@ -1,0 +1,11 @@
+---
+- hosts: all
+  gather_facts: yes
+  become: false
+  tasks:
+  - name: authorize key
+    ansible.posix.authorized_key:
+      state: "{{ state | default('present') }}"
+      user: "{{ task_config.user }}"
+      key: "{{ item }}"
+    loop: "{{ task_config['keys'] }}"

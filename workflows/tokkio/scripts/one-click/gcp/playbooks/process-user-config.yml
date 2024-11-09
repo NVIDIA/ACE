@@ -1,0 +1,10 @@
+---
+- hosts: localhost
+  connection: local
+  gather_facts: yes
+  become: false
+  tasks:
+  - name: populate output file
+    copy:
+      content: "{{ lookup('template', input_file) }}"
+      dest: "{{ output_file }}"

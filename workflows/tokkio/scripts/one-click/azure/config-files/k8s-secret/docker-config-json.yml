@@ -1,0 +1,6 @@
+kubeconfig: "{{ task_vars.kubeconfig | default(omit) }}"
+name: "{{ task_vars.name }}"
+namespace: "{{ task_vars.namespace }}"
+type: "kubernetes.io/dockerconfigjson"
+data:
+  .dockerconfigjson: "{{ task_vars.docker_config_json | to_json | b64encode }}"

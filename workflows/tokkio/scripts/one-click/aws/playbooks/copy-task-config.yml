@@ -1,0 +1,8 @@
+---
+- hosts: localhost
+  connection: local
+  gather_facts: no
+  become: false
+  tasks:
+  - name: copy task config
+    shell: "yq eval '.' {{ config_source }} -o json | jq '{task_config: .}' | yq -P > {{ config_destination }}"

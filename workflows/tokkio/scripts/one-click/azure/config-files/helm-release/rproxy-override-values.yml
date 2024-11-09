@@ -1,0 +1,11 @@
+rProxySpec:
+  # nodeSelector:
+  #   type: rp
+  # tolerations:
+  # - key: "rproxy-node"
+  #   operator: "Exists"
+  publicInterfaceName: "eth0"
+  privateInterfaceName: "eth0"
+  imagePullSecrets:
+  - name: ngc-docker-reg-secret
+  checkIPUri: "http://checkip.amazonaws.com"

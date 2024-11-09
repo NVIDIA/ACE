@@ -1,0 +1,173 @@
+schema_version: '0.0.7'
+tasks:
+- name: create-platform-namespace
+  play: k8s-manifest
+  targets:
+  - "{{ task_each_vars.value.targets.master }}"
+  for_each: "{{ iac.clusters | dict2items | selectattr('value.features', 'issuperset', ['app']) | items2dict }}"
+  config_files:
+  - k8s-manifest/namespace.yml
+  vars:
+    name: "{{ configs.k8s_namespace | default('platform') }}"
+
+- name: validate-platform-k8s-secrets-value
+  play: k8s-secret-check-empty
+  targets:
+  - "{{ task_each_vars.value.targets.master }}"
+  for_each: "{{ iac.clusters | dict2items | selectattr('value.features', 'issuperset', ['app']) | items2dict }}"
+  config:
+    k8s_secrets: "{{ configs.k8s_secrets }}"
+
+- name: k8s-secrets-platform
+  play: k8s-secret
+  targets:
+  - "{{ task_each_vars.value.targets.master }}"
+  for_each: "{{ iac.clusters | dict2items | selectattr('value.features', 'issuperset', ['app']) | items2dict }}"
+  config:
+    k8s_secrets: "{{ configs.k8s_secrets }}"
+    namespace: "{{ configs.k8s_namespace | default('platform') }}"
+
+- name: mdx-local-path-provisioner
+  play: helm-release
+  targets:
+  - "{{ task_each_vars.value.targets.master }}"
+  for_each: "{{ iac.clusters | dict2items | selectattr('value.features', 'issuperset', ['app']) | items2dict }}"
+  config:
+    repo_name: "nvidia-ace"
+    repo_url: "https://helm.ngc.nvidia.com/nvidia/ace"
+    repo_username: "$oauthtoken"
+    repo_password: "{{ secrets.ngc_cli_api_key }}"
+    chart_ref: "mdx-local-path-provisioner"
+    chart_version: '0.3.0'
+    namespace: "{{ configs.k8s_namespace | default('platform') }}"
+    release_name: mdx-local-path-provisioner
+    state: "{{ state | default('present') }}"
+
+- name: add-sysctl-settings
+  play: add-sysctl-config
+  targets: 
+  - "{{ task_each_vars.value.targets.master }}"
+  for_each: "{{ iac.clusters | dict2items | selectattr('value.features', 'issuperset', ['app']) | items2dict }}"
+  vars:
+    parameter: 'fs.inotify.max_user_instances'
+    value: '8192'
+
+- name: tokkio-ingress-controller
+  play: helm-release
+  targets: 
+  - "{{ task_each_vars.value.targets.master }}"
+  for_each: "{{ iac.clusters | dict2items | selectattr('value.features', 'issuperset', ['app']) | items2dict }}"
+  config:
+    repo_name: "nvidia-ace"
+    repo_url: "https://helm.ngc.nvidia.com/nvidia/ace"
+    repo_username: "$oauthtoken"
+    repo_password: "{{ secrets.ngc_cli_api_key }}"
+    chart_ref: "mdx-nginx-ingress-controller"
+    chart_version: '1.0.0'
+    namespace: "{{ configs.k8s_namespace | default('platform') }}"
+    release_name: tokkio-ingress-controller
+    state: "{{ state | default('present') }}"
+
+
+- name: tokkio-logging-es
+  play: helm-release
+  targets: 
+  - "{{ task_each_vars.value.targets.master }}"
+  for_each: "{{ iac.clusters | dict2items | selectattr('value.features', 'issuperset', ['app']) | items2dict }}"
+  vars:
+    ops_es_cluster_name: 'tokkio-logging-es-cluster'
+  config:
+    repo_name: "nvidia-ace"
+    repo_url: "https://helm.ngc.nvidia.com/nvidia/ace"
+    repo_username: "$oauthtoken"
+    repo_password: "{{ secrets.ngc_cli_api_key }}"
+    chart_ref: "logging-stack-elastic-kibana"
+    chart_version: '0.0.2'
+    namespace: "{{ configs.k8s_namespace | default('platform') }}"
+    release_name: tokkio-logging-es
+    state: "{{ state | default('present') }}"
+    values_files:
+    - "{{ dist_dir }}/config-files/helm-release/tokkio-logging-es-override-values.yml"
+
+# # As setting index.number_of_replicas = 0 on es cluster as we have only single pod otherwise cluster status fails on node reboot for es-master pod
+- name: logging-es-replicas-update-configmap
+  play: k8s-manifest
+  targets:
+  - "{{ task_each_vars.value.targets.master }}"
+  for_each: "{{ iac.clusters | dict2items | selectattr('value.features', 'issuperset', ['app']) | items2dict }}"
+  config_files:
+  - k8s-manifest/logging-es-replicas-update-configmap.yml
+  vars:
+    namespace: "{{ configs.k8s_namespace | default('platform') }}"
+
+- name: logging-es-replicas-update-deployment
+  play: k8s-manifest
+  targets:
+  - "{{ task_each_vars.value.targets.master }}"
+  for_each: "{{ iac.clusters | dict2items | selectattr('value.features', 'issuperset', ['app']) | items2dict }}"
+  config_files:
+  - k8s-manifest/es-replicas-update-deployment.yml
+  vars:
+    namespace: "{{ configs.k8s_namespace | default('platform') }}"
+
+- name: mdx-kube-prometheus-stack
+  play: helm-release
+  targets: 
+  - "{{ task_each_vars.value.targets.master }}"
+  for_each: "{{ iac.clusters | dict2items | selectattr('value.features', 'issuperset', ['app']) | items2dict }}"
+  config:
+    repo_name: "nvidia-ace"
+    repo_url: "https://helm.ngc.nvidia.com/nvidia/ace"
+    repo_username: "$oauthtoken"
+    repo_password: "{{ secrets.ngc_cli_api_key }}"
+    chart_ref: "mdx-kube-prometheus-stack"
+    chart_version: '1.0.4'
+    namespace: "{{ configs.k8s_namespace | default('platform') }}"
+    release_name: mdx-kube-prometheus-stack
+    state: "{{ state | default('present') }}"
+
+# - name: ingress-rules
+#   play: k8s-manifest
+#   targets:
+#   - "{{ task_each_vars.value.targets.master }}"
+#   for_each: "{{ iac.clusters | dict2items | selectattr('value.features', 'issuperset', ['app']) | items2dict }}"
+#   config_files:
+#   - k8s-manifest/platform-ingress-rule.yml
+#   vars:
+#     namespace: "{{ configs.k8s_namespace | default('platform') }}"
+#     elastic_domain: "{{ iac.clusters.app.platform.elasticsearch_endpoint }}"
+#     kibana_domain: "{{ iac.clusters.app.platform.kibana_endpoint }}"
+#     grafana_domain: "{{ iac.clusters.app.platform.grafana_endpoint }}"
+#     ops_es_cluster_name: 'tokkio-logging-es-cluster'
+
+- name: pause
+  play: sleep 
+  targets: 
+  - "{{ task_each_vars.value.targets.master }}"
+  for_each: "{{ iac.clusters | dict2items | selectattr('value.features', 'issuperset', ['app']) | items2dict }}"
+  vars:
+    time: 180
+  condition: "{{ state == 'present' }}"
+
+- name: tokkio-fluent-bit
+  play: helm-release
+  targets: 
+  - "{{ task_each_vars.value.targets.master }}"
+  for_each: "{{ iac.clusters | dict2items | selectattr('value.features', 'issuperset', ['app']) | items2dict }}"
+  vars:
+    ops_es_cluster_name: 'tokkio-logging-es-cluster'
+    Flush:  "{{ .Values.flush }}"
+    Log_Level: "{{ .Values.logLevel }}"
+    HTTP_Port: "{{ .Values.metricsPort }}"
+  config:
+    repo_name: "nvidia-ace"
+    repo_url: "https://helm.ngc.nvidia.com/nvidia/ace"
+    repo_username: "$oauthtoken"
+    repo_password: "{{ secrets.ngc_cli_api_key }}"
+    chart_ref: "tokkio-fluent-bit-logging-service"
+    chart_version: '0.0.3'
+    namespace: "{{ configs.k8s_namespace | default('platform') }}"
+    release_name: tokkio-fluent-bit
+    state: "{{ state | default('present') }}"
+    values_files:
+    - "{{ dist_dir }}/config-files/helm-release/tokkio-fluent-bit-override-values.yml"

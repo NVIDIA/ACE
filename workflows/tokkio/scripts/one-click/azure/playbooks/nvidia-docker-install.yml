@@ -1,0 +1,62 @@
+---
+- hosts: all
+  become: true
+  become_method: sudo
+  vars:
+    docker_daemon_options:
+      default-address-pools:
+      - base: "192.168.2.0/16"
+        size: 24
+      default-runtime: nvidia
+      runtimes:
+        nvidia:
+          path: /usr/bin/nvidia-container-runtime
+          runtimeArgs: []
+    docker_users:
+    - "{{ ansible_user }}"
+  tasks:
+  - name: populate service facts
+    service_facts:
+  - name: capture running services
+    set_fact:
+      running_services: "{{ ansible_facts.services | dict2items | selectattr('value.state', 'equalto', 'running') | map(attribute='key') }}"
+      all_services: "{{ ansible_facts.services | dict2items | map(attribute='key') }}"
+  - name: cleanup containerd
+    when: running_services | intersect(['docker', 'docker.service']) | length == 0
+    block:
+    - name: stop and disable containerd service
+      systemd_service:
+        name: containerd
+        state: stopped
+        enabled: false
+      when: all_services | intersect(['containerd', 'containerd.service']) | length > 0
+    - name: systemd daemon reload
+      systemd_service:
+        daemon_reload: true
+    - name: remove apt packages for containerd
+      apt:
+        name: containerd.io
+        state: absent
+        purge: true
+    - name: remove containerd configs
+      file:
+        path: "{{ item }}"
+        state: absent
+      loop:
+      - /etc/systemd/system/containerd.service.d
+      - /etc/systemd/system/containerd.service
+  - name: install docker
+    include_role:
+      name: geerlingguy.docker
+    when: state == "present" and not ansible_check_mode and dry_run_mode != "true"
+- import_playbook: nvidia-container-toolkit-install.yml
+  when: state == "present" and not ansible_check_mode and dry_run_mode != "true"
+- hosts: all
+  become: true
+  become_method: sudo
+  tasks:
+  - name: restart docker
+    systemd_service:
+      state: restarted
+      name: docker
+    when: state == "present" and not ansible_check_mode and dry_run_mode != "true"

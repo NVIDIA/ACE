@@ -1,0 +1,50 @@
+---
+- hosts: localhost
+  connection: local
+  gather_facts: no
+  become: false
+  tasks:
+  - name: install git
+    become: true
+    apt:
+      name: git
+      state: present
+  - name: clone cns git repo
+    block:
+    - name: remove any existing cns git source directory
+      file:
+        path: "{{ dist_dir }}/cns"
+        state: absent
+    - name: clone cns git repo
+      git:
+        repo: https://github.com/NVIDIA/cloud-native-stack.git
+        version: "{{ configs.cns.git_ref | default(omit) }}"
+        dest: "{{ dist_dir }}/cns"
+  - name: capture cns version
+    set_fact:
+      cns_version: "{{ configs.cns.version | default('12.2') }}"
+  - name: populate cns version
+    copy:
+      content: "{{ cns_version }}"
+      dest: "{{ dist_dir }}/cns/playbooks/cns_version.yaml"
+  - name: populate cns override values
+    copy:
+      content: "{{ configs.cns.override_values | default('{}') | to_nice_yaml }}"
+      dest: "{{ dist_dir }}/cns/playbooks/cns_override_values.yaml"
+  - name: check values for cns version exists
+    stat:
+      path: "{{ dist_dir }}/cns/playbooks/cns_values_{{ cns_version }}.yaml"
+    register: cns_values_for_version
+  - name: populate cns version values when not exists
+    copy:
+      content: "{}"
+      dest: "{{ dist_dir }}/cns/playbooks/cns_values_{{ cns_version }}.yaml"
+    when: not cns_values_for_version.stat.exists
+  - name: prepare cns values
+    shell: |
+      yq eval-all '. as $item ireduce ({}; . * $item )' {{ dist_dir }}/cns/playbooks/cns_values_{{ cns_version }}.yaml {{ dist_dir }}/cns/playbooks/cns_override_values.yaml
+    register: cns_values
+  - name: populate cns values
+    copy:
+      content: "{{ cns_values.stdout }}"
+      dest: "{{ dist_dir }}/cns/playbooks/cns_values.yaml"

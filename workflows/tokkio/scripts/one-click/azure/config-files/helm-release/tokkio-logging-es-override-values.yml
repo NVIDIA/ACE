@@ -1,0 +1,10 @@
+elasticsearch:
+  clusterName: "{{ task_vars.ops_es_cluster_name }}"
+  volumeClaimTemplate:
+    storageClassName: mdx-local-path
+kibana:
+  elasticsearchHosts: "http://{{ task_vars.ops_es_cluster_name }}-master-headless:9200"
+  service:
+    nodePort: "31565"
+ingress:
+  enabled: false

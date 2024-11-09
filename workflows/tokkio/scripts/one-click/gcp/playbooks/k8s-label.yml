@@ -1,0 +1,22 @@
+---
+- hosts: all
+  gather_facts: yes
+  tasks: []
+- hosts: master
+  gather_facts: no
+  tasks:
+  - name: prepare node labels
+    set_fact:
+      node_labels: "{{ node_labels | default({}) | combine( {hostvars[item.key].ansible_facts.hostname: item.value} ) }}"
+    with_dict: "{{ task_config.node_labels }}"
+  - name: apply node labels
+    kubernetes.core.k8s:
+      kubeconfig: "{{ task_config.kubeconfig | default(omit) }}"
+      state: "{{ state | default('present') }}"
+      definition:
+        apiVersion: v1
+        kind: Node
+        metadata:
+          name: "{{ item.key }}"
+          labels: "{{ item.value if item.value is defined else {} }}"
+    with_dict: "{{ node_labels }}"

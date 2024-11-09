@@ -1,0 +1,16 @@
+---
+- hosts: all
+  gather_facts: no
+  tasks:
+  - name: install pip3
+    become: yes
+    become_user: root
+    apt:
+      name: python3-pip
+      state: present
+  - name: install pre-requisites
+    pip:
+      name:
+      - jsonpatch
+      - kubernetes>=12.0.0
+      - PyYAML>3.11

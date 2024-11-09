@@ -1,0 +1,16 @@
+---
+- hosts: all
+  gather_facts: yes
+  become: false
+  tasks:
+  - name: ensure dir exists
+    file:
+      path: "{{ task_config.dest | dirname }}"
+      state: directory
+      mode: '0755'
+  - name: write content to file
+    copy:
+      content: "{{ task_config.content }}"
+      dest: "{{ task_config.dest }}"
+      mode: "{{ task_config.mode | default(omit) }}"
+      backup: "{{ task_config.backup | default(omit) }}"

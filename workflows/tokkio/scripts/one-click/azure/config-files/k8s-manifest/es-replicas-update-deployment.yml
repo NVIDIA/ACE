@@ -1,0 +1,39 @@
+kubeconfig: "{{ task_vars.kubeconfig | default(omit) }}"
+definition:
+  apiVersion: apps/v1
+  kind: Deployment
+  metadata:
+    name: es-replicas-update-deployment
+    labels:
+      app: es-replicas-update
+    namespace: "{{ task_vars.namespace }}"
+  spec:
+      replicas: 1
+      selector:
+        matchLabels:
+          app: es-replicas-update
+      template:
+        metadata:
+          labels:
+            app: es-replicas-update
+        spec:
+          containers:
+          - name: curl-commands
+            image: giantswarm/tiny-tools
+            command: ["/bin/sh", "-c"]
+            args: ["/scripts/update_es_replicas.sh"]
+            resources:
+              requests:
+                memory: "100Mi"
+                cpu: "200m"
+              limits:
+                memory: "200Mi"
+                cpu: "1"
+            volumeMounts:
+              - name: script-volume
+                mountPath: /scripts
+          volumes:
+            - name: script-volume
+              configMap:
+                name: script-config
+                defaultMode: 493

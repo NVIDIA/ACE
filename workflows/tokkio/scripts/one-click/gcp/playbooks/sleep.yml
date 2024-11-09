@@ -1,0 +1,8 @@
+---
+- hosts: all
+  gather_facts: yes
+  become: false
+  tasks:
+    - name: "sleep {{ task_vars.time }}"
+      shell: |
+        sleep "{{ task_vars.time }}"

@@ -1,0 +1,10 @@
+---
+- hosts: all
+  gather_facts: no
+  become: false
+  tasks:
+  - name: check sudo privileges
+    become: true
+    stat:
+      path: /root
+    no_log: true

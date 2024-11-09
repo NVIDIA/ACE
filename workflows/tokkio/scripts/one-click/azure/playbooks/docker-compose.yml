@@ -1,0 +1,35 @@
+---
+- hosts: all
+  gather_facts: yes
+  become: false
+  tasks:
+  - name: create directory for compose file
+    file:
+      path: "{{ ansible_user_dir }}/{{ task_config.name }}"
+      state: directory
+      mode: '0755'
+  - name: prepare docker-compose.yml
+    copy:
+      content: "{{ task_config.content }}"
+      dest: "{{ ansible_user_dir }}/{{ task_config.name }}/docker-compose.yml"
+  - name: create and start services
+    community.docker.docker_compose_v2:
+      project_src: "{{ ansible_user_dir }}/{{ task_config.name }}"
+    when: state == "present" and not ansible_check_mode and dry_run_mode != "true"
+    register: start_output
+  - name: verify services were started successfully
+    assert:
+      that:
+      - "not start_output.failed"
+    when: state == "present" and not ansible_check_mode and dry_run_mode != "true"
+  - name: stop all services
+    community.docker.docker_compose_v2:
+      project_src: "{{ ansible_user_dir }}/{{ task_config.name }}"
+      state: stopped
+    when: state != "present" and not ansible_check_mode and dry_run_mode != "true"
+    register: stop_output
+  - name: verify services were stopped successfully
+    assert:
+      that:
+      - "not stop_output.failed"
+    when: state != "present" and not ansible_check_mode and dry_run_mode != "true"

@@ -1,0 +1,8 @@
+---
+- name: read file content
+  set_fact:
+    item_content: "{{ lookup('template', item) }}"
+- name: output content to file
+  copy:
+    content: "{{ item_content }}"
+    dest: "{{ ansible_user_dir }}/helm-values/ns-{{ task_config.namespace }}/release-{{ task_config.release_name }}/{{ item | basename }}"

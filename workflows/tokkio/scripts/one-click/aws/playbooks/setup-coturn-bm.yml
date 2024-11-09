@@ -1,0 +1,36 @@
+---
+- name: Setup Coturn Server
+  hosts: all
+  become: yes
+  gather_facts: yes
+  vars:
+    script: "{{ playbook_dir }}/scripts/coturn-setup-bm.sh"  # Ensure the script path is correct
+    environment: "{{ environment }}"
+  tasks:
+    # - name: Debug script variable
+    #   debug:
+    #     msg: "Script: {{ task_config.script }}"
+    #   when: state == "present" and not ansible_check_mode and dry_run_mode != "true"
+
+    # - name: Debug environment variables
+    #   debug:
+    #     msg: "Environment: {{ task_config.environment }}"
+    #   when: state == "present" and not ansible_check_mode and dry_run_mode != "true"
+
+    - name: Copy coturn setup script to target
+      copy:
+        src: "{{ task_config.script }}"
+        dest: "/mnt/coturn-setup-bm.sh"
+        mode: '0755'
+      when: state == "present" and not ansible_check_mode and dry_run_mode != "true"
+
+    - name: Setting up Coturn Server
+      shell: "/mnt/coturn-setup-bm.sh install"
+      environment: "{{ task_config.environment }}"
+      when: state == "present" and not ansible_check_mode and dry_run_mode != "true"
+      register: script_output
+    
+    - name: Uninstalling Coturn Server 
+      shell: "/mnt/coturn-setup-bm.sh uninstall"
+      when: state != "present" and not ansible_check_mode and dry_run_mode != "true"
+      register: script_output
