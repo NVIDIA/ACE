@@ -171,7 +171,7 @@ tasks:
         resource_org: "{{ configs.ui_settings.resource.ngc.org | default('nvidia') }}"
         resource_team: "{{ configs.ui_settings.resource.ngc.team | default('ace') }}"
         resource_name: "{{ configs.ui_settings.resource.ngc.name | default('tokkio_ui') }}"
-        resource_version: "{{ configs.ui_settings.resource.ngc.version | default('5.0.0-362') }}"
+        resource_version: "{{ configs.ui_settings.resource.ngc.version | default('5.0.0') }}"
         resource_file: "{{ configs.ui_settings.resource.ngc.file | default('ui.tar.gz') }}"
       user_env_vars: "{{ configs.ui_settings.user_env_vars | default({}) }}"
       system_env_vars:

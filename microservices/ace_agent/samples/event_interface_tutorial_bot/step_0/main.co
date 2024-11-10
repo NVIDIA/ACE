@@ -1,0 +1,21 @@
+import avatars
+import llm
+import core
+
+@meta(bot_intent=True)
+flow bot express greeting
+  bot say "Welcome to the tutorial"
+
+# The main flow is the entry point
+@meta(exclude_from_llm=True)
+flow main
+  
+  # Technical flows, see Colang 2.0 documentation for more details
+  activate notification of undefined flow start
+  activate notification of colang errors
+  activate tracking bot talking state
+
+  bot express greeting
+
+  # This will prevent the main flow finishing ever
+  wait indefinitely

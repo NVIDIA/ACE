@@ -27,12 +27,12 @@ Before you start using NVIDIA ACE Agent, it’s assumed that you meet the follow
     kubectl create secret generic ngc-api-key-secret --from-literal=NGC_CLI_API_KEY="${NGC_CLI_API_KEY}"
     ```
 
-2. The Stock bot uses [the mixtral-8x7b-instruct-v0.1 model](https://build.nvidia.com/mistralai/mixtral-8x7b-instruct) deployed via [the NVIDIA API Catalog](https://build.nvidia.com/explore/discover) as the main model. Get the API key from [the mixtral-8x7b-instruct-v0.1 model card](https://build.nvidia.com/mistralai/mixtral-8x7b-instruct) for trying out the bot and create the Kubernetes secret for passing NVIDIA_API_KEY.
+2. The Stock bot uses OpenAI gpt-3.5-turbo-instruct as the main model. Configure the OpenAI API key. To create Kubernetes secret, run:
+
     ```
-    cat <<EOF | tee custom-env.txt
-    NVIDIA_API_KEY="nvapi-XXX"
-    EOF
-    kubectl create secret generic custom-env-secrets --from-file=ENV=custom-env.txt
+    export OPENAI_API_KEY=...
+
+    kubectl create secret generic openai-key-secret --from-literal=OPENAI_API_KEY=${OPENAI_API_KEY}
     ```
 
 3. Generate the Helm Chart using UCS tools.
@@ -42,7 +42,7 @@ Before you start using NVIDIA ACE Agent, it’s assumed that you meet the follow
 
 4. Deploy the generated Helm Chart.
     ```
-    helm install ace-agent ucf-app-chat-bot-4.0.0/
+    helm install ace-agent ucf-app-chat-bot-4.1.0/
     ```
 
 5. Wait for all pods to be ready.

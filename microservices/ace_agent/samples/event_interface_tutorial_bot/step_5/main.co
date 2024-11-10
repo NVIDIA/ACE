@@ -1,0 +1,90 @@
+import core
+import avatars
+import llm
+
+@meta(bot_intent=True)
+flow bot express greeting
+  (bot express "Hi there!"
+    or bot express "Welcome!"
+    or bot express "Hello!")
+    and bot gesture "Wave with one hand"
+
+@meta(bot_intent=True)
+flow bot express goodbye
+  (bot express "Goodbye" or bot express "Talk to you soon!") and bot gesture "bowing in goodbye"
+
+@meta(user_intent=True)
+flow user expressed done
+  user said (regex("(?i).*done.*|.*end.*demo.*|.*exit.*"))
+
+# CHANGE 1: Add two new user intent flows
+@meta(user_intent=True)
+flow user confirmed
+  user has selected choice "yes"
+    or user said "yes"
+    or user said "ok"
+    or user said "that's ok"
+    or user said "yes why not"
+    or user said "sure"
+
+@meta(user_intent=True)
+flow user denied
+  user has selected choice "no"
+    or user said "no"
+    or user said "don't do it"
+    or user said "I am not OK with this"
+    or user said "cancel"
+
+# CHANGE 2: Add flow that askes user for email address using UI and voice
+flow ask for user email
+  start VisualChoiceSceneAction(prompt= "Would you share your e-mail?", support_prompts=["You can just type 'yes' or 'no'","Or just click on the buttons below"],choice_type="selection", allow_multiple_choices=False, options= [{"id": "yes", "text": "Yes"}, {"id": "no", "text": "No"}]) as $confirmation_ui
+  bot say "I would love to keep in touch. Would you be OK to give me your e-mail address?"
+  when user confirmed
+    send $confirmation_ui.Stop()
+    bot ask "Nice! Please enter a valid email address to continue"
+    start VisualFormSceneAction(prompt="Enter valid email",inputs=[{"id": "email", "description": "email address", "value" : ""}]) as $action
+    while True
+      when VisualFormSceneAction.InputUpdated(interim_inputs=[{"id": "email",  "value" : regex("@$")}])
+          bot say "And now only the domain missing!"
+      or when VisualFormSceneAction.InputUpdated(interim_inputs=[{"id": "email",  "value" : regex("^[-\w\.]+@([\w-]+\.)+[\w-]{2,4}$")}])
+          bot say "Looks like a valid email address to me, just click ok to confirm" and bot gesture "success"
+      or when VisualFormSceneAction.ConfirmationUpdated(confirmation_status="confirm")
+          bot say "Thank you" and bot gesture "bowing"
+          break
+      or when VisualFormSceneAction.ConfirmationUpdated(confirmation_status="cancel")
+          bot say "OK. Maybe another time."
+          break
+  or when user denied
+    bot say "That is OK"
+
+flow handling user silence
+  user was silent 15.0
+  llm continue interaction
+
+flow handling user requests until user expressed done
+  activate llm continuation
+  activate handling user silence
+  activate handling bot talking interruption $mode="interrupt"
+
+  bot say something like "How can I help you today?"
+  user expressed done
+  # CHANGE 3: Run the flow that asks the user for email address and await it
+  ask for user email
+  bot express goodbye
+
+# The main flow is the entry point
+@meta(exclude_from_llm=True)
+flow main
+  # Technical flows, see Colang 2.0 documentation for more details
+  activate notification of undefined flow start
+  activate notification of colang errors
+  activate tracking bot talking state
+
+  # The bot greets the user and a welcome message is shown on the UI
+  start scene show short information "Welcome to this tutorial interaction" as $intro_ui
+  bot express greeting
+
+  handling user requests until user expressed done
+
+  # This will prevent the main flow finishing ever
+  wait indefinitely

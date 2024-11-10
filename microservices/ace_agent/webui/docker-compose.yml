@@ -1,0 +1,81 @@
+# SPDX-FileCopyrightText: Copyright (c) 2024 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-License-Identifier: Apache-2.0
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# This docker compose file starts the bot web UI's client and server for local
+# development, enabling hot-reloading and debugging features. It assumes ACE agent is
+# running in "server", "gRPC" or "event" mode in the same network.
+#
+# This is not meant for production use-cases.
+#
+# Usage:
+# - docker compose up server-mode
+#   Runs the bot web UI server and client in text-only mode (no speech). The Bot Web UI
+#   communicates with ACE Agent using its HTTP (aka "server") interface.
+#
+# - docker compose up event-mode
+#   Runs the bot web UI server and client in text-only mode (no speech). The Bot Web UI
+#   communicates with ACE Agent using its Redis (aka "event" or "umim") interface.
+#
+# - docker compose up speech-mode
+#   Runs the bot web UI server and client in speech mode. The Bot Web UI communicates with
+#   ACE Agent using its gRPC interface.
+#
+# - docker compose up event-speech-mode
+#   Runs the bot web UI server and client in speech mode. The Bot Web UI communicates with
+#   ACE Agent using its Redis (aka "event" or "umim") interface.
+#
+# Then: If you are running this on your workstation, allow port-forwarding on ports 7006
+# and 7007 and reload chrome. Then, browse to http://localhost:7006 to view the UI.
+
+services:
+  x-base: &base
+    image: node:21.2.0-slim
+    network_mode: host
+    volumes:
+      - type: bind
+        source: ./
+        target: /app
+    tty: true
+    working_dir: /app
+
+  bot-web-ui-dev-client:
+    <<: *base
+    container_name: bot-web-ui-dev-client
+    command: sh -c "cd client && yarn install && yarn run dev"
+
+  x-server-base: &server-base
+    <<: *base
+    depends_on:
+      - bot-web-ui-dev-client
+
+  server-mode:
+    <<: *server-base
+    container_name: bot-web-ui-dev-server-server
+    command: sh -c "cd server && yarn install && yarn run dev:server-mode"
+
+  event-mode:
+    <<: *server-base
+    container_name: bot-web-ui-dev-server-event
+    command: sh -c "cd server && yarn install && yarn run dev:event-mode"
+
+  speech-mode:
+    <<: *server-base
+    container_name: bot-web-ui-dev-server-speech
+    command: sh -c "cd server && yarn install && yarn run dev:speech-mode"
+
+  event-speech-mode:
+    <<: *server-base
+    container_name: bot-web-ui-dev-server-event-speech
+    command: sh -c "cd server && yarn install && yarn run dev:event-speech-mode"

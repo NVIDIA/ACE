@@ -1,5 +1,5 @@
 chat-controller:
-  pipeline: speech_lite
+  pipeline: speech_umim
   speechConfigPath: "speech_config.yaml"
   ipaDictPath: "cmudict_ipa.txt"
   pipelineParams: # can be extended for all pipeline params in speech_config.yaml
@@ -10,6 +10,7 @@ chat-controller:
 chat-engine:
   botConfigName: stock_bot_config.yml
   gunicornWorkers: "4"
+  interface: event
 
 riva-speech:
   riva:
@@ -21,8 +22,8 @@ riva-speech:
       triton0:
         models:
         #> description: List of NGC models for deployment
-        - nvidia/ucs-ms/rmir_asr_parakeet_1-1b_en_us_str_vad:2.15.0 #english
-        - nvidia/riva/rmir_tts_radtts_hifigan_en_us_ipa:2.15.0
+        - nvidia/ace/rmir_asr_parakeet_1-1b_en_us_str_vad:2.17.0 #english
+        - nvidia/riva/rmir_tts_fastpitch_hifigan_en_us_ipa:2.17.0
   persistentVolumeClaim:
     keepPVC: True
 
@@ -32,3 +33,7 @@ plugin-server:
     config:
       workers: 4
       timeout: 120
+
+webapp:
+  chatInterface: "event"
+  speechFlags: "--speech"

@@ -1,0 +1,12 @@
+define user ask current date
+  "What is the current time?"
+  "What time is it now?"
+  "What day is today?"
+  "What time is it?"
+  "What is today's date?"
+  "What is the current date?"
+
+define flow current date
+  user ask current date
+  $date = execute plugin(endpoint="date/get_date")
+  bot provide $date

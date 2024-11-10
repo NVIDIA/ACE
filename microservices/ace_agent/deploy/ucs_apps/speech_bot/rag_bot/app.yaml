@@ -1,16 +1,18 @@
 specVersion: 2.5.0
 
-version: 4.0.0
+version: 4.1.0
 
 name: ucf-app-speech-bot
 
 description: ACE Agent RAG Bot App
 
 dependencies:
-- ucf.svc.riva.speech-skills:2.15.1
-- ucf.svc.ace-agent.plugin-server:4.0.0
-- ucf.svc.ace-agent.chat-controller:4.0.0
-- ucf.svc.ace-agent.web-app:4.0.0
+- ucf.svc.riva.speech-skills:2.17.0
+- ucf.svc.ace-agent.plugin-server:4.1.0
+- ucf.svc.ace-agent.chat-controller:4.1.0
+- ucf.svc.ace-agent.web-app:4.1.0
+- ucf.svc.core.redis-timeseries:0.0.20
+- ucf.svc.ace-agent.chat-engine:4.1.0
 
 secrets:
   k8sSecret/ngc-api-key-secret/NGC_CLI_API_KEY:
@@ -37,6 +39,22 @@ components:
   files:
     config_dir: ../../../../samples/rag_bot
 
+- name: redis-timeseries
+  type: ucf.svc.core.redis-timeseries
+  parameters:
+    imagePullSecrets:
+    - name: ngc-docker-reg-secret
+
+- name: chat-engine
+  type: ucf.svc.ace-agent.chat-engine
+  parameters:
+    imagePullSecrets:
+    - name: ngc-docker-reg-secret
+  secrets:
+    ngc-api-key-secret: k8sSecret/ngc-api-key-secret/NGC_CLI_API_KEY
+  files:
+    config_dir: ../../../../samples/rag_bot
+
 - name: chat-controller
   type: ucf.svc.ace-agent.chat-controller
   parameters:
@@ -53,14 +71,10 @@ components:
     imagePullSecrets:
     - name: ngc-docker-reg-secret
 
-- name: rag-server
-  type: ucf.svc.external-endpoint
-  parameters:
-    service: UPDATE_RAG_HOST_PORT
-    port: 8081
-
 connections:
   chat-controller/riva: riva-speech/riva-speech-api
-  chat-controller/chat-api: plugin-server/http-api
+  chat-controller/redis: redis-timeseries/redis
+  chat-engine/plugin-server: plugin-server/http-api
+  chat-engine/redis: redis-timeseries/redis
   webapp/chat-controller: chat-controller/grpc-api
-  plugin-server/rag-server: rag-server/endpoint
+  webapp/redis: redis-timeseries/redis

@@ -1,0 +1,13 @@
+flow user asked current date
+  user said "¿Cuál es la hora actual?"
+    or user said "¿Qué hora es ahora?"
+    or user said"¿Qué día es hoy?"
+    or user said "¿Qué hora es?"
+    or user said "¿Cuál es la fecha de hoy?"
+    or user said "¿Cuál es la fecha actual?"
+
+flow current date
+  user asked current date
+  $date = await InvokeFulfillmentAction(request_type="get", 
+      endpoint="/date/get_date")
+  bot respond in spanish "Today's date is {$date}"

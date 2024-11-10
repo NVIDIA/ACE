@@ -1,18 +1,24 @@
-define user express greeting
-  "Good morning"
-  "Good afternoon"
-  "Good night"
-  "Goodbye"
-  "Thank you"
-  "Hello"
+flow user expressed greeting
+  user said "Good morning"
+    or user said  "Good afternoon"
+    or user said  "Good night"
+    or user said  "Goodbye"
+    or user said  "Thank you"
+    or user said  "Hello"
 
-define user ask how are you
-  "How are you?"
+flow user asked how are you
+  user said "How are you?"
 
-define flow user greets
-  user express greeting
-  bot express greeting
+flow bot greets to user
+  user expressed greeting
+  $response = ..."Reply to user's previous query. Enclose the reply in quotes"
+  bot say "{$response}"
 
-define flow how are you
-  user ask how are you
-  bot responds accordingly
+flow bot reply to how are you
+  user asked how are you
+  $response = ..."Reply to user's previous query. Enclose the reply in quotes"
+  bot say "{$response}"
+
+flow general
+  activate bot greets to user
+  activate bot reply to how are you

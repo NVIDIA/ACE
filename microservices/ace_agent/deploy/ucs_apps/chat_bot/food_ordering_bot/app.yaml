@@ -1,16 +1,17 @@
 specVersion: 2.5.0
 
-version: 4.0.0
+version: 4.1.0
 
 name: ucf-app-chat-bot
 
 description: ACE Agent Food Ordering Bot
 
 dependencies:
-- ucf.svc.ace-agent.chat-engine:4.0.0
-- ucf.svc.ace-agent.plugin-server:4.0.0
-- ucf.svc.ace-agent.nlp-server:4.0.0
-- ucf.svc.ace-agent.web-app:4.0.0
+- ucf.svc.ace-agent.chat-engine:4.1.0
+- ucf.svc.ace-agent.plugin-server:4.1.0
+- ucf.svc.ace-agent.nlp-server:4.1.0
+- ucf.svc.ace-agent.web-app:4.1.0
+- ucf.svc.core.redis-timeseries:0.0.20
 
 secrets:
   k8sSecret/ngc-api-key-secret/NGC_CLI_API_KEY:
@@ -56,9 +57,15 @@ components:
   parameters:
     imagePullSecrets:
     - name: ngc-docker-reg-secret
+- name: redis-timeseries
+  type: ucf.svc.core.redis-timeseries
+  parameters:
+    imagePullSecrets:
+    - name: ngc-docker-reg-secret
 
 connections:
   chat-engine/plugin-server: plugin-server/http-api
   chat-engine/nlp-server: nlp-server/api-server
-  webapp/chat-engine: chat-engine/http-api
+  chat-engine/redis: redis-timeseries/redis
+  webapp/redis: redis-timeseries/redis
 

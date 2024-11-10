@@ -1,7 +1,0 @@
-config:
-  workers: 1
-  timeout: 30
-
-plugins:
-  - name: langchain
-    path: ./plugins/nv_langchain_rag.py

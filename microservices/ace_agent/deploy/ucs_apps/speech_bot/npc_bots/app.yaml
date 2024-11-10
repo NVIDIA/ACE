@@ -1,28 +1,28 @@
 specVersion: 2.5.0
 
-version: 4.0.0
+version: 4.1.0
 
 name: ucf-app-speech-bot
 
 description: Sample UCF application showcasing deployment of Nvidia ACE Agent Components for gaming usecases.
 
 dependencies:
-- ucf.svc.riva.speech-skills:2.15.1
-- ucf.svc.ace-agent.chat-engine:4.0.0
-- ucf.svc.ace-agent.chat-controller:4.0.0
-- ucf.svc.ace-agent.plugin-server:4.0.0
-- ucf.svc.ace-agent.web-app:4.0.0
-- ucf.svc.core.redis:0.0.17
+- ucf.svc.riva.speech-skills:2.17.0
+- ucf.svc.ace-agent.chat-engine:4.1.0
+- ucf.svc.ace-agent.chat-controller:4.1.0
+- ucf.svc.ace-agent.plugin-server:4.1.0
+- ucf.svc.ace-agent.web-app:4.1.0
+- ucf.svc.core.redis-timeseries:0.0.20
 
 secrets:
   k8sSecret/ngc-api-key-secret/NGC_CLI_API_KEY:
     k8sSecret:
       secretName: ngc-api-key-secret
       key: NGC_CLI_API_KEY
-  k8sSecret/custom-env-secrets:
+  k8sSecret/nvidia-api-key-secret/NVIDIA_API_KEY:
     k8sSecret:
-      secretName: custom-env-secrets
-      key: ENV
+      secretName: nvidia-api-key-secret
+      key: NVIDIA_API_KEY
 
 components:
 - name: riva-speech
@@ -39,7 +39,6 @@ components:
     - name: ngc-docker-reg-secret
   secrets:
     ngc-api-key-secret: k8sSecret/ngc-api-key-secret/NGC_CLI_API_KEY
-    custom-env-secrets: k8sSecret/custom-env-secrets
   files:
     config_dir: ../../../../samples/npc_bots
 - name: chat-controller
@@ -56,8 +55,8 @@ components:
   parameters:
     imagePullSecrets:
     - name: ngc-docker-reg-secret
-- name: redis
-  type: ucf.svc.core.redis
+- name: redis-timeseries
+  type: ucf.svc.core.redis-timeseries
   parameters:
     imagePullSecrets:
     - name: ngc-docker-reg-secret
@@ -68,13 +67,14 @@ components:
     - name: ngc-docker-reg-secret
   secrets:
     ngc-api-key-secret: k8sSecret/ngc-api-key-secret/NGC_CLI_API_KEY
-    custom-env-secrets: k8sSecret/custom-env-secrets
+    nvidia-api-key-secret: k8sSecret/nvidia-api-key-secret/NVIDIA_API_KEY
   files:
     config_dir: ../../../../samples/npc_bots
 
 connections:
   chat-controller/riva: riva-speech/riva-speech-api
-  chat-controller/chat-api: chat-engine/http-api
-  chat-controller/redis: redis/redis
+  chat-controller/redis: redis-timeseries/redis
   webapp/chat-controller: chat-controller/grpc-api
+  webapp/redis: redis-timeseries/redis
   chat-engine/plugin-server: plugin-server/http-api
+  chat-engine/redis: redis-timeseries/redis

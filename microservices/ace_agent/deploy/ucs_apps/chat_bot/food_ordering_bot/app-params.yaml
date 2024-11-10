@@ -1,6 +1,7 @@
 chat-engine:
   botConfigName: food_ordering_bot_config.yaml
   logLevel: "DEBUG"
+  interface: "event"
   # gunicorn configs
   gunicornWorkers: "1"
   gunicornTimeout: "150"
@@ -15,3 +16,7 @@ nlp-server:
 
 plugin-server:
   pluginConfigPath: "plugin_config.yaml"
+
+webapp:
+  chatInterface: "event"
+  speechFlags: ""

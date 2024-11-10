@@ -1,0 +1,128 @@
+flow weather
+  activate current weather
+  activate humidity
+  activate cloudy
+  activate rainy
+  activate windy
+  activate sunny
+
+flow user asked current weather
+  user said "¿Cuál es la condición meteorológica actual en Santa Clara?"
+    or user said "¿Cómo está el clima actual en Nueva York?"
+    or user said "¿Cómo está la condición meteorológica en Pune?"
+    or user said "¿Puedes decirme las condiciones meteorológicas en San Francisco?"
+    or user said "¿Cuál es la temperatura en Tokio?"
+    or user said "¿Hará frío en Allardt?"
+    or user said "¿Cómo está la temperatura en Moscú?"
+    or user said "Muéstrame la temperatura en San Mateo."
+    or user said "¿Hace calor en Mumbai?"
+
+flow current weather
+  user asked current weather
+
+  $location = ..."Return a string between quotes '' that contains the location from the user's previous spanish query regarding the weather. If no location is provided, return an empty string ''"
+
+  if $location
+    $weather_condition = await InvokeFulfillmentAction(request_type="get", 
+        endpoint="/weather/weatherstack/get_weather_condition", location=$location)
+    $temperature = await InvokeFulfillmentAction(request_type="get", 
+        endpoint="/weather/weatherstack/get_temperature", location=$location)
+    bot respond in spanish "Weather condition is {$weather_condition} and temperature is {$temperature} in location {$location}"
+  else
+    bot respond in spanish "Could not find location."
+
+flow user asked about humidity
+  user said "¿Cuál es la humedad en Tokio?"
+    or user said "¿Cuán húmedo estuvo en Moscú?"
+    or user said "¿Cómo serán las probabilidades de humedad en Santa Clara?"
+    or user said "Por favor, muéstrame las probabilidades de humedad en Toronto."
+
+flow humidity
+  user asked about humidity
+
+  $location = ..."Return a string between quotes '' that contains the location from the user's previous spanish query regarding the weather. If no location is provided, return an empty string ''"
+
+  if $location
+    $humidity = await InvokeFulfillmentAction(request_type="get", 
+        endpoint="/weather/weatherstack/get_humidity", location=$location)
+    bot respond in spanish "Humidity is {$humidity} in {$location}"
+  else
+    bot respond in spanish "Could not find location."
+
+flow user asked whether cloudy
+  user said "¿Está nublado en Tokio?"
+    or user said "¿Estará nublado en Moscú?"
+    or user said "¿Estará nublado en Montreal?"
+
+flow cloudy
+  user asked whether cloudy
+
+  $location = ..."Return a string between quotes '' that contains the location from the user's previous spanish query regarding the weather. If no location is provided, return an empty string ''"
+
+  if $location
+    $is_cloudy = await InvokeFulfillmentAction(request_type="get", 
+        endpoint="/weather/weatherstack/is_cloudy", location=$location)
+    if $is_cloudy
+      bot respond in spanish "It is cloudy today in {$location}"
+    else
+      bot respond in spanish "It is not cloudy today in {$location}"
+  else
+    bot respond in spanish "Could not find location."
+
+flow user asked whether raining
+  user said "¿Cuál es el pronóstico de lluvia para Danville?"
+    or user said "¿Lloverá en Delhi?"
+    or user said "¿Cuánto lloverá en San Francisco?"
+    or user said "¿Cuáles son las probabilidades de lluvia en Santa Clara?"
+    or user said "¿Está lloviendo en Santa Clara?"
+
+flow rainy
+  user asked whether raining
+
+  $location = ..."Return a string between quotes '' that contains the location from the user's previous spanish query regarding the weather. If no location is provided, return an empty string ''"
+
+  if $location
+    $is_raining = await InvokeFulfillmentAction(request_type="get", 
+        endpoint="/weather/weatherstack/is_raining", location=$location)
+    if $is_raining
+      bot respond in spanish "It is raining today in {$location}"
+    else
+      bot respond in spanish "It is notraining today in {$location}"
+  else
+    bot respond in spanish "Could not find location."
+
+flow user asked about windspeed
+  user said "¿Cuál será la velocidad del viento en el área de la bahía?"
+    or user said "¿Hará viento en Allardt?"
+    or user said "¿Cómo está la velocidad del viento en Moscú?"
+    or user said "Muéstrame la velocidad del viento en San Mateo."
+
+flow windy
+  user asked about windspeed
+
+  $location = ..."Return a string between quotes '' that contains the location from the user's previous spanish query regarding the weather. If no location is provided, return an empty string ''"
+  if $location
+    $windspeed = await InvokeFulfillmentAction(request_type="get", 
+        endpoint="/weather/weatherstack/get_windspeed", location=$location)
+    bot respond in spanish "Windspeed is {$windspeed} in {$location}"
+  else
+    bot respond in spanish "Could not find location."
+
+flow user asked whether sunny
+  user said "¿Está soleado en Bali?"
+    or user said "¿Estará soleado en Moscú?"
+    or user said "¿Estará soleado en Montreal?"
+
+flow sunny
+  user asked whether sunny
+
+  $location = ..."Return a string between quotes '' that contains the location from the user's previous spanish query regarding the weather. If no location is provided, return an empty string ''"
+  if $location
+    $is_sunny = await InvokeFulfillmentAction(request_type="get", 
+        endpoint="/weather/weatherstack/is_sunny", location=$location)
+    if $is_sunny
+      bot respond in spanish "It is sunny today in {$location}"
+    else
+      bot respond in spanish "'Today, it is not sunny in {$location}"
+  else
+    bot respond in spanish "Could not find location."

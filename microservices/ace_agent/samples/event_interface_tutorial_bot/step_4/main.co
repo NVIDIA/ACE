@@ -1,0 +1,50 @@
+import core
+import avatars
+import llm
+
+@meta(bot_intent=True)
+flow bot express greeting
+  (bot express "Hi there!"
+    or bot express "Welcome!"
+    or bot express "Hello!")
+    and bot gesture "Wave with one hand"
+
+@meta(bot_intent=True)
+flow bot express goodbye
+  (bot express "Goodbye" or bot express "Talk to you soon!") and bot gesture "bowing in goodbye"
+
+@meta(user_intent=True)
+flow user expressed done
+  user said (regex("(?i).*done.*|.*end.*demo.*|.*exit.*"))
+
+flow handling user silence
+  user was silent 15.0
+  llm continue interaction
+
+flow handling user requests until user expressed done
+  activate llm continuation
+  activate handling user silence
+  
+  # CHANGE: Allow the user to interrupt the bot at anytime
+  activate handling bot talking interruption $mode="interrupt"
+
+  bot say something like "How can I help you today?"
+  user expressed done
+  bot express goodbye
+
+# The main flow is the entry point
+@meta(exclude_from_llm=True)
+flow main
+  # Technical flows, see Colang 2.0 documentation for more details
+  activate notification of undefined flow start
+  activate notification of colang errors
+  activate tracking bot talking state
+
+  # The bot greets the user and a welcome message is shown on the UI
+  start scene show short information "Welcome to this tutorial interaction" as $intro_ui
+  bot express greeting
+
+  handling user requests until user expressed done
+
+  # This will prevent the main flow finishing ever
+  wait indefinitely

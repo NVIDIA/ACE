@@ -1,0 +1,26 @@
+import core
+
+flow technical helper
+  activate notification of undefined flow start "I have encountered some technical issue!"
+  activate notification of colang errors "I have encountered some technical issue!"
+  activate handle user transcript with interruption $mode="interim" $stop_flows_list=["_bot_say","generate rag response"]
+
+flow generate rag response $transcript
+  $request_id =  await InvokeStreamingChatAction(question=$transcript,endpoint="rag/chat",chat_history=True)
+  if $request_id
+    $response = await StreamingResponseChatAction(endpoint="rag/chat",request_id=$request_id)
+    if not $response
+      bot say "Sorry I could not connect to the RAG endpoint"
+    log "response from RAG: {$response}"
+    while $response
+      bot say $response
+      $response = await StreamingResponseChatAction(endpoint="rag/chat",request_id=$request_id)
+      log "response from RAG: {$response}"
+
+flow rag
+  user partially said something as $ref
+  generate rag response $ref.transcript
+
+flow main
+  activate technical helper
+  activate rag

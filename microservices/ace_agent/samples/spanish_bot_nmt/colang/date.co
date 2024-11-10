@@ -1,12 +1,13 @@
-define user ask current date
-  "What is the current time?"
-  "What time is it now?"
-  "What day is today?"
-  "What time is it?"
-  "What is today's date?"
-  "What is the current date?"
+flow user asked current date
+  user said "What is the current time?"
+    or user said "What time is it now?"
+    or user said "What day is today?"
+    or user said "What time is it?"
+    or user said "What is today's date?"
+    or user said "What is the current date?"
 
-define flow current date
-  user ask current date
-  $date = execute plugin(endpoint="date/get_date")
-  bot provide $date
+flow current date
+  user asked current date
+  $date = await InvokeFulfillmentAction(request_type="get", 
+      endpoint="/date/get_date")
+  bot say "Today's date is {$date}"

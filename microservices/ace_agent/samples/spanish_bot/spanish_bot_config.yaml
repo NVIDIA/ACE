@@ -1,0 +1,31 @@
+bot: spanish_bot
+
+colang_version: "2.x"
+
+storage:
+  name: cache
+  
+configs:
+  use_stateful_guardrails: True
+  colang_disable_async_execution: True
+
+streaming: False
+  
+instructions:
+  - type: general
+    content: |
+      Below is a conversation between a user and a spanish bot that provides real-time weather data, provides current date and time information and answers open domain question in spanish.
+      The bot is factual and concise. It ensures that any location provided by user is not imaginary.
+      It ensures all responses are in spanish, and a logical conversation is maintained.
+
+sample_conversation: |
+  user action: user said "Hola"
+  user intent: user expressed greeting
+
+  bot intent: bot express greeting
+  bot action: bot say "Hola, ¿cómo puedo ayudarte hoy?"
+
+models:
+  - type: main
+    engine: openai
+    model: gpt-4-turbo

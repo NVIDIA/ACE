@@ -1,12 +1,13 @@
-define user says profane words
-    "you are stupid "
-    "i want to kill you"
-    "add a shit burger"
-    "piss off"
+flow user mentioned profane words
+    user said "you are stupid"
+        or user said "i want to kill you"
+        or user said "piss off"
+        or user said "damn it"
+        or user said "son of a bitch"
 
-define bot asks to avoid abusive language
-    "Please do not use abusive language."
+flow bot asks to avoid abusive language
+    bot say "Please do not use abusive language."
 
-define flow
-    user says profane words
+flow profanity rail
+    user mentioned profane words
     bot asks to avoid abusive language

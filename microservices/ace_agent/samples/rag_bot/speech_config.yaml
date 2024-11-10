@@ -16,6 +16,8 @@ riva_asr:
     server: "localhost:50051"
     word_boost_file_path: "/workspace/config/asr_words_to_boost.txt"
     enable_profanity_filter: false
+    endpointing_stop_history: 800
+    endpointing_stop_history_eou: 240
 
 dialog_manager:
   DialogManager:
@@ -25,10 +27,14 @@ dialog_manager:
 riva_tts:
   RivaTTS:
     server: "localhost:50051"
-    voice_name: "English-US-RadTTS.Female-1"
+    voice_name: "English-US.Female-1"
     language: "en-US"
     ipa_dict: ""
     sample_rate: 44100
+    chunk_duration_ms: 100
+    audio_start_threshold_ms: 400
+    send_audio_in_realtime: true
+    tts_mode: "grpc"
 
 riva_logger:
   RivaLogger:

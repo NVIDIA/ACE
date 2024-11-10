@@ -1,18 +1,19 @@
 specVersion: 2.5.0
 
-version: 4.0.0
+version: 4.1.0
 
 name: ucf-app-speech-bot
 
 description: ACE Agent Food Ordering Bot
 
 dependencies:
-- ucf.svc.riva.speech-skills:2.15.1
-- ucf.svc.ace-agent.chat-engine:4.0.0
-- ucf.svc.ace-agent.chat-controller:4.0.0
-- ucf.svc.ace-agent.plugin-server:4.0.0
-- ucf.svc.ace-agent.web-app:4.0.0
-- ucf.svc.ace-agent.nlp-server:4.0.0
+- ucf.svc.riva.speech-skills:2.17.0
+- ucf.svc.ace-agent.chat-engine:4.1.0
+- ucf.svc.ace-agent.chat-controller:4.1.0
+- ucf.svc.ace-agent.plugin-server:4.1.0
+- ucf.svc.ace-agent.web-app:4.1.0
+- ucf.svc.ace-agent.nlp-server:4.1.0
+- ucf.svc.core.redis-timeseries:0.0.20
 
 secrets:
   k8sSecret/ngc-api-key-secret/NGC_CLI_API_KEY:
@@ -27,6 +28,11 @@ secrets:
 components:
 - name: webapp
   type: ucf.svc.ace-agent.web-app
+  parameters:
+    imagePullSecrets:
+    - name: ngc-docker-reg-secret
+- name: redis-timeseries
+  type: ucf.svc.core.redis-timeseries
   parameters:
     imagePullSecrets:
     - name: ngc-docker-reg-secret
@@ -79,6 +85,8 @@ components:
 connections:
   chat-engine/plugin-server: plugin-server/http-api
   chat-engine/nlp-server: nlp-server/api-server
+  chat-engine/redis: redis-timeseries/redis
+  chat-controller/redis: redis-timeseries/redis
   chat-controller/riva: riva-speech/riva-speech-api
-  chat-controller/chat-api: chat-engine/http-api
   webapp/chat-controller: chat-controller/grpc-api
+  webapp/redis: redis-timeseries/redis

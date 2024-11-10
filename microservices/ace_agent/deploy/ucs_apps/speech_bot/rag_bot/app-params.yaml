@@ -1,5 +1,5 @@
 chat-controller:
-  pipeline: speech_lite
+  pipeline: speech_umim
   speechConfigPath: "speech_config.yaml"
   chatEndpointPrefix: "rag"
   pipelineParams: # can be extended for all pipeline params in speech_config.yaml
@@ -7,12 +7,20 @@ chat-controller:
       nvidia::rrt::BotRuntimeGrpc:
         virtual_assistant_num_instances: 30
 
+chat-engine:
+  botConfigName: rag_bot_config.yml
+  interface: event
+
 plugin-server:
   pluginConfigPath: "plugin_config.yaml"
   pluginConfig: # can be extended for all params in plugin_config.yaml
     config:
       workers: 4
       timeout: 120
+    plugins:
+      rag:
+        parameters:
+          RAG_SERVER_URL: "http://{UPDATE_RAG_HOST_IP}:{UPDATE_RAG_PORT}"
 
 riva-speech:
   riva:
@@ -24,7 +32,11 @@ riva-speech:
       triton0:
         models:
         #> description: List of NGC models for deployment
-        - nvidia/ucs-ms/rmir_asr_parakeet_1-1b_en_us_str_vad:2.15.0 #english
-        - nvidia/riva/rmir_tts_radtts_hifigan_en_us_ipa:2.15.0
+        - nvidia/ace/rmir_asr_parakeet_1-1b_en_us_str_vad:2.17.0 #english
+        - nvidia/riva/rmir_tts_fastpitch_hifigan_en_us_ipa:2.17.0
   persistentVolumeClaim:
     keepPVC: True
+
+webapp:
+  chatInterface: "event"
+  speechFlags: "--speech"

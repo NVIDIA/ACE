@@ -1,0 +1,61 @@
+import core
+import llm
+import timing
+import intent_slot
+
+flow respond to unhandled user intents
+  unhandled user intent as $ref
+  log "unhandled user intent: '{$ref.intent}'"
+  llm continue interaction
+  log "unhandled user intent response done"
+
+flow handle qsr requests
+  # Active flows are running in parallel and wait until they can advance
+
+  # Cart
+  activate handle adding items to order
+  activate handle removing items from order
+  activate handle swapping items from order
+  activate handle emptying cart
+
+  # Order
+  activate handle order checkout
+  activate handle checking bill
+  activate handle repeating order
+
+  # Query Menu
+  activate handle menu queries
+
+  # Off topic or filler questions
+  activate answer filler statement
+  activate answer off topic question
+
+  activate polling llm request response $interval=1.0
+
+  # Enable intent generation for user utterances that don't have an exact match.
+  activate trigger user intent event for unhandled user utterance with intent slot model
+  activate trigger llm user intent for unhandled user intent
+  activate respond to unhandled user intents
+
+  await checkout completed
+
+
+flow system context received
+  log "initializing story. waiting for user id"
+  match ContextUpdate(data={"user_id" : regex(".*")})
+
+@meta(exclude_from_llm=True)
+flow main
+
+  # Active helper flows
+  activate ignored_utterance_action_bugfix
+  activate notification of undefined flow start "I have encountered some technical issue!"
+  activate notification of colang errors "I have encountered some technical issue!"
+  activate automating intent detection
+  activate tracking user talking state
+  activate tracking bot talking state
+
+  # Handle QSR requests when we have a user present
+  activate handle qsr requests
+
+  wait indefinitely

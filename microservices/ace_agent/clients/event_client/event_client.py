@@ -153,7 +153,7 @@ def event_provider_factory(
         raise Exception(f"Event provider {provider_name} does not exist. Available providers { ','.join(providers)}")
 
 
-def new_uid() -> str:
+def new_uuid() -> str:
     """Helper to create a new UID."""
 
     return str(uuid.uuid4())
@@ -245,7 +245,7 @@ def _update_action_properties(event_dict: Dict[str, Any]) -> None:
     if "Started" in event_dict["type"]:
         event_dict["action_started_at"] = datetime.now(timezone.utc).isoformat()
     elif "Start" in event_dict["type"]:
-        event_dict["action_uid"] = new_uid()
+        event_dict["action_uid"] = new_uuid()
     elif "Finished" in event_dict["type"]:
         event_dict["action_finished_at"] = datetime.now(timezone.utc).isoformat()
         if event_dict["is_success"] and "failure_reason" in event_dict:
@@ -271,7 +271,7 @@ def new_event(event_type: str, **payload) -> Dict[str, Any]:
 
     event: Dict[str, Any] = {
         "type": event_type,
-        "uid": new_uid(),
+        "uid": new_uuid(),
         "event_created_at": datetime.now(timezone.utc).isoformat(),
         "source_uid": "umim_tui_app",
     }
@@ -1572,7 +1572,7 @@ class UmimTuiApp(App):
 
         if not self.user_utterance.in_progress:
             self.user_utterance.in_progress = True
-            action_started = new_event("UtteranceUserActionStarted", action_uid=new_uid())
+            action_started = new_event("UtteranceUserActionStarted", action_uid=new_uuid())
             self.user_utterance.interim_transcript = ""
             self.user_utterance.action_uid = action_started["action_uid"]
             self.run_worker(self.send_events(action_started), exclusive=False)
@@ -1583,6 +1583,7 @@ class UmimTuiApp(App):
                 "UtteranceUserActionTranscriptUpdated",
                 action_uid=self.user_utterance.action_uid,
                 interim_transcript=self.user_utterance.interim_transcript,
+                stability=0.1,
             )
 
             self.run_worker(self.send_events(action_updated), exclusive=False)
@@ -1633,7 +1634,7 @@ class UmimTuiApp(App):
         await self.event_client.send_event(self.channel, event_data)
 
     async def send_pipeline_acquired(self) -> None:
-        session_user_id = new_uid()
+        session_user_id = new_uuid()
         await self.event_client.send_event(
             SYSTEM_EVENTS_STREAM, new_event("PipelineAcquired", stream_uid=stream_id, user_uid=session_user_id)
         )
@@ -1788,7 +1789,7 @@ class UmimTuiApp(App):
             try:
                 event = try_parse_event(event_dict)
 
-                if not isinstance(event, dict):
+                if not isinstance(event, dict) or "action_uid" not in event:
                     return
 
                 action_uid = event["action_uid"]
@@ -1839,7 +1840,7 @@ class UmimTuiApp(App):
         else:
             action_finished = new_event(
                 "UtteranceUserActionFinished",
-                action_uid=self.user_utterance.action_uid or new_uid(),
+                action_uid=self.user_utterance.action_uid or new_uuid(),
                 final_transcript=event_description,
                 is_success=True,
             )
@@ -1897,7 +1898,7 @@ def main(
     global redis_port
     global redis_host
 
-    stream_id = stream or new_uid()
+    stream_id = stream or new_uuid()
     channel_id = f"umim_events_{stream_id}"
     create_pipeline = create
     app_in_active_mode = active_mode

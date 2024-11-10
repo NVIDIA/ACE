@@ -1,0 +1,41 @@
+{
+  "name": "ace-agent-bot-ui-server",
+  "version": "0.0.0",
+  "main": "index.js",
+  "type": "module",
+  "author": "jnolan@nvidia.com",
+  "devDependencies": {
+    "@bufbuild/buf": "^1.30.1",
+    "@types/bunyan": "^1",
+    "@types/node": "^20.11.23",
+    "@types/redis-mock": "^0",
+    "@types/ws": "^8.5.10",
+    "openapi-typescript-codegen": "^0.27.0",
+    "redis-mock": "^0.56.3",
+    "ts-node-dev": "^2.0.0",
+    "tsx": "^4.7.1",
+    "typescript": "^5.3.3"
+  },
+  "dependencies": {
+    "@bufbuild/protobuf": "^1.8.0",
+    "@connectrpc/connect": "^1.4.0",
+    "@connectrpc/connect-node": "^1.4.0",
+    "@tensorflow-models/universal-sentence-encoder": "^1.3.3",
+    "@tensorflow/tfjs": "^4.17.0",
+    "@tensorflow/tfjs-node": "^4.17.0",
+    "bunyan": "^1.8.15",
+    "redis": "^4.6.13",
+    "ts-node": "^10.9.2",
+    "ws": "^8.16.0"
+  },
+  "scripts": {
+    "dev:server-mode": "tsx --watch index.ts --ace-agent-text-chat-interface server | npx bunyan -o short",
+    "dev:event-mode": "tsx --watch index.ts --ace-agent-text-chat-interface event | npx bunyan -o short",
+    "dev:speech-mode": "tsx --watch index.ts --ace-agent-text-chat-interface grpc --speech | npx bunyan -o short",
+    "dev:event-speech-mode": "tsx --watch index.ts --ace-agent-text-chat-interface event --speech | npx bunyan -o short",
+    "test": "NODE_ENV=test tsx --test **/*.test.ts",
+    "gen-grpc": "cd grpc && buf generate",
+    "build": "tsc"
+  },
+  "packageManager": "yarn@4.1.1"
+}
