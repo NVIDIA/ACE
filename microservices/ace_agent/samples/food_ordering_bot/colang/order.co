@@ -1,23 +1,45 @@
 
-define flow repeat_order
-  user food_order.repeat_order
-  $result = execute plugin(endpoint="food_order/repeat_order", request_type="post", user_id=$user_id)
-  if $result
-    bot respond with result
-  else
-    bot "I couldn't find anything in your cart."
+flow user asked order clarification
+  """User wants to get clarification on the current order"""
+  user intent "food_order.repeat_order"
 
-define flow order_complete
-  user food_order.order_complete
-  $result = execute plugin(endpoint="food_order/place_order", request_type="post", user_id=$user_id)
-  if $result
-    bot "Thanks for placing the order. Your order would be available shortly"
-    execute reset(memory="session")
+flow user asked total bill
+  """User wants to get the total bill"""
+  user intent "food_order.check_bill"
 
-define flow check_bill
-  user food_order.check_bill
-  $result = execute plugin(endpoint="food_order/check_bill", request_type="post", user_id=$user_id)
+flow user expressed order complete
+  """User confirms order or indicates that he wants to move to the checkout"""
+  user intent "food_order.order_complete"
+
+flow handle order checkout
+  user expressed order complete
+  global $user_id
+  $total_bill = await InvokeFulfillmentAction(request_type="post", endpoint="food_order/check_bill", user_id=$user_id)
+  $result = await InvokeFulfillmentAction(request_type="post", endpoint="food_order/place_order", user_id=$user_id)
   if $result
-    bot "Your total bill is {{$result}} dollars."
+    bot say "Thanks for placing the order. Your total bill is {$total_bill} dollars. Your order would be available shortly. Goodbye!"
+    send CustomEvent(name="CheckoutCompleted")
+
+flow checkout completed
+  match CustomEvent(name="CheckoutCompleted")
+  await ResetAction(memory="session")
+
+flow handle checking bill
+  user asked total bill
+
+  global $user_id
+  $result = await InvokeFulfillmentAction(request_type="post", endpoint="food_order/check_bill", user_id=$user_id)
+  if $result
+    bot say "Your total bill is {$result} dollars."
   else
-    bot "I could not get the bill amount."
+    bot say "I could not get the bill amount"
+
+flow handle repeating order
+  user asked order clarification
+  global $user_id
+
+  $result = await InvokeFulfillmentAction(request_type="post", endpoint="food_order/repeat_order", user_id=$user_id)
+  if $result
+    bot say something like $result
+  else
+    bot say "I couldn't find anything in your cart"

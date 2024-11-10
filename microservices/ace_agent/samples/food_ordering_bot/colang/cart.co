@@ -1,124 +1,68 @@
-define subflow reset_slots
-  $food_size = None
-  $food_quantity = None
-  $food_size_remove = None
-  $food_quantity_remove = None
+# User intent flows
+flow user added food drink items to order
+  """User wants to order food or drinks"""
+  user intent "food_order.add_item"
 
-define flow add_item
-  user food_order.add_item
-  if not $food_name
-    bot inform could not find food item
-    do reset_slots
-    return
+flow user removed food drink items from order
+  """User wants to remove a food or drink item from the order"""
+  user intent "food_order.remove_item"
 
-  $food_name_fm = $food_name[0]
-  if $food_size
-    $food_size_fm = $food_size[0]
+flow user swapped food drink items from order
+  """User wants to swap a food or drink item from the order"""
+  user intent "food_order.swap_item"
+
+flow user requested empty cart
+  """User wants to empty the order / cart """
+  user said "Clear the cart"
+    or user said "Delete my cart"
+    or user said "Remove all items from my cart"
+    or user said "Delete my order"
+    or user said "Cancel my order"
+    or user said (regex("(?i)\b(clear|delete|empty|reset)\\s+(my|the)?\\s*(cart|order)\b"))
+
+# Flows related to cart management
+flow handle adding items to order
+  user added food drink items to order
+  log "Adding item to cart"
+
+  $information = await InvokeFulfillmentAction(endpoint="food_order/add_item", request_type="post")
+  log "Response from Plugin - add action result: $information={$information}"
+  if $information
+    bot say $information
   else
-    $food_size_fm = None
-  if $food_quantity
-    $food_quantity_fm = $food_quantity[0]
+    bot say something like "I could not add the requested items. We ran into some technical issues."
+
+flow handle removing items from order
+  user removed food drink items from order
+  log "Removing item from cart"
+
+  $information = await InvokeFulfillmentAction(endpoint="food_order/remove_item", request_type="post")
+  log "Response from Plugin - remove action result: $information={$information}"
+  if $information
+    bot say $information
   else
-    $food_quantity_fm = None
+    bot say something like "I could not remove the requested items. We ran into some technical issues."
 
-  $result = execute plugin(\
-    endpoint="food_order/add_item",\
-    request_type="post",\
-    user_id=$user_id, food_name=$food_name_fm,\
-    food_size=$food_size_fm,\
-    food_quantity=$food_quantity_fm\
-  )
-  if $result
-    bot respond with result
+flow handle swapping items from order
+  user swapped food drink items from order
+  log "Swapping items in cart"
+
+  $information = await InvokeFulfillmentAction(endpoint="food_order/replace_items", request_type="post")
+  log "Response from Plugin - swap action result: $information={$information}"
+  if $information
+    bot say $information
   else
-    bot respond failure
-  do reset_slots
+    bot say something like "I could not swap the requested items. We ran into some technical issues."
 
-define bot respond with result
-  "{{$result}}"
+flow handle emptying cart
+  user requested empty cart
+  log "Clearing the items from the cart"
 
-define flow remove_item
-  user food_order.remove_item
+  global $user_id
 
-  if not $food_name
-    bot inform could not find food item
-    do reset_slots
-    return
-
-  $food_name_fm = $food_name[0]
-  if $food_size
-    $food_size_fm = $food_size[0]
+  $information = await InvokeFulfillmentAction(endpoint="food_order/clear_cart", request_type="post", user_id=$user_id)
+  log "Response from Plugin - clear cart action result: $information={$information}"
+  if $information
+    bot say "Sure, I have cleared your cart"
   else
-    $food_size_fm = None
-  if $food_quantity
-    $food_quantity_fm = $food_quantity[0]
-  else
-    $food_quantity_fm = None
-
-  $result = execute plugin(\
-    endpoint="food_order/remove_item",\
-    request_type="post",\
-    user_id=$user_id, food_name=$food_name_fm,\
-    food_size=$food_size_fm,\
-    food_quantity=$food_quantity_fm\
-  )
-  bot responds with result
-  do reset_slots
-
-define flow swap_item
-  user food_order.swap_item
-
-  if not $food_name
-    bot "Sorry, I could not find any food items you want to replace with."
-    do reset_slots
-    return
-
-  if not $food_name_remove
-    bot "Sorry, I could not find any food items to be replaced from the cart"
-    do reset_slots
-    return
-
-  $food_name_fm = $food_name[0]
-  $food_name_remove_fm = $food_name_remove[0]
-  if $food_size
-    $food_size_fm = $food_size[0]
-  else
-    $food_size_fm = None
-  if $food_quantity
-    $food_quantity_fm = $food_quantity[0]
-  else
-    $food_quantity_fm = None
-  if $food_size_remove_fm
-    $food_size_remove_fm = $food_size_remove[0]
-  else
-    $food_size_remove_fm = None
-  if $food_quantity_remove_fm
-    $food_quantity_remove_fm = $food_quantity_remove[0]
-  else
-    $food_quantity_remove_fm = None
-
-  $result = execute plugin(endpoint="food_order/replace_items",\
-    request_type="post",\
-    user_id=$user_id,\
-    remove_food_name=$food_name_remove_fm,\
-    remove_food_size=$food_size_remove_fm,\
-    remove_food_quantity=$food_quantity_remove_fm,\
-    add_food_name=$food_name_fm,\
-    add_food_size=$food_size_fm,\
-    add_food_quantity=$food_quantity_fm,\
-  )
-  bot responds with result
-  do reset_slots
-
-define user clear_cart
-  "can you clear my cart"
-  "clear my cart"
-  "please clear my cart"
-
-define flow clear_cart
-  user clear_cart
-  $result = plugin(endpoint="food_order/clear_cart", request_type="post", user_id=$user_id)
-  if $result
-    bot "Sure, I have cleared your cart."
-  else
-    bot "Sorry, I Couldn't clear the cart"
+    bot say "Sorry, I couldn't clear the cart"

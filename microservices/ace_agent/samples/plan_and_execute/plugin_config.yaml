@@ -1,7 +1,0 @@
-config:
-  workers: 1
-  timeout: 30
-
-plugins:
-  - name: langgraph
-    path: ./plugin/plan_and_execute.py

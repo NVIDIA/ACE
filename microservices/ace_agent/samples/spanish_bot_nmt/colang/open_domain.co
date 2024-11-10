@@ -1,9 +1,10 @@
-define user ask open domain query
-  "What is the human life expectancy in the United States?"
-  "Who is the Prime Minister of India?"
-  "What is the capital of Spain?"
-  "How far is the sun from the earth?"
+flow user asked open domain query
+  user said "What is the human life expectancy in the United States?"
+    or user said "Who is the Prime Minister of India?"
+    or user said "What is the capital of Spain?"
+    or user said "How far is the sun from the earth?"
 
-define flow open domain
-  user ask open domain query
-  bot responds truthfully
+flow open domain
+  user asked open domain query
+  $response = ..."Reply to user's previous query. Enclose the reply in quotes"
+  bot say "{$response}"

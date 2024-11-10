@@ -1,9 +1,0 @@
-define flow
-  user ...
-  $answer = execute chat_plugin(\
-    endpoint="rag/chat",\
-    )
-  bot respond
-
-define bot respond
-  "{{$answer}}"

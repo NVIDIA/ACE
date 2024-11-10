@@ -1,5 +1,16 @@
 bot: stock_bot
 
+colang_version: "2.x"
+
+storage:
+  name: cache
+  
+configs:
+  use_stateful_guardrails: True
+  colang_disable_async_execution: True
+
+streaming: False
+
 instructions:
   - type: general
     content: |
@@ -7,16 +18,25 @@ instructions:
       It also provides user with information about stocks and stock market. The bot is factual and concise. Bot informs user when a company is imaginary.
 
 sample_conversation: |
-  user "Hello there!"
-    express greeting
-  bot express greeting
-    "Hello! I am Enola, how can I help you today?"
+  user action: user said "Hello there!"
+  user intent: user expressed greeting
+  
+  bot intent: bot express greeting
+  bot action: bot say "Hello! How can I assist you today?"
+
+  user action: user said "What can you do for me?"
+  user intent: user asked about capabilities
+
+  bot intent: bot respond about capabilities
+  bot action: bot say "I am here to provide you with information about stocks and stock market."
+
+  user action: user said "ddsf poenwrfbjvhjhd sfd dfs"
+  user intent: user said something unclear
+
+  bot intent: bot inform about unclear user input
+  bot action: bot say "Excuse me! I did not get that! Can you repeat please?"
 
 models:
-  - type: main
-    engine: nvidia-ai-endpoints
-    model: ai-mixtral-8x7b-instruct
-    parameters:
-      stop: ["\n"]
-      max_tokens: 100
-      # base_url: "http://0.0.0.0:9999/v1"  # Use this to use NIM model
+    - type: main
+      engine: openai
+      model: gpt-4-turbo

@@ -1,6 +1,0 @@
-model_servers:
- - name: riva
-   url: "localhost:8001"
-   speech_models:
-    - nvidia/ucs-ms/rmir_asr_parakeet_1-1b_en_us_str_vad:2.15.0
-    - nvidia/riva/rmir_tts_radtts_hifigan_en_us_ipa:2.15.0

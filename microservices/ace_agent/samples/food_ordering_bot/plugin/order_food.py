@@ -91,9 +91,26 @@ def get_item_from_menu(food_item: str, food_size: Optional[str] = ""):
     return result
 
 
+def preprocess_slots(context: Dict[str, Any], use_unprocessed_slots: bool = False) -> Dict[str, str]:
+    """
+    Extract the slots into a key value pair format.
+    """
+    slots = {}
+    field = context["slots"]["slot_results"] if use_unprocessed_slots else context["slots"]
+    for key, value in field.items():
+        if key == "slot_results":
+            continue
+        if value:
+            slots[key] = value[0]
+    return slots
+
+
 @router.post("/add_item")
 def add_item(
-    user_id: str, food_name: Optional[str] = None, food_size: Optional[str] = "", food_quantity: Optional[str] = ""
+    context: Dict[str, Any] = {},
+    food_name: Optional[str] = None,
+    food_size: Optional[str] = "",
+    food_quantity: Optional[str] = "",
 ) -> Optional[str]:
     """Add new item to cart
     return_value:
@@ -101,6 +118,22 @@ def add_item(
         invalid_items: List of items not present in menu
     """
     try:
+        if "context" in context:
+            context = context["context"]
+        slots = preprocess_slots(context)
+
+        # Fetch food details from context
+        if not food_name:
+            food_name = slots.get("food_name")
+
+        if not food_size:
+            food_size = slots.get("food_size")
+
+        if not food_quantity:
+            food_quantity = slots.get("food_quantity")
+
+        user_id = context.get("user_id")
+
         logger.info(f"Adding {food_quantity} {food_size} {food_name}")
         # WAR to convert food_name to list
         food_name = [food_name] if food_name else []
@@ -135,9 +168,12 @@ def add_item(
         status, resp = cart_manager.cart_items_add(user_id, valid_items_filter)
         resp_str = ""
         if valid_items:
-            resp_str = f"I've added {', '.join(valid_items)} added to cart."
-        if invalid_item:
-            resp_str += f" We don't have {', '.join(invalid_item)} in menu."
+            resp_str = f"I've added {', '.join(valid_items)} to your cart."
+        elif len(food_name) == 0 or invalid_item:
+            if invalid_item:
+                resp_str += f" We don't have {', '.join(invalid_item)} in menu."
+            else:
+                resp_str += f" We don't have this item in menu."
         logger.info(f"Response:  {resp_str}")
         return resp_str
     except Exception as e:
@@ -147,13 +183,31 @@ def add_item(
 
 @router.post("/remove_item")
 def remove_item(
-    user_id: str, food_name: Optional[str] = None, food_size: Optional[str] = None, food_quantity: Optional[str] = None
+    context: Dict[str, Any] = {},
+    food_name: Optional[str] = None,
+    food_size: Optional[str] = None,
+    food_quantity: Optional[str] = None,
 ) -> Optional[str]:
     """remove item from cart"""
 
     valid_items = []
     invalid_item = []
     try:
+        if "context" in context:
+            context = context["context"]
+        slots = preprocess_slots(context)
+
+        # Fetch food details from context
+        if not food_name:
+            food_name = slots.get("food_name")
+
+        if not food_size:
+            food_size = slots.get("food_size")
+
+        if not food_quantity:
+            food_quantity = slots.get("food_quantity")
+        user_id = context.get("user_id")
+
         logger.info(f"Removing {food_quantity} {food_size} {food_name}")
         # WAR to convert food_name to list
         food_name = [food_name] if food_name else []
@@ -191,41 +245,55 @@ def remove_item(
 
 
 @router.post("/replace_items")
-def replace_items(
-    user_id: str,
-    add_food_name: Optional[str] = None,
-    add_food_size: Optional[str] = None,
-    add_food_quantity: Optional[str] = None,
-    remove_food_name: Optional[str] = None,
-    remove_food_size: Optional[str] = None,
-    remove_food_quantity: Optional[str] = None,
-) -> Optional[str]:
+def replace_items(context: Dict[str, Any] = {}) -> Optional[str]:
     """replace item from cart"""
     try:
+        if "context" in context:
+            context = context["context"]
+        slots = preprocess_slots(context, use_unprocessed_slots=True)
+
+        # Fetch food details from context
+        add_food_name = slots.get("food_name")
+        add_food_size = slots.get("food_size")
+        add_food_quantity = slots.get("food_quantity")
+
+        remove_food_name = slots.get("food_name.remove")
+        remove_food_size = slots.get("food_size.remove")
+        remove_food_quantity = slots.get("food_quantity.remove")
+        user_id = context.get("user_id")
+
         logger.info(
-            f"Replacing Items: UserId: {user_id}, Replace: {add_food_quantity} {add_food_size} {add_food_name} with {remove_food_size} {remove_food_quantity} {remove_food_name}"
+            f"Replacing Items: UserId: {user_id}, Replace: {remove_food_quantity} {remove_food_size} {remove_food_name} with {add_food_size} {add_food_quantity} {add_food_name}"
         )
-        remove_msg = remove_item(user_id, remove_food_name, remove_food_size, remove_food_quantity)
+
+        remove_msg = remove_item(context, remove_food_name, remove_food_size, remove_food_quantity)
         if "Failed" in remove_msg or "No item found to delete from cart" in remove_msg:
             return f"{remove_msg}. Skipping adding {add_food_name}"
-        add_msg = add_item(user_id, add_food_name, add_food_size, add_food_quantity)
+        add_msg = add_item(context, add_food_name, add_food_size, add_food_quantity)
         if add_msg is None:
             return f"{remove_msg}. Failed to add item in cart"
         if "We don't have" in add_msg:
             return f"{remove_msg}. Failed to add {add_food_name} in cart"
         return f"Replaced only one {remove_food_name} with only one {add_food_name}"
     except Exception as e:
-        logger.error(f"Exception {e} while processing removing item")
+        logger.error(f"Exception {e} while replacing item")
         return "Failed to replace item"
 
 
 @router.post("/query_items")
-def query_items(
-    user_id: str, food_name: Optional[str] = None, food_size: Optional[str] = None, food_quantity: Optional[str] = None
-) -> Optional[str]:
+def query_items(context: Dict[str, Any]) -> Optional[str]:
     """query items from menu"""
     logger.info("Fetching details for food items")
     try:
+        if "context" in context:
+            context = context["context"]
+        slots = preprocess_slots(context)
+
+        # Fetch food details from context
+        food_name = slots.get("food_name")
+        food_size = slots.get("food_size")
+        food_quantity = slots.get("food_quantity")
+
         # WAR to convert food_name to list
         food_size = [food_size] if food_size else []
         food_quantity = [food_quantity] if food_quantity else []
@@ -246,7 +314,7 @@ def query_items(
         return item_narattive
 
     except Exception as e:
-        logger.error(f"Exception {e} while processing removing item")
+        logger.error(f"Exception {e} while querying items from menu")
         return ""
 
 
@@ -261,7 +329,7 @@ def place_order(user_id: str) -> Optional[Dict]:
         logger.info(f"Cart details for user {user_id}:  {cart_info}")
         return cart_info
     except Exception as e:
-        logger.error(f"Exception {e} while processing removing item")
+        logger.error(f"Exception {e} while placing order")
 
 
 @router.post("/check_bill")
@@ -282,6 +350,7 @@ def clear_cart(user_id: str) -> None:
         logger.info(f"Clearing cart for user: {user_id}")
         # clear cart items from cart for user
         cart_manager.cart_delete(user_id)
+        return "Success"
     except Exception as e:
         logger.error(f"Exception {e} while clearing cart")
 

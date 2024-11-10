@@ -10,13 +10,15 @@ import json
 import logging
 import os
 import sys
-from typing import Dict, Optional, Union
+
+from typing import Dict, Optional, Union, List
 
 import aiohttp
 from fastapi import APIRouter, Body, Response, status
 from fastapi.responses import StreamingResponse
 from parameters import param
 from typing_extensions import Annotated
+from utils import validate_url
 
 sys.path.append(os.path.dirname(__file__))
 
@@ -41,16 +43,59 @@ EVENTS_NOT_REQUIRING_RESPONSE = [
 ]
 
 
+@router.get("/rag_endpoint_url")
+def get_rag_endpoint() -> str:
+    """
+    This function returns the currently configured rag server endpoint.
+    """
+    global RAG_SERVER_URL
+    return RAG_SERVER_URL
+
+
+@router.post("/rag_endpoint_url")
+def set_rag_endpoint(rag_endpoint_url: str) -> bool:
+    """
+    This function allows updating the rag server endpoint dynamically.
+
+    Args:
+        rag_endpoint_url.
+        Example: http://10.222.22.23:8081
+
+    Returns:
+        True if the update is successful, False otherwise.
+    """
+    if validate_url(rag_endpoint_url):
+        logger.info("Updating the RAG server endpoint to: {}".format(rag_endpoint_url))
+        global GENERATION_URL
+        global RAG_SERVER_URL
+
+        RAG_SERVER_URL = rag_endpoint_url
+        GENERATION_URL = f"{RAG_SERVER_URL}/generate"
+        return True
+    else:
+        logger.error(
+            "Error updating the RAG server endpoint to {}. Please check the validity of the input.".format(
+                rag_endpoint_url
+            )
+        )
+
+    return False
+
+
 async def stream(
     question: Optional[str] = "",
-    retrieval_context: Optional[str] = "",
+    chat_history: Optional[List] = [],
     num_tokens: Optional[int] = MAX_TOKENS,
 ) -> int:
     """
     Call the RAG chain server and return the streaming response.
     """
+    question = (
+        question + "\n Respond with one sentence or less than 75 characters until user tells to give longer answers."
+    )
+
     request_json = {
-        "messages": [{"role": "user", "content": question}],
+        "messages": chat_history + [{"role": "user", "content": question}],
         "use_knowledge_base": True,
         "temperature": TEMPERATURE,
         "top_p": TOP_P,
@@ -78,10 +123,10 @@ async def stream(
                                     parsed = json.loads(chunk[6:])
                                     message = parsed["choices"][0]["message"]["content"]
                                 else:
-                                    logger.info(f"Received empty RAG response chunk '{chunk}'.")
+                                    logger.debug(f"Received empty RAG response chunk '{chunk}'.")
                                     message = ""
                             except Exception as e:
-                                logger.info(f"Parsing RAG response chunk '{chunk}' failed. {e}")
+                                logger.warning(f"Parsing RAG response chunk '{chunk}' failed. {e}")
                                 message = ""
 
                             if not message:
@@ -98,6 +143,7 @@ async def stream(
                             yield f"Internal error in RAG stream: {e}"
                             break
 
+        logger.info(f"Full RAG response for query `{question}` : {full_response}")
         json_chunk = ChatResponse()
         json_chunk.Response.IsFinal = True
         json_chunk = json.dumps(json_chunk.dict())
@@ -124,10 +170,13 @@ async def chat(
     """
 
     req = request.dict(exclude_none=True)
-    logger.info(f"Received request JSON at /chat_stream endpoint: {json.dumps(req, indent=4)}")
+    logger.info(f"Received request JSON at /chat_stream endpoint for RAG : {json.dumps(req, indent=4)}")
 
     try:
-        resp = await stream(question=req["Query"])
+        chat_history = []
+        if "Metadata" in req:
+            chat_history = req["Metadata"].get("ChatHistory", [])
+        resp = await stream(question=req["Query"], chat_history=chat_history)
         return resp
     except Exception as e:
         response.status_code = status.HTTP_500_INTERNAL_SERVER_ERROR

@@ -1,5 +1,15 @@
 chat-engine:
   botConfigName: rag_bot_config.yml
+  interface: "event"
 
 plugin-server:
   pluginConfigPath: "plugin_config.yaml"
+  pluginConfig:
+    plugins:
+      rag:
+        parameters:
+          RAG_SERVER_URL: "http://{UPDATE_RAG_HOST_IP}:{UPDATE_RAG_PORT}"
+
+webapp:
+  chatInterface: "event"
+  speechFlags: ""

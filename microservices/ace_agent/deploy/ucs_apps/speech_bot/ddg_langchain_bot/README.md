@@ -61,7 +61,7 @@ Before you start using NVIDIA ACE Agent, it’s assumed that you meet the follow
         docker compose -f deploy/docker/docker-compose.yml build plugin-server
 
         # Retag docker image and push to NGC docker registry
-        docker tag docker.io/library/plugin-server:4.0.0-rc3 <CUSTOM_DOCKER_IMAGE_PATH>:<VERSION>
+        docker tag docker.io/library/plugin-server:4.1.0 <CUSTOM_DOCKER_IMAGE_PATH>:<VERSION>
 
         docker push <CUSTOM_DOCKER_IMAGE_PATH>:<VERSION>
         ```
@@ -88,7 +88,7 @@ Before you start using NVIDIA ACE Agent, it’s assumed that you meet the follow
 
 5. Deploy the generated Helm Chart.
     ```
-    helm install ace-agent ucf-app-speech-bot-4.0.0/
+    helm install ace-agent ucf-app-speech-bot-4.1.0/
     ```
 
 6. Wait for all pods to be ready.

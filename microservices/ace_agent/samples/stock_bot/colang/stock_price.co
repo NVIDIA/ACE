@@ -1,38 +1,44 @@
-define user asks stock price
-  "What is the stock price of Microsoft?"
-  "How much does an Nvidia stock cost"
-  "what is the value of amazon stock?"
-  "What is it's stock price?"
+flow user asked stock price
+  user said "What is the stock price of Microsoft?"
+    or user said "How much does an Nvidia stock cost"
+    or user said "what is the value of amazon share price?"
+    or user said "What is it's stock price?"
 
-define flow
-  user asks stock price
+flow stock price
+  global $last_user_transcript
+  user asked stock price
+  
+  $company_name = ..."Generate the company name from this input: {$last_user_transcript}. If the company name is not specified, return 'unknown'. Return only the name of the company in quotes, not an expression to calculate the name of the company. For example, if the input is 'What is the share price of Amazon?', return 'Amazon'. For example, if the input is 'What is the stock price of apple?', return 'apple'. For example, if the input is 'How much does a share of microsoft cost?', return 'microsoft'"
 
-  $count = 0
-  while $count < 3
-    # Generate the company name from user's input. If the company name is not specified, return "unknown".
-    # Return only the name of the company in quotes, not an expression to calculate the name of the company.
-    # For example, if the input is "What is the share price of Amazon?", return "Amazon"
-    # For example, if the input is "How much does a share of microsoft cost?", return "microsoft"
-    $company_name = ...
-
-    if $company_name == "unknown"
-      if $global_company_name == None
-        bot asks company name
-        user tells company name
-        $count = $count + 1
-      else
-        break
-    else
-      $global_company_name = $company_name
-      break
-
-  if $count == 3
-    bot inform maximum tries exceeded
+  if $company_name == "unknown"
+    bot say "Sorry, I can't understand which company you are referring to here. Can you rephrase your query?"
     return
-
-  $global_intent = "price"
-  $price = execute plugin(endpoint="/stock/get_stock_price", company_name=$global_company_name)
-  if not $price
-    bot respond that it could not find the stock price
   else
-    bot tell stock price
+    $price = await InvokeFulfillmentAction(request_type="get", 
+      endpoint="/stock/get_stock_price", company_name=$company_name)
+    if not $price
+      bot say "Could not find the stock price!"
+    else
+      bot say "Stock price of {$company_name} is {$price}"
+
+flow user asked ticker symbol
+  user said "What is the ticker symbol of Microsoft?"
+    or user said "what is amazon ticker symbol?"
+    or user said "What is it's ticker symbol?"
+  
+flow ticker symbol
+  global $last_user_transcript
+  user asked ticker symbol
+  
+  $company_name = ..."Generate the company name from this input: {$last_user_transcript}. If the company name is not specified, return 'unknown'. Return only the name of the company in quotes, not an expression to calculate the name of the company. For example, if the input is 'What is the ticker symbol of Amazon?', return 'Amazon'. For example, if the input is 'What is the ticker symbol of apple?', return 'apple'. For example, if the input is 'What about microsoft?', return 'microsoft'"
+
+  if $company_name == "unknown"
+    bot say "Sorry, I can't understand which company you are referring to here. Can you rephrase your query?"
+    return
+  else
+    $ticker_symbol = await InvokeFulfillmentAction(request_type="get", 
+      endpoint="/stock/get_ticker", company_name=$company_name)
+    if not $ticker_symbol
+      bot say "Could not find the ticker symbol!"
+    else
+      bot say "Ticker symbol of {$company_name} is {$ticker_symbol}"

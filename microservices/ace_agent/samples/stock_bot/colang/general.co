@@ -1,48 +1,67 @@
-define user express greeting
-  "hi"
-  "hello"
-  "hey"
+flow user expressed greeting
+  user said "hi"
+    or user said "hello"
+    or user said "hey"
 
-define user ask for name
-  "What is your name?"
+flow user asked for name
+  user said "What is your name?"
 
-define user request help
-  "I need help"
-  "Can you help me with something?"
+flow user asked what can you do
+  user said "What can you do?"
 
-define user request repeat
-  "Please repeat that"
-  "repeat"
-  "What was that?"
+flow bot inform about itself
+  bot say "I can quote the stock price and ticker symbol of various companies and also answer some of the stock related FAQs."
 
-define user express sadness
-  "I am sad"
-  "I feel sad"
+flow describing bot purpose
+  user asked what can you do
+  bot inform about itself
 
-define flow
-  user express greeting
+flow user asked how are you
+  user said "How are you?"
+    or user said "How are you feeling?"
+
+flow bot reply to how are you
+  user asked how are you
+  bot say "I'm fine, thanks for asking!"
+
+flow user requested help
+  user said "I need help"
+    or user said "Can you help me with something?"
+
+flow user requested repeat
+  user said "Please repeat that"
+    or user said "repeat"
+    or user said "What was that?"
+
+flow user expressed sadness
+  user said "I am sad"
+    or user said "I feel sad"
+
+flow greeting
+  user expressed greeting
   bot express greeting
 
-define flow
-  user ask for name
+flow informing bot name
+  user asked for name
   bot inform own name
 
-define flow
-  user ask age
-  bot inform own age
+flow repeating last utterance on demand
+  global $last_bot_script
+  user requested repeat
+  bot say $last_bot_script
 
-define flow
-  user ask home
-  bot inform own home
+flow bot express greeting
+  bot say "Greetings! I am Enola and I'm here to assist you."
 
-define bot express greeting
-  "Greetings! I am Enola and I'm here to assist you."
+flow bot express thank you for information
+  bot say "Thanks for this information."
 
-define bot express thank you for information
-  "Thanks for this information."
+flow bot inform own name
+  bot say "My name is Enola."
 
-define bot inform own name
-  "My name is Enola."
+flow bot offer additional help
+  bot say "If you have any more questions or if there's anything else I can help you with, please don't hesitate to ask."
 
-define bot bot offer additional help
-  "If you have any more questions or if there's anything else I can help you with, please don't hesitate to ask."
+flow general
+  greeting or informing bot name or repeating last utterance on demand or describing bot purpose or bot reply to how are you
+  

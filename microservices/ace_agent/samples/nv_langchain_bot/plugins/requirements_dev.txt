@@ -1,5 +1,0 @@
-langchain==0.0.322
-langchain-community==0.0.16
-langchain-nvidia-ai-endpoints==0.0.1
-pypdf==3.10.0
-pymilvus==2.3.1

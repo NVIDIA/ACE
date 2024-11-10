@@ -1,16 +1,16 @@
 specVersion: 2.5.0
 
-version: 4.0.0
+version: 4.1.0
 
 name: ucf-app-speech-bot
 
-description: ACE Agent RAG Bot App
+description: ACE Agent DuckDuckGo LangChain Agent
 
 dependencies:
-- ucf.svc.riva.speech-skills:2.15.1
-- ucf.svc.ace-agent.plugin-server:4.0.0
-- ucf.svc.ace-agent.chat-controller:4.0.0
-- ucf.svc.ace-agent.web-app:4.0.0
+- ucf.svc.riva.speech-skills:2.17.0
+- ucf.svc.ace-agent.plugin-server:4.1.0
+- ucf.svc.ace-agent.chat-controller:4.1.0
+- ucf.svc.ace-agent.web-app:4.1.0
 
 secrets:
   k8sSecret/ngc-api-key-secret/NGC_CLI_API_KEY:

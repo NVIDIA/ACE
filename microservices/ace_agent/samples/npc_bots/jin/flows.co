@@ -1,5 +1,0 @@
-define flow
-  user ...
-  if not $player_name:
-    $player_name = "Kai"
-  bot respond with helpful answer

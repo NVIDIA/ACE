@@ -3,7 +3,7 @@
     "info": {
         "title": "Chat Engine Server API",
         "description": "NVIDIA ACE Agent Chat Engine Server API",
-        "version": "4.0.0"
+        "version": "4.1.0"
     },
     "paths": {
         "/chat": {

@@ -15,6 +15,10 @@ class ChatRequest(BaseModel):
     UserId: str = Field(
         description="Mandatory unique identifier to recognize which user is interacting with the Chat Engine."
     )
+    Metadata: Optional[Dict[str, Any]] = Field(
+        default={},
+        description="Any additional information related to the request.",
+    )
 
 
 class EventRequest(BaseModel):

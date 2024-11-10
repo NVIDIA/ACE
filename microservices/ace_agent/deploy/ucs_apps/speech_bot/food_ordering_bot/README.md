@@ -42,7 +42,7 @@ Before you start using NVIDIA ACE Agent, it’s assumed that you meet the follow
 
 4. Deploy the generated Helm Chart.
     ```
-    helm install ace-agent ucf-app-speech-bot-4.0.0/
+    helm install ace-agent ucf-app-speech-bot-4.1.0/
     ```
 
 5. Wait for all pods to be ready.

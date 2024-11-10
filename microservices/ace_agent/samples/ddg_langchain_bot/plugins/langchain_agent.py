@@ -76,7 +76,7 @@ wiki_prompt = ChatPromptTemplate.from_messages(
 )
 
 chat_history_map = {}
-llm = ChatOpenAI()
+llm = ChatOpenAI(model="gpt-4-turbo")
 output_parser = StrOutputParser()
 
 chain = (

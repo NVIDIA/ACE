@@ -3,5 +3,5 @@ model_servers:
     url: "localhost:8001" # triton grpc url
     riva_url: "localhost:50051" # Riva GRPC API, Needed for NMT models
     nlp_models:
-      - nvidia/riva/rmir_megatronnmt_any_en_500m:2.15.0 # NMT any language to english model
-      - nvidia/riva/rmir_megatronnmt_en_any_500m:2.15.0 # NMT english to any language model
+      - nvidia/riva/rmir_megatronnmt_any_en_500m:2.17.0 # NMT any language to english model
+      - nvidia/riva/rmir_megatronnmt_en_any_500m:2.17.0 # NMT english to any language model

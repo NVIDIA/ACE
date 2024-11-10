@@ -29,7 +29,7 @@ Before you start using NVIDIA ACE Agent, it’s assumed that you meet the follow
 
 2. Deploy one of the RAG examples by following the instructions in [the GenerativeAIExamples repository](https://github.com/NVIDIA/GenerativeAIExamples/tree/main/RetrievalAugmentedGeneration/examples). A good example to start with is [the NVIDIA API Catalog](https://nvidia.github.io/GenerativeAIExamples/latest/api-catalog.html) example. You can also deploy RAG Server in Kubernetes using [NVIDIA Enterprise RAG LLM Operator](https://docs.nvidia.com/ai-enterprise/rag-llm-operator/24.3.0/index.html).
 
-3. Update `app.yaml` with the deployed RAG Chain Server IP and Port details in `rag-server` component. 
+3. Update `app-params.yaml` with the deployed RAG Chain Server IP and Port details via `RAG_SERVER URL` parameter. 
 4. Generate the Helm Chart using UCS tools.
     ```
     ucf_app_builder_cli app build app.yaml app-params.yaml
@@ -37,7 +37,7 @@ Before you start using NVIDIA ACE Agent, it’s assumed that you meet the follow
 
 5. Deploy the generated Helm Chart.
     ```
-    helm install ace-agent ucf-app-chat-bot-4.0.0/
+    helm install ace-agent ucf-app-chat-bot-4.1.0/
     ```
 
 6. Wait for all pods to be ready.

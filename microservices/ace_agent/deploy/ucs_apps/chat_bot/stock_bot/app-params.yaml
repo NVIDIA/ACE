@@ -1,5 +1,6 @@
 chat-engine:
   botConfigName: stock_bot_config.yml
+  interface: "event"
   logLevel: "DEBUG"
   # gunicorn configs
   gunicornWorkers: "1"
@@ -11,3 +12,7 @@ plugin-server:
     config:
       workers: 4
       timeout: 120
+
+webapp:
+  chatInterface: "event"
+  speechFlags: ""

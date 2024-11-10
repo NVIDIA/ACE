@@ -1,128 +1,43 @@
-define user queries about stocks
-  "What is a stock?"
-  "define stocks"
-  "How do you describe a stock?"
+flow user queried about stocks
+  user said "What is a stock?"
+    or user said "define stocks"
+    or user said "How do you describe a stock?"
+    or user said "What are secondary markets?"
+    or user said "Difference between primary markets and secondary markets"
+    or user said "what are different types of stock market?"
+    or user said "What are primary markets?"
+    or user said "What is share market?"
+    or user said "define share market"
+    or user said "Explain share market."
+    or user said "What is a stock index?"
+    or user said "What are stock indices?"
+    or user said "describe stock index"
+    or user said "Define a broker"
+    or user said "Who is a broker?"
+    or user said "What is the role of a broker in share market?"
+    or user said "What is ipo?"
+    or user said "define ipo"
+    or user said "Explain ipo."
+    or user said "What is initial public offer?"
+    or user said "What are different types of stocks?"
+    or user said "What are different categories of stocks?"
+    or user said "Categories of stocks."
+    or user said "What are different types of stocks based on market capitalization?"
+    or user said "List different types of stocks based on market capitalization."
+    or user said "What are different types of stocks based on ownership?"
+    or user said "List different types of stocks based on ownership."
+    or user said "What are different types of stocks based on fundamentals?"
+    or user said "List different types of stocks based on fundamentals."
+    or user said "What are different types of stocks based on price volatility?"
+    or user said "List different types of stocks based on price volatility."
+    or user said "What are different types of stocks based on profit sharing?"
+    or user said "List different types of stocks based on profit sharing."
+    or user said "What are different types of stocks based on economic trends?"
+    or user said "List different types of stocks based on economic trends."
 
-define flow
-  user queries about stocks
-  bot responds with definition of stocks
-
-
-define user queries about primary markets and secondary markets
-  "What are primary markets?"
-  "What are secondary markets?"
-  "Difference between primary markets and secondary markets"
-  "what are different types of stock market?"
-
-define flow
-  user queries about types of stock market
-  bot responds with information on types of stock market
-
-
-define user queries about share markets
-  "What is share market?"
-  "define share market"
-  "Explain share market."
-
-define flow
-  user queries about share markets
-  bot responds with information about share markets
-
-
-define user queries about stock indices
-  "What is a stock index?"
-  "What are stock indices?"
-  "describe stock index"
-
-define flow
-  user queries about stock indices
-  bot responds with information about stock indices
-
-
-define user queries about broker
-  "Define a broker"
-  "Who is a broker?"
-  "What is the role of a broker in share market?"
-
-define flow
-  user queries about broker
-  bot responds with information about broker
-
-
-define user queries about ipo
-  "What is ipo?"
-  "define ipo"
-  "Explain ipo."
-  "What is initial public offer?"
-
-define flow
-  user queries about ipo
-  bot responds with information about ipo
-
-
-define user queries high level categories of stocks
-  "What are different types of stocks?"
-  "What are different categories of stocks?"
-  "Categories of stocks."
-
-define flow
-  user queries high level categories of stocks
-  bot responds with high level categories of stocks
-
-
-define user queries about types of stocks based on market capitalization
-  "What are different types of stocks based on market capitalization?"
-  "List difeerent types of stocks based on market capitalization."
-
-define flow
-  user queries about types of stocks based on market capitalization
-  bot responds with types of stocks based on market capitalization
-
-
-define user queries about types of stocks based on ownership
-  "What are different types of stocks based on ownership?"
-  "List difeerent types of stocks based on ownership."
-
-define flow
-  user queries about types of stocks based on ownership
-  bot responds with types of stocks based on ownership
-
-
-define user queries about types of stocks based on fundamentals
-  "What are different types of stocks based on fundamentals?"
-  "List difeerent types of stocks based on fundamentals."
-
-define flow
-  user queries about types of stocks based on fundamentals
-  bot responds with types of stocks based on fundamentals
-
-
-define user queries about types of stocks based on price volatility
-  "What are different types of stocks based on price volatility?"
-  "List difeerent types of stocks based on price volatility."
-
-define flow
-  user queries about types of stocks based on price volatility
-  bot responds with types of stocks based on price volatility
-
-
-define user queries about types of stocks based on profit sharing
-  "What are different types of stocks based on profit sharing?"
-  "List difeerent types of stocks based on profit sharing."
-
-define flow
-  user queries about types of stocks based on profit sharing
-  bot responds with types of stocks based on profit sharing
-
-
-define user queries about types of stocks based on economic trends
-  "What are different types of stocks based on economic trends?"
-  "List difeerent types of stocks based on economic trends."
-
-define flow
-  user queries about types of stocks based on economic trends
-  bot responds with types of stocks based on economic trends
-
-
-define bot remove last message
-  "(remove last message)"
+flow stock faq
+  global $last_user_transcript
+  user queried about stocks
+  $retrieval_results = await RetrieveRelevantChunksAction()
+  $response = ..."{$last_user_transcript}. You can take context from following section: {$retrieval_results}. Enclose the response in quotes."
+  bot say "{$response}"

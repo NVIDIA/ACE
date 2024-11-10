@@ -1,25 +1,26 @@
 specVersion: 2.5.0
 
-version: 4.0.0
+version: 4.1.0
 
 name: ucf-app-chat-bot
 
 description: ACE Agent Stock Bot UCS Application
 
 dependencies:
-- ucf.svc.ace-agent.chat-engine:4.0.0
-- ucf.svc.ace-agent.plugin-server:4.0.0
-- ucf.svc.ace-agent.web-app:4.0.0
+- ucf.svc.ace-agent.chat-engine:4.1.0
+- ucf.svc.ace-agent.plugin-server:4.1.0
+- ucf.svc.ace-agent.web-app:4.1.0
+- ucf.svc.core.redis-timeseries:0.0.20
 
 secrets:
   k8sSecret/ngc-api-key-secret/NGC_CLI_API_KEY:
     k8sSecret:
       secretName: ngc-api-key-secret
       key: NGC_CLI_API_KEY
-  k8sSecret/custom-env-secrets:
+  k8sSecret/openai-key-secret/OPENAI_API_KEY:
     k8sSecret:
-      secretName: custom-env-secrets
-      key: ENV
+      secretName: openai-key-secret
+      key: OPENAI_API_KEY
 
 components:
 - name: chat-engine
@@ -29,7 +30,7 @@ components:
     - name: ngc-docker-reg-secret
   secrets:
     ngc-api-key-secret: k8sSecret/ngc-api-key-secret/NGC_CLI_API_KEY
-    custom-env-secrets: k8sSecret/custom-env-secrets
+    openai-key-secret: k8sSecret/openai-key-secret/OPENAI_API_KEY
   files:
     config_dir: ../../../../samples/stock_bot
 - name: plugin-server
@@ -46,8 +47,13 @@ components:
   parameters:
     imagePullSecrets:
     - name: ngc-docker-reg-secret
+- name: redis-timeseries
+  type: ucf.svc.core.redis-timeseries
+  parameters:
+    imagePullSecrets:
+    - name: ngc-docker-reg-secret
 
 connections:
   chat-engine/plugin-server: plugin-server/http-api
-  webapp/chat-engine: chat-engine/http-api
-
+  chat-engine/redis: redis-timeseries/redis
+  webapp/redis: redis-timeseries/redis

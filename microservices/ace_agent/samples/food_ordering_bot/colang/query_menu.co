@@ -1,10 +1,17 @@
+flow user asked about menu item
+  """User wants to know about menu options or a specific item on the menu"""
+  user intent "food_order.query_menu"
 
-define flow query_menu
-  user food_order.query_menu
-  $result = execute plugin(endpoint="food_order/show_menu", request_type="post", user_id=$user_id)
-  bot responds with summary of $result
+flow user asks to see options
+  """User wants to know about generic menu options"""
+  user intent "food_order.show_options"
 
-define flow show_options
-  user food_order.show_options
-  $result = execute plugin(endpoint="food_order/show_menu", request_type="post", user_id=$user_id)
-  bot responds with summary of $result
+flow handle menu queries
+  global $last_user_transcript
+  user asked about menu item or user asks to see options
+  log "Handle user query about an item on the menu"
+
+  $information = await InvokeFulfillmentAction(endpoint="food_order/show_menu", request_type="post")
+  log "Response from Plugin - show menu action result: $information={$information}"
+  $response = ..."Summarize the following information to form a natural response to the given question. Question: {$last_user_transcript}. Information: {$information}. Enclose the response in quotes"
+  bot say $response

@@ -1,28 +1,15 @@
+flow user makes filler statement
+  """User says a filler question like 'I see' or 'Hi' """
+  user intent "food_order.filler"
 
-define user greets
-  "hi"
-  "hello"
-  "hey there"
+flow user goes off topic
+  """User asks about something unrelated to food ordering"""
+  user intent "food_order.nomatch"
 
-define bot welcome message
-  "Hi,  I am Violet, a food ordering assistant bot. How can I help you?"
+flow answer filler statement
+  user makes filler statement
+  llm continue interaction
 
-define subflow welcome user
-  bot welcome message
-
-define flow greets
-  user greets
-  do welcome user
-
-define bot bye message
-  "Thanks for visiting, good bye!"
-
-define flow filler
-  user food_order.filler
-
-  # Answer any questions related to greetings.
-  bot responds truthfully and logically
-
-define flow nomatch
-  user food_order.nomatch
-  bot inform knowledge limited to food ordering domain
+flow answer off topic question
+  user goes off topic
+  bot say "I can only answer questions related to food ordering."
