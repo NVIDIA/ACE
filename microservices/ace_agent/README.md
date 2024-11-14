@@ -22,11 +22,11 @@ ACE Agent provides Kubernetes deployment using NVIDIA Unified Cloud Services (UC
 
 | Microservice Name  | Version  | Description|
 |---|---|---|
-| ucf.svc.ace-agent.chat-controller  | 4.0.0  | The Chat Controller orchestrates the end-to-end pipeline for a speech IO based Conversational AI Agents. The Chat Controller creates a pipeline consisting of Automatic Speech Recognition (ASR), Chat Engine, Text-To-Speech (TTS), NVIDIA Omniverse Audio2Face Client, and manages the flow of audio or text data between these modules. |
-| ucf.svc.ace-agent.chat-engine  | 4.0.0  | The Chat Engine is microservice built on top of the NVIDIA NeMo Guardrails and allow you to design conversational flow using Colang. |
-| ucf.svc.ace-agent.nlp-server  | 4.0.0  | The ACE Agent NLP server exposes unified RESTful interfaces for integrating various NLP models and tasks in ACE Agent pipeline. |
-| ucf.svc.ace-agent.plugin-server  | 4.0.0  | The Plugin server allows us to add use case/domain specific business logic such as getting weather data from weather APIs in the bots. The Plugin server can also allow you to integrate your own agent built using LangChain or LlamaIndex or any other framework in ACE Ecosystem. |
-| ucf.svc.ace-agent.web-app | 4.0.0  | The sample frontend application for trying out bot deployed using ACE agent with voice capture and playback support as well as with text input-output support.  |
+| ucf.svc.ace-agent.chat-controller  | 4.1.0  | The Chat Controller orchestrates the end-to-end pipeline for a speech IO based Conversational AI Agents. The Chat Controller creates a pipeline consisting of Automatic Speech Recognition (ASR), Chat Engine, Text-To-Speech (TTS), NVIDIA Omniverse Audio2Face Client, and manages the flow of audio or text data between these modules. |
+| ucf.svc.ace-agent.chat-engine  | 4.1.0  | The Chat Engine is microservice built on top of the NVIDIA NeMo Guardrails and allow you to design conversational flow using Colang. |
+| ucf.svc.ace-agent.nlp-server  | 4.1.0  | The ACE Agent NLP server exposes unified RESTful interfaces for integrating various NLP models and tasks in ACE Agent pipeline. |
+| ucf.svc.ace-agent.plugin-server  | 4.1.0  | The Plugin server allows us to add use case/domain specific business logic such as getting weather data from weather APIs in the bots. The Plugin server can also allow you to integrate your own agent built using LangChain or LlamaIndex or any other framework in ACE Ecosystem. |
+| ucf.svc.ace-agent.web-app | 4.1.0  | The sample frontend application for trying out bot deployed using ACE agent with voice capture and playback support as well as with text input-output support.  |
 
 
 You can easily create your own custom application Helm chart using ACE Agent microservices with UCS applications. The ACE Agent Quick Start package comes with a number of UCS applications for sample bots which can be found in the [./deploy/ucs_apps/](./deploy/ucs_apps/) directory.
