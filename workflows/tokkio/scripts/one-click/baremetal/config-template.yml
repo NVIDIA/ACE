@@ -118,7 +118,7 @@ spec:
       #       org: '<replace-with-ngc-org-defaults-to-nvidia>'
       #       team: '<replace-with-ngc-team-defaults-to-ace>'
       #       name: '<replace-with-ngc-resource-name-defaults-to-tokkio_ui>'
-      #       version: '<replace-with-resource-version-defaults-to-5.0.0-362>'
+      #       version: '<replace-with-resource-version-defaults-to-5.0.0>'
       #       file: '<replace-with-resource-file-name-defaults-to-ui.tar.gz>'
       #   # NOTE: Uncomment user_env_vars when you need to pass ui configuration. it should be key: value format and its case sensitive.
       #   user_env_vars:
