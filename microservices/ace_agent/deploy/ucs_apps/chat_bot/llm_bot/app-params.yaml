@@ -1,0 +1,11 @@
+chat-engine:
+  botConfigName: llm_bot_config.yml
+  logLevel: "DEBUG"
+  interface: "event"
+  # gunicorn configs
+  gunicornWorkers: "1"
+  gunicornTimeout: "150"
+
+webapp:
+  chatInterface: "event"
+  speechFlags: ""

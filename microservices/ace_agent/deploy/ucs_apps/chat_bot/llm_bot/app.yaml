@@ -1,0 +1,48 @@
+specVersion: 2.5.0
+
+version: 4.1.0
+
+name: ucf-app-chat-bot
+
+description: ACE Agent LLM Bot UCS Application
+
+dependencies:
+- ucf.svc.ace-agent.chat-engine:4.1.0
+- ucf.svc.ace-agent.web-app:4.1.0
+- ucf.svc.core.redis-timeseries:0.0.20
+
+secrets:
+  k8sSecret/ngc-api-key-secret/NGC_CLI_API_KEY:
+    k8sSecret:
+      secretName: ngc-api-key-secret
+      key: NGC_CLI_API_KEY
+  k8sSecret/nvidia-api-key-secret/NVIDIA_API_KEY:
+    k8sSecret:
+      secretName: nvidia-api-key-secret
+      key: NVIDIA_API_KEY
+
+components:
+- name: chat-engine
+  type: ucf.svc.ace-agent.chat-engine
+  parameters:
+    imagePullSecrets:
+    - name: ngc-docker-reg-secret
+  secrets:
+    ngc-api-key-secret: k8sSecret/ngc-api-key-secret/NGC_CLI_API_KEY
+    nvidia-api-key-secret: k8sSecret/nvidia-api-key-secret/NVIDIA_API_KEY
+  files:
+    config_dir: ../../../../samples/llm_bot
+- name: webapp
+  type: ucf.svc.ace-agent.web-app
+  parameters:
+    imagePullSecrets:
+    - name: ngc-docker-reg-secret
+- name: redis-timeseries
+  type: ucf.svc.core.redis-timeseries
+  parameters:
+    imagePullSecrets:
+    - name: ngc-docker-reg-secret
+
+connections:
+  webapp/redis: redis-timeseries/redis
+  chat-engine/redis: redis-timeseries/redis
