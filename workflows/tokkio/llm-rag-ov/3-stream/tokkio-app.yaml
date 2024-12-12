@@ -1,6 +1,6 @@
 ---
 specVersion: 2.5.0
-version: 4.1.3
+version: 4.1.4
 name: ucs-tokkio-app-base-3-stream-llm-rag-3d-ov
 description: UCS Tokkio App
 secrets:
