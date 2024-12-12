@@ -25,14 +25,14 @@ chat-controller:
         voice_name: English-US.Male-1
   speechConfigPath: speech_config.yaml
   wordBoostFilePath: asr_words_to_boost_conformer.txt
-  configNgcPath: nvidia/ace/tokkio_plugin_llm_rag:4.1.0
+  configNgcPath: nvidia/ace/tokkio_plugin_llm_rag:4.1.2
   pipeline: avatar_umim
 chat-engine:
   enableUserAttention: "true"
   interface: event
   logLevel: INFO
   botConfigName: tokkio_rag_bot_config.yml
-  configNgcPath: nvidia/ace/tokkio_plugin_llm_rag:4.1.0
+  configNgcPath: nvidia/ace/tokkio_plugin_llm_rag:4.1.2
 ds-visionai:
   checkInterval: '1'
   jitterbufferLatency: 2000
@@ -179,7 +179,7 @@ occupancy-alerts-api:
             storage: 1Gi
 plugin-server:
   pluginConfigPath: plugin_config.yaml
-  configNgcPath: nvidia/ace/tokkio_plugin_llm_rag:4.1.0
+  configNgcPath: nvidia/ace/tokkio_plugin_llm_rag:4.1.2
   pluginConfig:
     plugins:
       rag:
