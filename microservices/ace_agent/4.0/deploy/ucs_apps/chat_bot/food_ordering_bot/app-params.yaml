@@ -1,0 +1,17 @@
+chat-engine:
+  botConfigName: food_ordering_bot_config.yaml
+  logLevel: "DEBUG"
+  # gunicorn configs
+  gunicornWorkers: "1"
+  gunicornTimeout: "150"
+
+nlp-server:
+  ucfVisibleGpus: [0]
+  modelConfigPath: "model_config.yaml"
+  customModelDir: ""
+  # gunicorn configs
+  gunicornWorkers: "4"
+  gunicornTimeout: "120"
+
+plugin-server:
+  pluginConfigPath: "plugin_config.yaml"

@@ -1,0 +1,9 @@
+define user ask open domain query
+  "What is the human life expectancy in the United States?"
+  "Who is the Prime Minister of India?"
+  "What is the capital of Spain?"
+  "How far is the sun from the earth?"
+
+define flow open domain
+  user ask open domain query
+  bot responds truthfully

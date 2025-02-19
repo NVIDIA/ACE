@@ -1,0 +1,24 @@
+chat-controller:
+  pipeline: speech_lite # Choose from speech_lite, speech, avatar
+  speechConfigPath: "speech_config.yaml"
+
+riva-speech:
+  riva:
+    visibleGpus: "0"
+  modelRepoGenerator:
+    clearAllRMIRSAndModels: false
+    #> description: Flag to clear artifacts and models before downloading and deploying
+    ngcModelConfigs:
+      triton0:
+        models:
+        #> description: List of NGC models or Bot Config for deployment
+        - nvidia/riva/rmir_asr_conformer_en_us_str:2.15.0
+        - nvidia/riva/rmir_tts_radtts_hifigan_en_us_ipa:2.15.0
+  persistentVolumeClaim:
+    keepPVC: True
+
+chat-engine:
+  botConfigName: jin/bot_config.yaml
+
+plugin-server:
+  pluginConfigPath: "plugin_config.yaml"

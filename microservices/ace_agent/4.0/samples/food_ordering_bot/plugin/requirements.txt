@@ -1,0 +1,4 @@
+word2number==1.1
+pykwalify==1.8.0
+tinydb==4.8.0
+editdistance==0.8.1

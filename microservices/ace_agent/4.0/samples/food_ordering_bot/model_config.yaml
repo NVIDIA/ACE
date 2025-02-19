@@ -1,0 +1,14 @@
+# Defination of different natural processing models used by bot
+
+model_servers:
+  - name: triton
+    url: "localhost:8004"
+    nlp_models:
+      - nvidia/ucs-ms/rmir_nlp_tokkio_drive_thru_intent_slot_bert_base:1.2.4
+
+  - name: riva
+    url: "localhost:8001"
+    speech_models:
+      - nvidia/ucs-ms/rmir_asr_parakeet_1-1b_en_us_str_vad:2.15.0 #english
+      - nvidia/riva/rmir_tts_radtts_hifigan_en_us_ipa:2.15.0
+

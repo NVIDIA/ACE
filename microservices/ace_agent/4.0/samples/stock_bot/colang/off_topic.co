@@ -1,0 +1,23 @@
+define user ask off topic
+  "Can you recommend a place to eat?"
+  "Do you know any restaurants?"
+  "Can you paint?"
+  "Can you tell me a joke?"
+  "What is the biggest city in the world"
+  "Can you write an email?"
+  "I need you to write an email for me."
+  "Who is the president?"
+  "What party will win the elections?"
+  "Who should I vote with?"
+  "Which is the best restaurant?"
+  "What is the weather?"
+  "Which country has the largest population in the world?"
+  "What is the capital of USA?"
+  "What is 2+2= ?"
+
+define flow
+  user ask off topic
+  bot explain cant off topic
+
+define bot explain cant off topic
+  "Sorry, I cannot comment on anything which is not relevant to stock market and stocks."

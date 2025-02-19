@@ -1,0 +1,23 @@
+
+define flow repeat_order
+  user food_order.repeat_order
+  $result = execute plugin(endpoint="food_order/repeat_order", request_type="post", user_id=$user_id)
+  if $result
+    bot respond with result
+  else
+    bot "I couldn't find anything in your cart."
+
+define flow order_complete
+  user food_order.order_complete
+  $result = execute plugin(endpoint="food_order/place_order", request_type="post", user_id=$user_id)
+  if $result
+    bot "Thanks for placing the order. Your order would be available shortly"
+    execute reset(memory="session")
+
+define flow check_bill
+  user food_order.check_bill
+  $result = execute plugin(endpoint="food_order/check_bill", request_type="post", user_id=$user_id)
+  if $result
+    bot "Your total bill is {{$result}} dollars."
+  else
+    bot "I could not get the bill amount."

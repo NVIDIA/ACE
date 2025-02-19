@@ -1,0 +1,158 @@
+services:
+  model-utils: &model-utils
+    container_name: model-utils
+    image: ${DOCKER_REGISTRY}/model-utils:${TAG}
+    env_file: .env
+    environment:
+      - BUILDER_ROOT=${PWD}
+      - CACHE_PATH=${PWD}/.cache
+      - TRANSFORMERS_CACHE=${PWD}/.cache
+    volumes:
+      - ${HOME}/.docker:/.docker
+      - ${PWD}:${PWD}
+      - /var/run/docker.sock:/var/run/docker.sock # Used for running sibling containers
+    network_mode: 'host'
+    tty: true
+    user: ${DOCKER_USER}
+    group_add:
+      - $DOCKER_GROUP
+    command: deploy --model_config_path ${PWD}/${BOT_PATH}/model_config.yaml --model_repository_path ./model_repository --gpus 1
+
+  model-utils-speech:
+    <<: *model-utils
+    container_name: model-utils-speech
+    command: deploy --model_config_path ${PWD}/${BOT_PATH}/model_config.yaml --model_repository_path ./model_repository --gpus 1 --speech
+
+  nlp-server:
+    container_name: nlp-server
+    image: nlp-server:${TAG}
+    build:
+      context: .
+      dockerfile: dockerfiles/nlp_server.Dockerfile
+      args:
+        BASE_IMAGE: ${DOCKER_REGISTRY}/nlp-server:${TAG}
+        HOST_UID: ${HOST_UID}
+        HOST_GID: ${HOST_GID}
+    env_file: .env
+    volumes:
+      - ${PWD}:${PWD}
+    network_mode: 'host'
+    tty: true
+    user: ${DOCKER_USER}
+    shm_size: 2G
+    command: aceagent nlp-server deploy --timeout 200 --workers 1 --config ${PWD}/${BOT_PATH}/model_config.yaml
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+  plugin-server:
+    container_name: plugin-server
+    image: plugin-server:${TAG}
+    build:
+      context: .
+      dockerfile: dockerfiles/plugin_server.Dockerfile
+      args:
+        BASE_IMAGE: ${DOCKER_REGISTRY}/plugin-server:${TAG}
+        HOST_UID: ${HOST_UID}
+        HOST_GID: ${HOST_GID}
+    volumes:
+      - ${PWD}:${PWD}
+    network_mode: 'host'
+    env_file: .env
+    tty: true
+    user: ${DOCKER_USER}
+    command: aceagent plugin-server deploy -c ${PWD}/${BOT_PATH}/plugin_config.yaml --log-path ${PWD}/log
+
+  chat-engine: &chat-engine
+    container_name: chat-engine
+    image: chat-engine:${TAG}
+    build:
+      context: .
+      dockerfile: dockerfiles/chat_engine.Dockerfile
+      args:
+        BASE_IMAGE: ${DOCKER_REGISTRY}/chat-engine:${TAG}
+        HOST_UID: ${HOST_UID}
+        HOST_GID: ${HOST_GID}
+    env_file: .env
+    volumes:
+      - ${PWD}:${PWD}
+    network_mode: 'host'
+    stdin_open: true
+    tty: true
+    user: ${DOCKER_USER}
+    command: aceagent chat server -c ${PWD}/${BOT_PATH} --log-path ${PWD}/log
+
+  redis:
+    container_name: redis-server
+    image: redis
+    network_mode: 'host'
+
+  chat-controller:
+    container_name: chat-controller
+    image: ${DOCKER_REGISTRY}/chat-controller:${TAG}
+    env_file: .env
+    environment:
+      - NVIDIA_DISABLE_REQUIRE=1
+    volumes:
+      - ${PWD}/${BOT_PATH}:/workspace/config
+      - ${PWD}/speech_logs:/workspace/log
+    network_mode: 'host'
+    tty: true
+    user: ${DOCKER_USER}
+    command: bash run_pipeline.sh --pipeline ${PIPELINE} --speech_config /workspace/config/speech_config.yaml
+
+  chat-bot: &chat-bot
+    <<: *chat-engine
+    container_name: chat-engine-server
+    depends_on:
+      - nlp-server
+      - plugin-server
+
+  chat-bot-cli:
+    <<: *chat-bot
+    container_name: chat-engine-cli
+    command: bash
+  
+  event-bot: &event-bot
+    <<: *chat-engine
+    container_name: chat-engine-event
+    command: aceagent chat event -c ${PWD}/${BOT_PATH} --log-path ${PWD}/log
+    depends_on:
+      - nlp-server
+      - plugin-server
+      - redis
+
+  frontend: &frontend
+    container_name: frontend
+    image: nvcr.io/nvidia/ucs-ms/frontend:4.0.0
+    network_mode: 'host'
+    volumes:
+      - ${PWD}:/app/workspace
+    tty: true
+    user: ${DOCKER_USER}
+    command: python3.10 -m frontend --port 9001 --mode text
+
+  frontend-speech:
+    <<: *frontend
+    container_name: frontend-speech
+    command: python3.10 -m frontend --port 9001 --mode speech
+
+  speech-bot:
+    <<: *chat-bot
+    container_name: chat-engine-server-speech
+    depends_on:
+      - nlp-server
+      - plugin-server
+      - chat-controller
+
+  speech-event-bot:
+    <<: *event-bot
+    container_name: chat-engine-event-speech
+    depends_on:
+      - nlp-server
+      - plugin-server
+      - chat-controller
+      - redis

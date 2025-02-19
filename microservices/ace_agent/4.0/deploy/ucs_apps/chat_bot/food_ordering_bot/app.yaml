@@ -1,0 +1,64 @@
+specVersion: 2.5.0
+
+version: 4.0.0
+
+name: ucf-app-chat-bot
+
+description: ACE Agent Food Ordering Bot
+
+dependencies:
+- ucf.svc.ace-agent.chat-engine:4.0.0
+- ucf.svc.ace-agent.plugin-server:4.0.0
+- ucf.svc.ace-agent.nlp-server:4.0.0
+- ucf.svc.ace-agent.web-app:4.0.0
+
+secrets:
+  k8sSecret/ngc-api-key-secret/NGC_CLI_API_KEY:
+    k8sSecret:
+      secretName: ngc-api-key-secret
+      key: NGC_CLI_API_KEY
+  k8sSecret/openai-key-secret/OPENAI_API_KEY:
+    k8sSecret:
+      secretName: openai-key-secret
+      key: OPENAI_API_KEY
+
+components:
+- name: nlp-server
+  type: ucf.svc.ace-agent.nlp-server
+  parameters:
+    imagePullSecrets:
+    - name: ngc-docker-reg-secret
+  secrets:
+    ngc-api-key-secret: k8sSecret/ngc-api-key-secret/NGC_CLI_API_KEY
+  files:
+    config_dir: ../../../../samples/food_ordering_bot
+- name: chat-engine
+  type: ucf.svc.ace-agent.chat-engine
+  parameters:
+    imagePullSecrets:
+    - name: ngc-docker-reg-secret
+  secrets:
+    ngc-api-key-secret: k8sSecret/ngc-api-key-secret/NGC_CLI_API_KEY
+    openai-key-secret: k8sSecret/openai-key-secret/OPENAI_API_KEY
+  files:
+    config_dir: ../../../../samples/food_ordering_bot
+- name: plugin-server
+  type: ucf.svc.ace-agent.plugin-server
+  parameters:
+    imagePullSecrets:
+    - name: ngc-docker-reg-secret
+  secrets:
+    ngc-api-key-secret: k8sSecret/ngc-api-key-secret/NGC_CLI_API_KEY
+  files:
+    config_dir: ../../../../samples/food_ordering_bot
+- name: webapp
+  type: ucf.svc.ace-agent.web-app
+  parameters:
+    imagePullSecrets:
+    - name: ngc-docker-reg-secret
+
+connections:
+  chat-engine/plugin-server: plugin-server/http-api
+  chat-engine/nlp-server: nlp-server/api-server
+  webapp/chat-engine: chat-engine/http-api
+

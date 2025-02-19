@@ -1,0 +1,673 @@
+/*
+* Copyright (c) 2024, NVIDIA CORPORATION.  All rights reserved.
+*
+* NVIDIA CORPORATION and its licensors retain all intellectual property
+* and proprietary rights in and to this software, related documentation
+* and any modifications thereto.  Any use, reproduction, disclosure or
+* distribution of this software and related documentation without an express
+* license agreement from NVIDIA CORPORATION is strictly prohibited.
+*/
+
+syntax = "proto3";
+
+package nvidia.aceagent.chatcontroller.v1;
+
+option cc_enable_arenas = true;
+
+// Java package name
+option java_package = "com.nvidia.aceagent.chatcontroller.v1";
+
+/*
+ * The AceAgentGrpc service provides apis to interact with chat engine and speech
+ * components.
+ */
+service AceAgentGrpc {
+    // CreatePipeline API is used to create new pipeline with Chat controller,
+    // It creates a Chat controller pipeline with a unique stream_id populated
+    // by the client in PipelineRequest.
+    rpc CreatePipeline(PipelineRequest) returns (APIStatusResponse) {}
+
+    // FreePipeline API is used to free up a pipeline with Chat controller,
+    // created by using CreatePipeline API. Client needs to pass same stream_id
+    // in PipelineRequest as used in CreatePipeline.
+    rpc FreePipeline(PipelineRequest) returns (APIStatusResponse) {}
+
+    // SendAudio API is used to stream audio content to ASR from Chat controller.
+    // This is a client side streaming API.
+    rpc SendAudio(stream SendAudioRequest) returns (APIStatusResponse) {}
+
+    // ReceiveAudio API is used to receive synthesized audio from TTS through
+    // Chat controller. This is a server side streaming API.
+    rpc ReceiveAudio(ReceiveAudioRequest) returns (stream ReceiveAudioResponse) {}
+
+    // StreamSpeechResults API is used to receive all the meta data from
+    // Chat controller like  ASR transcripts, Chat engine responses, Pipeline
+    // states etc. This is a broadcasting API i.e it can fan out responses to
+    // multiple concurrent client instances using same stream_id.
+    // This is a server side streaming API.
+    rpc StreamSpeechResults(StreamingSpeechResultsRequest) returns (stream StreamingSpeechResultsResponse) {}
+
+    // StartRecognition API is used to start the ASR recognition in Chat
+    // controller for the audio content streamed from SendAudio API.
+    // This API also provides a flag to mark the ASR recognition as standalone,
+    // i.e Chat Engine and TTS will not be invoked for the ASR transcript.
+    rpc StartRecognition (SpeechRecognitionControlRequest) returns (APIStatusResponse) {}
+
+    // StopRecognition API is used to stop the ASR recognition for the audio
+    // content streamed from SendAudio API.
+    rpc StopRecognition (SpeechRecognitionControlRequest) returns (APIStatusResponse) {}
+
+    // SetUserParameters API can be used to set the runtime user parameters like
+    // user_id on Chat controller pipeline.
+    rpc SetUserParameters (UserParametersRequest) returns (APIStatusResponse) {}
+
+    // GetStatus API can be used to get the latest state of Chat controller pipeline.
+    // This API is not valid if UMIM is enabled
+    rpc GetStatus (GetStatusRequest) returns (GetStatusResponse) {}
+
+    // ReloadSpeechConfigs API can be used to reload the ASR word boosting and
+    // TTS Arpbet configs in Chat controller.
+    rpc ReloadSpeechConfigs (ReloadSpeechConfigsRequest) returns (APIStatusResponse) {}
+
+    // SynthesizeSpeech API is used to send text transcript directly to the TTS
+    // for standalone TTS audio synthesis.
+    // The generated audio will be routed to the path specified in the pipeline
+    // graph provided in Chat controller.
+    // e.g. if the TTS audio is routed to A2F in the graph, the audio will be
+    // sent to A2F server.
+    // If the TTS audio is routed to Grpc client then it will be available
+    // through the server side streaming ReceiveAudio API.
+    rpc SynthesizeSpeech (SynthesizeSpeechRequest) returns (APIStatusResponse) {}
+
+    // GetUserContext API is used to get the current user context from Chat Engine.
+    // The API returns a UserContext message containing the current conversation
+    // history and any context attached to the active user_id.
+    // This API is not valid if UMIM is enabled
+    rpc GetUserContext (UserContextRequest) returns (UserContext) {}
+
+    // SetUserContext API is used to set the current user context in Chat Engine.
+    // The API accepts a UserContext message containing the conversation
+    // history and any context to be attached to the active user_id.
+    // This API is not valid if UMIM is enabled
+    rpc SetUserContext (UserContext) returns (APIStatusResponse) {}
+
+    // UpdateUserContext API is used to update the current user context from
+    // Chat Engine. The API accepts a UserContext message containing any context
+    // to be attached to the active user_id.
+    // This API is not valid if UMIM is enabled
+    rpc UpdateUserContext (UserContext) returns (APIStatusResponse) {}
+
+    // DeleteUserContext API is used to delete the current user context attached
+    // to a user_id in Chat Engine.
+    // This API is not valid if UMIM is enabled
+    rpc DeleteUserContext (UserContextRequest) returns (APIStatusResponse) {}
+
+    // Chat API is used to send text queries to Chat Engine via Chat controller.
+    // This API also provides a flag to disable TTS synthesis for the response
+    // generated by Chat Engine.
+    // This can be used for a text in and text out type of scenario.
+    // This API is not valid if UMIM is enabled
+    rpc Chat (ChatRequest) returns (stream ChatResponse) {}
+
+    // Event API is used to send events to Chat Engine via Chat controller.
+    // This API is not valid if UMIM is enabled
+    rpc Event (EventRequest) returns (stream EventResponse) {}
+}
+
+/*
+ * The SendAudioRequest is used to send either StreamingRecognitionConfig message
+ * or audio content. The first SendAudioRequest message must contain a
+ * StreamingRecognitionConfig message, followed by the audio content messages.
+ */
+message SendAudioRequest {
+    // unique id to identify the client connection
+    string stream_id = 1;
+
+    // The streaming request, which is either a streaming config or audio content.
+    oneof streaming_request {
+        // Provides information to the recognizer that specifies how to process the
+        // request. The first `SendAudioRequest` message must contain a
+        // `streaming_config`  message.
+        StreamingRecognitionConfig streaming_config = 2;
+
+        // The audio data to be recognized. Sequential chunks of audio data are
+        // streamed from client.
+        bytes audio_content = 3;
+    }
+
+    // source id of the audio data
+    string source_id = 4;
+
+    // audio buffer creation timestamp in ISO8601 format
+    string create_time = 5;
+}
+
+// Provides information to the ASR recognizer about incoming audio data
+message StreamingRecognitionConfig {
+    // The encoding of the audio data sent in the request.
+    //
+    // All encodings support only 1 channel (mono) audio.
+    AudioEncoding encoding = 1;
+
+    // The sample rate in hertz (Hz) of the audio data sent in the
+    // `SendAudioRequest` message.
+    int32 sample_rate_hertz = 2;
+
+    // The language of the supplied audio as a
+    // [BCP-47](https://www.rfc-editor.org/rfc/bcp/bcp47.txt) language tag.
+    // Example: "en-US".
+    // Default is en-US.
+    string language_code = 3;
+
+    // The number of channels in the input audio data.
+    int32 audio_channel_count = 4;
+
+    // Which model to select for the given request.
+    string model = 5;
+}
+
+/*
+ * ReceiveAudioRequest is used to request audio data for specified stream_id.
+ */
+message ReceiveAudioRequest {
+    // unique id to identify the client connection
+    string stream_id = 1;
+}
+
+/*
+ * StreamingSpeechResultsRequest is used to request various results from chat
+ * controller.
+ */
+message StreamingSpeechResultsRequest {
+    // unique id to identify the client connection
+    string stream_id = 1;
+
+    // uuid to identify concurrent client request
+    string request_id = 2;
+}
+
+/*
+ * PipelineRequest is used to create/free pipeline specified using stream_id
+ */
+message PipelineRequest {
+    // A  unique id sent by the client to identify the client connection.
+    // It is mapped to a unique pipeline on the Chat Controller server.
+    string stream_id = 1;
+
+    // user id
+    string user_id = 2;
+}
+
+/*
+ * UserParametersRequest is used to set user parameters
+ */
+message UserParametersRequest {
+    // unique id to identify the client connection
+    string stream_id = 1;
+
+    // used id
+    string user_id = 2;
+
+    // bot name with version like {bot_name}_v{bot_version}, e.g chitchat_bot_v1.
+    string bot_name = 3;
+}
+
+/*
+ * GetStatusRequest used to get on demand Chat controller pipeline status
+ */
+message GetStatusRequest {
+    // unique id to identify the client connection
+    string stream_id = 1;
+}
+
+/*
+ * SpeechRecognitionControlRequest is used for controlling input to
+ * ASR internally muting ASR.
+ * It is also used to disable DM-TTS flow for the incoming ASR input
+ */
+message SpeechRecognitionControlRequest {
+    // unique id to identify the client connection
+    string stream_id = 1;
+
+    // Flag to mention whether asr transcripts to be passed to DM-TTS or get
+    // only transcripts
+    bool is_standalone = 2;
+}
+
+/*
+ * Reload Speech Configs Request
+ */
+message ReloadSpeechConfigsRequest {
+    // unique id to identify the client connection
+    string stream_id = 1;
+}
+
+/*
+ * UserContextRequest used to request user context
+ */
+message UserContextRequest {
+    // unique id to identify the client connection
+    string stream_id = 1;
+
+    // user id
+    string user_id = 2;
+}
+
+/*
+ * UserContext data containing user specific information.
+ */
+message UserContext {
+    // unique id to identify the client connection
+    string stream_id = 1;
+
+    // user id
+    string user_id = 2;
+
+    // bot name with version like {bot_name}_v{bot_version}, e.g chitchat_bot_v1.
+    string bot_name = 3;
+
+    // conversation history of user
+    repeated ConversationHistory conversation_history = 4;
+
+    // json formatted data of user context
+    string context_json = 5;
+}
+
+message ConversationHistory {
+    // bot name with version like {bot_name}_v{bot_version}, e.g chitchat_bot_v1.
+    string bot_name = 1;
+
+    repeated ConversationInstance conversation = 2;
+}
+
+message ConversationInstance {
+    Role role = 1;
+    string content = 2;
+}
+
+// Chat controller pipeline status response
+message GetStatusResponse {
+    // unique id to identify the client connection
+    string stream_id = 1;
+
+    PipelineStateResponse pipeline_state = 2;
+}
+
+// Chat controller Metadata streaming response
+message StreamingSpeechResultsResponse {
+    // unique id to identify the client connection
+    string stream_id = 1;
+
+    // message type as defined in `MessageType`
+    MessageType message_type = 2;
+
+    oneof metadata {
+
+        ASRResult asr_result = 3;
+
+        ChatEngineResponse chat_engine_response = 4;
+
+        TTSResult tts_result = 5;
+
+        PipelineStateResponse pipeline_state = 6;
+
+        string display_text = 7;
+    }
+}
+
+// ASR Result
+message ASRResult {
+    // Complete ASR Response in Riva Skills ASR result schema
+    StreamingRecognitionResult results = 1;
+
+    float latency_ms = 2;
+
+    // start time in ISO8601 format, e.g. 2024-03-08T13:33:30.736Z
+    string start_time = 3;
+
+    // stop time in ISO8601 format
+    string stop_time = 4;
+}
+
+// A streaming speech recognition result corresponding to a portion of the audio
+// that is currently being processed.
+message StreamingRecognitionResult {
+  // May contain one or more recognition hypotheses (up to the
+  // maximum specified in `max_alternatives`).
+  // These alternatives are ordered in terms of accuracy, with the top (first)
+  // alternative being the most probable, as ranked by the recognizer.
+  repeated SpeechRecognitionAlternative alternatives = 1;
+
+  // If `false`, this `StreamingRecognitionResult` represents an
+  // interim result that may change. If `true`, this is the final time the
+  // speech service will return this particular `StreamingRecognitionResult`,
+  // the recognizer will not return any further hypotheses for this portion of
+  // the transcript and corresponding audio.
+  bool is_final = 2;
+
+  // An estimate of the likelihood that the recognizer will not
+  // change its guess about this interim result. Values range from 0.0
+  // (completely unstable) to 1.0 (completely stable).
+  // This field is only provided for interim results (`is_final=false`).
+  // The default of 0.0 is a sentinel value indicating `stability` was not set.
+  float stability = 3;
+
+  // For multi-channel audio, this is the channel number corresponding to the
+  // recognized result for the audio from that channel.
+  // For audio_channel_count = N, its output values can range from '1' to 'N'.
+  int32 channel_tag = 5;
+
+  // Length of audio processed so far in seconds
+  float audio_processed = 6;
+}
+
+// Alternative hypotheses (a.k.a. n-best list).
+message SpeechRecognitionAlternative {
+  // Transcript text representing the words that the user spoke.
+  string transcript = 1;
+
+  // The non-normalized confidence estimate. A higher number
+  // indicates an estimated greater likelihood that the recognized words are
+  // correct. This field is set only for a non-streaming
+  // result or, of a streaming result where `is_final=true`.
+  // This field is not guaranteed to be accurate and users should not rely on it
+  // to be always provided.
+  float confidence = 2;
+
+  // A list of word-specific information for each recognized word. Only populated
+  // if is_final=true
+  repeated WordInfo words = 3;
+}
+
+// Word-specific information for recognized words.
+message WordInfo {
+  // Time offset relative to the beginning of the audio in ms
+  // and corresponding to the start of the spoken word.
+  // This field is only set if `enable_word_time_offsets=true` and only
+  // in the top hypothesis.
+  int32 start_time = 1;
+
+  // Time offset relative to the beginning of the audio in ms
+  // and corresponding to the end of the spoken word.
+  // This field is only set if `enable_word_time_offsets=true` and only
+  // in the top hypothesis.
+  int32 end_time = 2;
+
+  // The word corresponding to this set of information.
+  string word = 3;
+
+  // The non-normalized confidence estimate. A higher number indicates an
+  // estimated greater likelihood that the recognized words are correct. This
+  // field is not guaranteed to be accurate and users should not rely on it to
+  // be always provided. The default of 0.0 is a sentinel value indicating
+  // confidence was not set.
+  float confidence = 4;
+}
+
+// Chat Engine Result json
+message ChatEngineResponse {
+    // unique id to identify the client connection
+    string stream_id = 1;
+
+    // chat engine result
+    string result = 2;
+
+    float latency_ms = 3;
+}
+
+// TTS result metadata
+message TTSResult {
+    // TTS latency in milliseconds
+    float latency_ms = 1;
+}
+
+// Chat controller pipeline state response
+message PipelineStateResponse {
+    PipelineState state = 1;
+}
+
+// Receive Audio API Response
+message ReceiveAudioResponse {
+    // unique id to identify the client connection
+    string stream_id = 1;
+
+    // synthesized audio data
+    bytes audio_content = 2;
+
+    // The encoding of the audio data
+    AudioEncoding encoding = 3;
+
+    // The sample rate in hertz (Hz) of the audio data
+    int32 sample_rate_hertz = 4;
+
+    // The number of channels in the audio data. Only mono is supported
+    int32 audio_channel_count = 5;
+
+    // frame size of audio data
+    int32 frame_size = 6;
+}
+
+// Generic API status response message
+message APIStatusResponse {
+    // unique id to identify the client connection
+    string stream_id = 1;
+
+    // response message
+    string response_msg = 2;
+
+    // API response status code as defined in `APIStatus`
+    APIStatus status = 3;
+}
+
+/*******************************************************************************/
+
+/*******************************************************************************/
+/*** Enum definitions ***/
+
+/*
+ * Message type field for Chat controller metadata streaming
+ */
+enum MessageType {
+    UNKNOWN_RESPONSE = 0;
+    ASR_RESPONSE = 1;
+    CHAT_ENGINE_RESPONSE = 2;
+    TTS_RESPONSE = 3;
+    PIPELINE_STATE_RESPONSE = 4;
+    DISPLAY_TEXT = 5;
+}
+
+/*
+ * Generic Chat controller API status
+ */
+enum APIStatus {
+    UNKNOWN_STATUS = 0;
+    SUCCESS = 1;
+    PIPELINE_AVAILABLE = 2;
+    PIPELINE_NOT_AVAILABLE = 3;
+    BUSY = 4;
+    ERROR = 5;
+    INFO = 6;
+}
+
+/*
+ * Chat controller Pipeline States
+ */
+enum PipelineState {
+    INIT = 0;
+    IDLE = 1;
+    WAIT_FOR_TRIGGER = 2;
+    ASR_ACTIVE = 3;
+    DM_ACTIVE = 4;
+    TTS_ACTIVE = 5;
+}
+
+/*
+ * AudioEncoding specifies the encoding of the audio bytes in the encapsulating message.
+ */
+enum AudioEncoding {
+    // Not specified.
+    UNKNOWN = 0;
+    // Uncompressed 16-bit signed little-endian samples (Linear PCM).
+    LINEAR_PCM = 1;
+    // `FLAC` (Free Lossless Audio
+    // Codec) is the recommended encoding because it is
+    // lossless--therefore recognition is not compromised--and
+    // requires only about half the bandwidth of `LINEAR16`. `FLAC` stream
+    // encoding supports 16-bit and 24-bit samples, however, not all fields in
+    // `STREAMINFO` are supported.
+    FLAC = 2;
+
+    // 8-bit samples that compand 14-bit audio samples using G.711 PCMU/mu-law.
+    MULAW = 3;
+
+    // 8-bit samples that compand 13-bit audio samples using G.711 PCMU/a-law.
+    ALAW = 5;
+}
+
+/*
+ * Used in storing conversation history for user and bot
+ */
+enum Role {
+    UNDEFINED = 0;
+    USER = 1;
+    BOT = 2;
+    SYSTEM = 3;
+}
+/*******************************************************************************/
+
+/*******************************************************************************/
+/*** Standalone APIs messages ***/
+
+/*
+ * Request message for standalone TTS synthesis of provided text transcript
+ */
+message SynthesizeSpeechRequest {
+    // unique id to identify the client connection
+    string stream_id = 1;
+
+    // transcript text to be synthesized
+    string transcript = 2;
+}
+
+/*
+ * Request message for Chat API which will be sent to chat engine
+ */
+message ChatRequest {
+    // unique id to identify the client connection
+    string stream_id = 1;
+
+    // bot name with version like {bot_name}_v{bot_version}, e.g chitchat_bot_v1.
+    string bot_name = 2;
+
+    // query
+    string query = 3;
+
+    // unique id for identifying the query
+    string query_id = 4;
+
+    // user id
+    string user_id = 5;
+
+    // The language of the supplied query string as a
+  	// [BCP-47](https://www.rfc-editor.org/rfc/bcp/bcp47.txt) language tag.
+  	// Example: "en-US".
+    string source_language = 6;
+
+    // The language of the response required from chat engine as a
+  	// [BCP-47](https://www.rfc-editor.org/rfc/bcp/bcp47.txt) language tag.
+  	// Example: "en-US".
+    string target_language = 7;
+
+    // Flag to send standalone text requests, when set true reponse is not sent
+    // to TTS when set to false reponse will be sent to TTS
+    bool is_standalone = 8;
+
+    // key-value pair for user context to be sent to chat engine
+    map<string, string> user_context = 9;
+
+    // key-value pair for meta data to be sent to chat engine
+    map<string, string> metadata = 10;
+}
+
+/*
+ * Response message from chat engine for Chat API invocation
+ */
+message ChatResponse {
+    // unique id to identify the client connection
+    string stream_id = 1;
+
+    // query
+    string query = 2;
+
+    // unique id for identifying the query
+    string query_id = 3;
+
+    // user id
+    string user_id = 4;
+
+    // session id if generated by chat engine
+    string session_id = 5;
+
+    // chat engine response for the query passed in `ChatRequest`
+    string text = 6;
+
+    // chat engine cleaned up response text after markdown language tags removal
+    string cleaned_text = 7;
+
+    // flag to indicate whether this is final response or intermediate response, when true
+    // there will be no more responses for the requested `ChatRequest`
+    bool is_final = 8;
+
+    // chat engine response in json format
+    string json_response = 9;
+}
+
+/*
+ * Request message for Event API which will be sent to chat engine
+ */
+message EventRequest {
+    // unique id to identify the client connection
+    string stream_id = 1;
+
+    // bot name with version like {bot_name}_v{bot_version}, e.g chitchat_bot_v1.
+    string bot_name = 2;
+
+    // event type
+    string event_type = 3;
+
+    // unique event id
+    string event_id = 4;
+
+    // user id
+    string user_id = 5;
+
+    // key-value pair for user context to be sent to chat engine
+    map<string, string> user_context = 6;
+
+    // key-value pair for meta data to be sent to chat engine
+    map<string, string> metadata = 7;
+}
+
+message EventResponse {
+    // unique id to identify the client connection
+    string stream_id = 1;
+
+    // event type
+    string event_type = 2;
+
+    // unique event id
+    string event_id = 3;
+
+    // user id
+    string user_id = 4;
+
+    // text response
+    string text = 5;
+    string cleaned_text = 6;
+    bool is_final = 7;
+    string json_response = 8;
+    repeated string events = 9;
+}
+
+/*******************************************************************************/
+
