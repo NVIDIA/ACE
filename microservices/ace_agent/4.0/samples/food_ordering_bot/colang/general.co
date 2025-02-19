@@ -1,0 +1,28 @@
+
+define user greets
+  "hi"
+  "hello"
+  "hey there"
+
+define bot welcome message
+  "Hi,  I am Violet, a food ordering assistant bot. How can I help you?"
+
+define subflow welcome user
+  bot welcome message
+
+define flow greets
+  user greets
+  do welcome user
+
+define bot bye message
+  "Thanks for visiting, good bye!"
+
+define flow filler
+  user food_order.filler
+
+  # Answer any questions related to greetings.
+  bot responds truthfully and logically
+
+define flow nomatch
+  user food_order.nomatch
+  bot inform knowledge limited to food ordering domain

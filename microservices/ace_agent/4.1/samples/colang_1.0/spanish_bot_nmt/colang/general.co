@@ -1,0 +1,18 @@
+define user express greeting
+  "Good morning"
+  "Good afternoon"
+  "Good night"
+  "Goodbye"
+  "Thank you"
+  "Hello"
+
+define user ask how are you
+  "How are you?"
+
+define flow user greets
+  user express greeting
+  bot express greeting
+
+define flow how are you
+  user ask how are you
+  bot responds accordingly

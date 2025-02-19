@@ -1,0 +1,12 @@
+define user says profane words
+    "you are stupid "
+    "i want to kill you"
+    "add a shit burger"
+    "piss off"
+
+define bot asks to avoid abusive language
+    "Please do not use abusive language."
+
+define flow
+    user says profane words
+    bot asks to avoid abusive language

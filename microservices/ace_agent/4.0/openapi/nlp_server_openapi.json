@@ -1,0 +1,832 @@
+{
+    "openapi": "3.1.0",
+    "info": {
+        "title": "NVIDIA ACE Agent NLP Server",
+        "version": "4.0.0"
+    },
+    "paths": {
+        "/status": {
+            "get": {
+                "tags": [
+                    "Health APIs"
+                ],
+                "summary": "Root",
+                "description": "Health Check Endpoint",
+                "operationId": "root_status_get",
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/metrics": {
+            "get": {
+                "tags": [
+                    "Health APIs"
+                ],
+                "summary": "Get Metrics",
+                "operationId": "get_metrics_metrics_get",
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/model/is_ready": {
+            "get": {
+                "tags": [
+                    "Registry APIs"
+                ],
+                "summary": "Is Model Ready",
+                "description": "Check status of model in Model Registry",
+                "operationId": "is_model_ready_model_is_ready_get",
+                "parameters": [
+                    {
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "title": "Model Name"
+                        },
+                        "name": "model_name",
+                        "in": "query"
+                    },
+                    {
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "title": "Endpoint"
+                        },
+                        "name": "endpoint",
+                        "in": "query"
+                    },
+                    {
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "title": "Model Version"
+                        },
+                        "name": "model_version",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/model/list_models": {
+            "get": {
+                "tags": [
+                    "Registry APIs"
+                ],
+                "summary": "List Models",
+                "description": "List all models in Model Registry",
+                "operationId": "list_models_model_list_models_get",
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/nlp/model/joint_intent_slot": {
+            "post": {
+                "tags": [
+                    "Model APIs"
+                ],
+                "summary": "Predict Intent Slot",
+                "description": "Joint Intent Slot Classification Model API",
+                "operationId": "predict_intent_slot_nlp_model_joint_intent_slot_post",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/IntentSlotRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/AnalyzeIntentResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/nlp/model/text_classification": {
+            "post": {
+                "tags": [
+                    "Model APIs"
+                ],
+                "summary": "Classify Text",
+                "description": "Text Classification Model API",
+                "operationId": "classify_text_nlp_model_text_classification_post",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/TextClassificationRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Classification"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/nlp/model/ner": {
+            "post": {
+                "tags": [
+                    "Model APIs"
+                ],
+                "summary": "Process Ner",
+                "description": "Named Entity Recognition Model API",
+                "operationId": "process_ner_nlp_model_ner_post",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/NERRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/TokenClassResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/nlp/model/generate_embedding": {
+            "post": {
+                "tags": [
+                    "Model APIs"
+                ],
+                "summary": "Process Embeddings",
+                "description": "Embedding Model API",
+                "operationId": "process_embeddings_nlp_model_generate_embedding_post",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/EmbeddingRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/EmbeddingResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/nlp/model/extractive_qa": {
+            "post": {
+                "tags": [
+                    "Model APIs"
+                ],
+                "summary": "Process Eqa",
+                "description": "Extractive QA Model API",
+                "operationId": "process_eqa_nlp_model_extractive_qa_post",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ExtractiveQARequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/NaturalQueryResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/nmt/translate": {
+            "post": {
+                "tags": [
+                    "Language Translation APIs"
+                ],
+                "summary": "Translate",
+                "description": "Translate text from source language to target language",
+                "operationId": "translate_nmt_translate_post",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/NMTRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/NMTResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/speech/text_to_speech": {
+            "post": {
+                "tags": [
+                    "Speech APIs"
+                ],
+                "summary": "Text To Speech",
+                "description": "Text to Speech API",
+                "operationId": "text_to_speech_speech_text_to_speech_post",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/TTSRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "AnalyzeIntentResponse": {
+                "properties": {
+                    "domain": {
+                        "$ref": "#/components/schemas/Classification"
+                    },
+                    "intent": {
+                        "$ref": "#/components/schemas/Classification"
+                    },
+                    "entities": {
+                        "$ref": "#/components/schemas/TokenClassResponse"
+                    }
+                },
+                "type": "object",
+                "title": "AnalyzeIntentResponse"
+            },
+            "Classification": {
+                "properties": {
+                    "class_name": {
+                        "type": "string",
+                        "title": "Class Name"
+                    },
+                    "score": {
+                        "type": "number",
+                        "title": "Score"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "class_name",
+                    "score"
+                ],
+                "title": "Classification"
+            },
+            "EmbeddingRequest": {
+                "properties": {
+                    "queries": {
+                        "items": {
+                            "type": "string"
+                        },
+                        "type": "array",
+                        "title": "Queries"
+                    },
+                    "model_name": {
+                        "type": "string",
+                        "title": "Model Name"
+                    },
+                    "model_version": {
+                        "type": "string",
+                        "title": "Model Version"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "queries"
+                ],
+                "title": "EmbeddingRequest"
+            },
+            "EmbeddingResponse": {
+                "properties": {
+                    "queries": {
+                        "items": {
+                            "type": "string"
+                        },
+                        "type": "array",
+                        "title": "Queries"
+                    },
+                    "embeddings": {
+                        "items": {
+                            "items": {
+                                "type": "number"
+                            },
+                            "type": "array"
+                        },
+                        "type": "array",
+                        "title": "Embeddings"
+                    }
+                },
+                "type": "object",
+                "title": "EmbeddingResponse"
+            },
+            "ExtractiveQARequest": {
+                "properties": {
+                    "query": {
+                        "type": "string",
+                        "title": "Query"
+                    },
+                    "documents": {
+                        "items": {
+                            "type": "string"
+                        },
+                        "type": "array",
+                        "title": "Documents"
+                    },
+                    "top_n": {
+                        "type": "integer",
+                        "title": "Top N"
+                    },
+                    "model_name": {
+                        "type": "string",
+                        "title": "Model Name"
+                    },
+                    "model_version": {
+                        "type": "string",
+                        "title": "Model Version"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "query",
+                    "documents",
+                    "top_n"
+                ],
+                "title": "ExtractiveQARequest"
+            },
+            "HTTPValidationError": {
+                "properties": {
+                    "detail": {
+                        "items": {
+                            "$ref": "#/components/schemas/ValidationError"
+                        },
+                        "type": "array",
+                        "title": "Detail"
+                    }
+                },
+                "type": "object",
+                "title": "HTTPValidationError"
+            },
+            "IntentSlotRequest": {
+                "properties": {
+                    "query": {
+                        "type": "string",
+                        "title": "Query"
+                    },
+                    "model_name": {
+                        "type": "string",
+                        "title": "Model Name"
+                    },
+                    "model_version": {
+                        "type": "string",
+                        "title": "Model Version"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "query"
+                ],
+                "title": "IntentSlotRequest"
+            },
+            "NERRequest": {
+                "properties": {
+                    "query": {
+                        "type": "string",
+                        "title": "Query"
+                    },
+                    "model_name": {
+                        "type": "string",
+                        "title": "Model Name"
+                    },
+                    "model_version": {
+                        "type": "string",
+                        "title": "Model Version"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "query"
+                ],
+                "title": "NERRequest"
+            },
+            "NMTRequest": {
+                "properties": {
+                    "texts": {
+                        "items": {
+                            "type": "string"
+                        },
+                        "type": "array",
+                        "title": "Texts"
+                    },
+                    "source_language": {
+                        "type": "string",
+                        "title": "Source Language"
+                    },
+                    "target_language": {
+                        "type": "string",
+                        "title": "Target Language"
+                    },
+                    "model_name": {
+                        "type": "string",
+                        "title": "Model Name"
+                    },
+                    "model_version": {
+                        "type": "string",
+                        "title": "Model Version"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "texts",
+                    "source_language",
+                    "target_language"
+                ],
+                "title": "NMTRequest"
+            },
+            "NMTResponse": {
+                "properties": {
+                    "translated_texts": {
+                        "items": {
+                            "type": "string"
+                        },
+                        "type": "array",
+                        "title": "Translated Texts"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "translated_texts"
+                ],
+                "title": "NMTResponse"
+            },
+            "NaturalQueryResponse": {
+                "properties": {
+                    "results": {
+                        "items": {
+                            "$ref": "#/components/schemas/NaturalQueryResult"
+                        },
+                        "type": "array",
+                        "title": "Results"
+                    }
+                },
+                "type": "object",
+                "title": "NaturalQueryResponse"
+            },
+            "NaturalQueryResult": {
+                "properties": {
+                    "answer": {
+                        "type": "string",
+                        "title": "Answer"
+                    },
+                    "score": {
+                        "type": "number",
+                        "title": "Score"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "answer",
+                    "score"
+                ],
+                "title": "NaturalQueryResult"
+            },
+            "TTSRequest": {
+                "properties": {
+                    "text": {
+                        "type": "string",
+                        "title": "Text"
+                    },
+                    "voice_name": {
+                        "type": "string",
+                        "title": "Voice Name"
+                    },
+                    "model_name": {
+                        "type": "string",
+                        "title": "Model Name",
+                        "default": ""
+                    },
+                    "model_version": {
+                        "type": "string",
+                        "title": "Model Version",
+                        "default": ""
+                    },
+                    "language_code": {
+                        "type": "string",
+                        "title": "Language Code",
+                        "default": "en-US"
+                    },
+                    "sample_rate_hz": {
+                        "type": "integer",
+                        "title": "Sample Rate Hz",
+                        "default": 44100
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "text",
+                    "voice_name"
+                ],
+                "title": "TTSRequest"
+            },
+            "TextClassificationRequest": {
+                "properties": {
+                    "query": {
+                        "type": "string",
+                        "title": "Query"
+                    },
+                    "model_name": {
+                        "type": "string",
+                        "title": "Model Name"
+                    },
+                    "model_version": {
+                        "type": "string",
+                        "title": "Model Version"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "query"
+                ],
+                "title": "TextClassificationRequest"
+            },
+            "TokenClassResponse": {
+                "properties": {
+                    "entities": {
+                        "items": {
+                            "$ref": "#/components/schemas/TokenClassValue"
+                        },
+                        "type": "array",
+                        "title": "Entities"
+                    }
+                },
+                "type": "object",
+                "title": "TokenClassResponse"
+            },
+            "TokenClassValue": {
+                "properties": {
+                    "token": {
+                        "type": "string",
+                        "title": "Token"
+                    },
+                    "label": {
+                        "$ref": "#/components/schemas/Classification"
+                    },
+                    "span": {
+                        "additionalProperties": {
+                            "type": "integer"
+                        },
+                        "type": "object",
+                        "title": "Span"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "token",
+                    "label"
+                ],
+                "title": "TokenClassValue"
+            },
+            "ValidationError": {
+                "properties": {
+                    "loc": {
+                        "items": {
+                            "anyOf": [
+                                {
+                                    "type": "string"
+                                },
+                                {
+                                    "type": "integer"
+                                }
+                            ]
+                        },
+                        "type": "array",
+                        "title": "Location"
+                    },
+                    "msg": {
+                        "type": "string",
+                        "title": "Message"
+                    },
+                    "type": {
+                        "type": "string",
+                        "title": "Error Type"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "loc",
+                    "msg",
+                    "type"
+                ],
+                "title": "ValidationError"
+            }
+        }
+    },
+    "tags": [
+        {
+            "name": "Health APIs",
+            "description": "APIs for checking Server Health Status"
+        },
+        {
+            "name": "Registry APIs",
+            "description": "APIs for getting model metadata for available models"
+        },
+        {
+            "name": "Model APIs",
+            "description": "Low Level Model APIs for NLP Server"
+        },
+        {
+            "name": "Embedding Search APIs",
+            "description": "APIs for Embedding Search"
+        },
+        {
+            "name": "Language Translation APIs",
+            "description": "APIs for translating text from source language to target language"
+        },
+        {
+            "name": "Speech APIs",
+            "description": "APIs for integrating Speech models and 3rd party APIs such as ASR and TTS"
+        },
+        {
+            "name": "Custom APIs",
+            "description": "User created APIs for NLP Server"
+        }
+    ]
+}

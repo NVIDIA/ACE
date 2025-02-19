@@ -1,0 +1,28 @@
+chat-controller:
+  pipeline: speech_lite
+  speechConfigPath: "speech_config.yaml"
+
+chat-engine:
+  botConfigName: food_ordering_bot_config.yaml
+
+riva-speech:
+  riva:
+    visibleGpus: "0"
+  modelRepoGenerator:
+    clearAllRMIRSAndModels: false
+    #> description: Flag to clear artifacts and models before downloading and deploying
+    ngcModelConfigs:
+      triton0:
+        models:
+        #> description: List of NGC models for deployment
+        - nvidia/ucs-ms/rmir_asr_parakeet_1-1b_en_us_str_vad:2.15.0 #english
+        - nvidia/riva/rmir_tts_radtts_hifigan_en_us_ipa:2.15.0
+  persistentVolumeClaim:
+    keepPVC: True
+
+nlp-server:
+  ucfVisibleGpus: [0]
+  modelConfigPath: "model_config.yaml"
+
+plugin-server:
+  pluginConfigPath: "plugin_config.yaml"

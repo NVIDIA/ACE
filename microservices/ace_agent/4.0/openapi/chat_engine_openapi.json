@@ -1,0 +1,934 @@
+{
+    "openapi": "3.1.0",
+    "info": {
+        "title": "Chat Engine Server API",
+        "description": "NVIDIA ACE Agent Chat Engine Server API",
+        "version": "4.0.0"
+    },
+    "paths": {
+        "/chat": {
+            "post": {
+                "tags": [
+                    "Core APIs"
+                ],
+                "summary": "Chat",
+                "description": "This endpoint can be used to provide response to query driven user request for a specific bot, using defined NLU models and plugin modules. The response formation methodology is picked from the bot configurations and rules defined.",
+                "operationId": "chat_chat_post",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "allOf": [
+                                    {
+                                        "$ref": "#/components/schemas/ChatRequest"
+                                    }
+                                ],
+                                "title": "Request",
+                                "description": "Chat Engine Request JSON. All the fields populated as part of this JSON is also available as part of request JSON."
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "Response JSON for the corresponding chat request JSON.",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/event": {
+            "post": {
+                "tags": [
+                    "Core APIs"
+                ],
+                "summary": "Event",
+                "description": "This endpoint can be used to provide response to a event driven user request for a specific bot, using defined NLU models and plugin modules. The response formation methodology is picked from the bot configurations and rules defined.",
+                "operationId": "event_event_post",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "allOf": [
+                                    {
+                                        "$ref": "#/components/schemas/EventRequest"
+                                    }
+                                ],
+                                "title": "Request",
+                                "description": "Chat Engine Request JSON. All the fields populated as part of this JSON is also available as part of request JSON."
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/EventResponse"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ExceptionResponse"
+                                        }
+                                    ],
+                                    "title": "Response Event Event Post"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/isReady": {
+            "get": {
+                "tags": [
+                    "Health APIs"
+                ],
+                "summary": "Is Ready",
+                "description": "Check status of the bots and returns the details of available bots",
+                "operationId": "is_ready_isReady_get",
+                "parameters": [
+                    {
+                        "name": "BotName",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "maxLength": 4096,
+                            "title": "Botname"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/IsReadyResponseList"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/IsReadyResponseStatus"
+                                        }
+                                    ],
+                                    "title": "Response Is Ready Isready Get"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/reloadBot": {
+            "get": {
+                "tags": [
+                    "Bot APIs"
+                ],
+                "summary": "Reload Bot",
+                "description": "Reloads all the deployed bots or a selected bot if a bot name is provided",
+                "operationId": "reload_bot_reloadBot_get",
+                "parameters": [
+                    {
+                        "name": "BotName",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "maxLength": 4096,
+                            "title": "Botname"
+                        }
+                    },
+                    {
+                        "name": "BotVersion",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "maxLength": 4096,
+                            "default": "1",
+                            "title": "Botversion"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ExceptionResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/updateUserContext": {
+            "post": {
+                "tags": [
+                    "User Context APIs"
+                ],
+                "summary": "Update User Context",
+                "description": "Updates the context of the user at runtime.",
+                "operationId": "update_user_context_updateUserContext_post",
+                "parameters": [
+                    {
+                        "name": "UserId",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "maxLength": 4096,
+                            "title": "Userid"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "title": "Context"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ExceptionResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/setUserContext": {
+            "post": {
+                "tags": [
+                    "User Context APIs"
+                ],
+                "summary": "Set User Context",
+                "description": "Sets the context of the user at runtime. It overwrites any existing context.",
+                "operationId": "set_user_context_setUserContext_post",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UserContext"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ExceptionResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/getUserContext": {
+            "get": {
+                "tags": [
+                    "User Context APIs"
+                ],
+                "summary": "Get User Context",
+                "description": "Returns the context for a specified user ids.",
+                "operationId": "get_user_context_getUserContext_get",
+                "parameters": [
+                    {
+                        "name": "UserId",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "maxLength": 4096,
+                            "title": "Userid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/UserContext"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ExceptionResponse"
+                                        }
+                                    ],
+                                    "title": "Response Get User Context Getusercontext Get"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/deleteUserContext": {
+            "delete": {
+                "tags": [
+                    "User Context APIs"
+                ],
+                "summary": "Delete User Context",
+                "description": "Deletes the context of the user at runtime.",
+                "operationId": "delete_user_context_deleteUserContext_delete",
+                "parameters": [
+                    {
+                        "name": "UserId",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "maxLength": 4096,
+                            "title": "Userid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ExceptionResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/metrics": {
+            "get": {
+                "tags": [
+                    "Health APIs"
+                ],
+                "summary": "Get Metrics",
+                "operationId": "get_metrics_metrics_get",
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/health": {
+            "get": {
+                "tags": [
+                    "Health APIs"
+                ],
+                "summary": "Health Check",
+                "description": "Perform a Health Check\n\nReturns 200 when service is up. This does not check the health of downstream services.",
+                "operationId": "health_check_health_get",
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "ChatFormat": {
+                "properties": {
+                    "role": {
+                        "type": "string",
+                        "maxLength": 4096,
+                        "title": "Role"
+                    },
+                    "content": {
+                        "type": "string",
+                        "maxLength": 4096,
+                        "title": "Content"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "role",
+                    "content"
+                ],
+                "title": "ChatFormat"
+            },
+            "ChatLatencyField": {
+                "properties": {
+                    "LLMModels": {
+                        "type": "integer",
+                        "maximum": 1000000000,
+                        "minimum": 0,
+                        "title": "Llmmodels"
+                    },
+                    "NLPModels": {
+                        "type": "integer",
+                        "maximum": 1000000000,
+                        "minimum": 0,
+                        "title": "Nlpmodels"
+                    },
+                    "Fulfillment": {
+                        "type": "integer",
+                        "maximum": 1000000000,
+                        "minimum": 0,
+                        "title": "Fulfillment"
+                    },
+                    "DialogManager": {
+                        "type": "integer",
+                        "maximum": 1000000000,
+                        "minimum": 0,
+                        "title": "Dialogmanager"
+                    },
+                    "EndToEnd": {
+                        "type": "integer",
+                        "maximum": 1000000000,
+                        "minimum": 0,
+                        "title": "Endtoend"
+                    },
+                    "TimeUnit": {
+                        "type": "string",
+                        "maxLength": 4096,
+                        "title": "Timeunit",
+                        "default": "ms"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "LLMModels",
+                    "NLPModels",
+                    "Fulfillment",
+                    "DialogManager",
+                    "EndToEnd"
+                ],
+                "title": "ChatLatencyField"
+            },
+            "ChatRequest": {
+                "properties": {
+                    "BotName": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "maxLength": 4096
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Botname",
+                        "description": "The Bot Name which needs to be accessed. This field is mandatory if multiple bots are deployed within Chat Engine. It's value should match the 'bot: ' field defined in the bot config file."
+                    },
+                    "Query": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "maxLength": 4096
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Query",
+                        "description": "The user query which needs to be processed.",
+                        "default": ""
+                    },
+                    "UserId": {
+                        "type": "string",
+                        "maxLength": 4096,
+                        "title": "Userid",
+                        "description": "Mandatory unique identifier to recognize which user is interacting with the chat engine."
+                    },
+                    "SourceLanguage": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "maxLength": 4096
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Sourcelanguage",
+                        "description": "Language of the user query. If language of user query does not match language of the bot, then chat engine tries to call machine translator model (currently not supported) to convert the query to bot language."
+                    },
+                    "TargetLanguage": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "maxLength": 4096
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Targetlanguage",
+                        "description": "Expected Langauge of Chat Engine Response text. If language of response text does not match expected output language, then chat engine tries to call machine translator model (currently not supported) to do the conversion."
+                    },
+                    "UserContext": {
+                        "anyOf": [
+                            {
+                                "type": "object"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Usercontext",
+                        "description": "Any runtime custom parameters needed for dialog flow. tied to this user id. This is populated as part of the request JSON of all fulfillment endpoints as well under context."
+                    },
+                    "Metadata": {
+                        "anyOf": [
+                            {
+                                "type": "object"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Metadata",
+                        "description": "Any chat specific metadata needed for dialog flow.",
+                        "default": {}
+                    }
+                },
+                "additionalProperties": false,
+                "type": "object",
+                "required": [
+                    "UserId"
+                ],
+                "title": "ChatRequest"
+            },
+            "EventRequest": {
+                "properties": {
+                    "BotName": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "maxLength": 4096
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Botname",
+                        "description": "The Bot Name which needs to be accessed. This field is mandatory if multiple bots are deployed within Chat Engine. It's value should match the 'bot: ' field defined in the bot config file."
+                    },
+                    "EventType": {
+                        "type": "string",
+                        "maxLength": 4096,
+                        "title": "Eventtype",
+                        "description": "The event name which needs to be processed.",
+                        "default": ""
+                    },
+                    "UserId": {
+                        "type": "string",
+                        "maxLength": 4096,
+                        "title": "Userid",
+                        "description": "Mandatory unique identifier to recognize which user is interacting with the chat engine."
+                    },
+                    "Metadata": {
+                        "anyOf": [
+                            {
+                                "type": "object"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Metadata",
+                        "description": "Any event specific metadata needed for dialog flow.",
+                        "default": {}
+                    },
+                    "UserContext": {
+                        "anyOf": [
+                            {
+                                "type": "object"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Usercontext",
+                        "description": "Any runtime custom parameters needed for dialog flow, tied to this user id. This is populated as part of the request JSON of all fulfillment endpoints as well under context."
+                    }
+                },
+                "additionalProperties": false,
+                "type": "object",
+                "required": [
+                    "UserId"
+                ],
+                "title": "EventRequest"
+            },
+            "EventResponse": {
+                "properties": {
+                    "Events": {
+                        "items": {
+                            "type": "object"
+                        },
+                        "type": "array",
+                        "maxItems": 256,
+                        "title": "Events",
+                        "description": "The generated event list for the provided EventType from chat engine."
+                    },
+                    "EventType": {
+                        "type": "string",
+                        "maxLength": 4096,
+                        "title": "Eventtype",
+                        "description": "The event name which was processed."
+                    },
+                    "Response": {
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/ResponseField"
+                            }
+                        ],
+                        "description": "Final response template from the chat engine. This field can be picked up from domain rule files or can be formulated directly from custom plugin modules."
+                    },
+                    "Latency": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/ChatLatencyField"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "description": "Latency information for all components of the chat engine which are enabled in bot configurations."
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "Events",
+                    "EventType",
+                    "Response"
+                ],
+                "title": "EventResponse"
+            },
+            "ExceptionResponse": {
+                "properties": {
+                    "StatusMessage": {
+                        "type": "string",
+                        "maxLength": 4096,
+                        "title": "Statusmessage"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "StatusMessage"
+                ],
+                "title": "ExceptionResponse"
+            },
+            "HTTPValidationError": {
+                "properties": {
+                    "detail": {
+                        "items": {
+                            "$ref": "#/components/schemas/ValidationError"
+                        },
+                        "type": "array",
+                        "title": "Detail"
+                    }
+                },
+                "type": "object",
+                "title": "HTTPValidationError"
+            },
+            "IsReadyResponseList": {
+                "items": {
+                    "$ref": "#/components/schemas/IsReadyResponseStatus"
+                },
+                "type": "array",
+                "maxItems": 256,
+                "title": "IsReadyResponseList"
+            },
+            "IsReadyResponseStatus": {
+                "properties": {
+                    "BotName": {
+                        "type": "string",
+                        "maxLength": 4096,
+                        "title": "Botname"
+                    },
+                    "Ready": {
+                        "type": "boolean",
+                        "title": "Ready"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "BotName",
+                    "Ready"
+                ],
+                "title": "IsReadyResponseStatus"
+            },
+            "ResponseField": {
+                "properties": {
+                    "Text": {
+                        "type": "string",
+                        "maxLength": 4096,
+                        "title": "Text",
+                        "description": "Text response to be sent out. This field will also be picked by a Text to Speech Synthesis module if enabled for speech based bots."
+                    },
+                    "CleanedText": {
+                        "type": "string",
+                        "maxLength": 4096,
+                        "title": "Cleanedtext",
+                        "description": "Text response from the chat engine with all SSML/HTML tags removed."
+                    },
+                    "Json": {
+                        "anyOf": [
+                            {
+                                "type": "object"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Json",
+                        "description": "JSON response from the chat engine containing any custom data needed.",
+                        "default": {}
+                    },
+                    "OmniverseJson": {
+                        "anyOf": [
+                            {
+                                "type": "object"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Omniversejson",
+                        "description": "Optional custom JSON for Omniverse Avatar Control. This is useful only when a Nvidia Omniverse Avatar is plugged in with the bot.",
+                        "default": {}
+                    },
+                    "NeedUserResponse": {
+                        "anyOf": [
+                            {
+                                "type": "boolean"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Needuserresponse",
+                        "description": "This field can be used by end user applications to deduce if user response is needed or not for a dialog initiated query. This is set to true automatically if form filling is active and one or more slots are missing."
+                    },
+                    "IsFinal": {
+                        "type": "boolean",
+                        "title": "Isfinal",
+                        "description": "This field can be used to indicate the the final response has been sent by Chat Engine. When this field is set to False, Chat Engine sends out this intermediate response and reexecutes the current action in the current intent (example: calling a fulfillment module)."
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "Text",
+                    "CleanedText",
+                    "IsFinal"
+                ],
+                "title": "ResponseField"
+            },
+            "UserContext": {
+                "properties": {
+                    "UserId": {
+                        "type": "string",
+                        "maxLength": 4096,
+                        "title": "Userid",
+                        "description": "Unique identifier to recognize which user is interacting with the chat engine."
+                    },
+                    "Context": {
+                        "type": "object",
+                        "title": "Context",
+                        "description": "The key value pairs which needs to be updated in the context of the provided user memory.",
+                        "default": {}
+                    },
+                    "ChatHistory": {
+                        "additionalProperties": {
+                            "items": {
+                                "$ref": "#/components/schemas/ChatFormat"
+                            },
+                            "type": "array"
+                        },
+                        "type": "object",
+                        "maxProperties": 256,
+                        "title": "Chathistory",
+                        "description": "The chat history of the provided user id bot wise."
+                    },
+                    "EventHistory": {
+                        "type": "object",
+                        "title": "Eventhistory",
+                        "description": "The event history of the provided user id bot wise."
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "ChatHistory",
+                    "EventHistory"
+                ],
+                "title": "UserContext"
+            },
+            "ValidationError": {
+                "properties": {
+                    "loc": {
+                        "items": {
+                            "anyOf": [
+                                {
+                                    "type": "string"
+                                },
+                                {
+                                    "type": "integer"
+                                }
+                            ]
+                        },
+                        "type": "array",
+                        "title": "Location"
+                    },
+                    "msg": {
+                        "type": "string",
+                        "title": "Message"
+                    },
+                    "type": {
+                        "type": "string",
+                        "title": "Error Type"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "loc",
+                    "msg",
+                    "type"
+                ],
+                "title": "ValidationError"
+            }
+        }
+    },
+    "tags": [
+        {
+            "name": "Health APIs",
+            "description": "APIs for checking and monitoring Server Health Status."
+        },
+        {
+            "name": "Core APIs",
+            "description": "APIs for sending user requests with a valid query or event."
+        },
+        {
+            "name": "User Context APIs",
+            "description": "APIs for configuring the user parameters at runtime."
+        },
+        {
+            "name": "Bot APIs",
+            "description": "APIs for controlling bot behaviour at runtime."
+        }
+    ]
+}

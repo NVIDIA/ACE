@@ -1,0 +1,9 @@
+bot: chitchat
+
+# Using OpenAI
+models:
+  - type: main
+    engine: openai
+    model: gpt-3.5-turbo-instruct
+    parameters:
+      stop: ["\n"]

@@ -1,0 +1,4 @@
+langchain==0.1.1
+langchain-community==0.0.13
+langchain-core==0.1.12
+duckduckgo-search==5.2.2

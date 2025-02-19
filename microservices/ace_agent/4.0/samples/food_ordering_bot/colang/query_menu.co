@@ -1,0 +1,10 @@
+
+define flow query_menu
+  user food_order.query_menu
+  $result = execute plugin(endpoint="food_order/show_menu", request_type="post", user_id=$user_id)
+  bot responds with summary of $result
+
+define flow show_options
+  user food_order.show_options
+  $result = execute plugin(endpoint="food_order/show_menu", request_type="post", user_id=$user_id)
+  bot responds with summary of $result
