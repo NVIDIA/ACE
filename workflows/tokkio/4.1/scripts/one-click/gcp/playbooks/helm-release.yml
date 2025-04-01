@@ -20,7 +20,8 @@
       repo_url: "{{ task_config.repo_url }}"
       repo_username: "{{ task_config.repo_username | default(None) }}"
       repo_password: "{{ task_config.repo_password | default(None) }}"
-      force_update: true
+# May cause error while building
+#      force_update: true
     when: task_config.repo_name is defined and task_config.repo_url is defined
   - name: clone git repo
     when: task_config.git_repo is defined
