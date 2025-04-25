@@ -1,0 +1,91 @@
+# SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-License-Identifier: Apache-2.0
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+---
+- hosts: all
+  become: true
+  gather_facts: yes
+  vars:
+    docker_package_version: "5:{{ task_config.docker_version }}-1~{{ ansible_distribution | lower }}.{{ ansible_distribution_version }}~{{ ansible_distribution_release }}"
+    docker_compose_package_version: '{{ task_config.docker_compose_version }}-1~{{ ansible_distribution | lower }}.{{ ansible_distribution_version }}~{{ ansible_distribution_release }}'
+    docker_edition: 'ce'
+    docker_packages:
+      - "docker-{{ docker_edition }}={{ docker_package_version }}"
+      - "docker-{{ docker_edition }}-cli={{ docker_package_version }}"
+      - "docker-{{ docker_edition }}-rootless-extras={{ docker_package_version }}"
+      - "containerd.io"
+      - "docker-buildx-plugin"
+    docker_packages_state: "{{ state }}"
+    docker_compose_package_state: "{{ state }}"
+    docker_compose_package: "docker-compose-plugin={{ docker_compose_package_version }}"
+    docker_service_state: "{{ (state == 'present') | ternary('started', 'stopped') }}"
+    docker_service_enabled: "{{ (state == 'present') }}"
+    docker_restart_handler_state: "{{ (state == 'present') | ternary('started', 'stopped') }}"
+    docker_daemon_options:
+      default-address-pools:
+      - base: "192.168.2.0/16"
+        size: 24
+      default-runtime: nvidia
+      runtimes:
+        nvidia:
+          path: /usr/bin/nvidia-container-runtime
+          runtimeArgs: []
+    docker_users:
+    - "{{ ansible_user }}"
+  tasks:
+  - name: populate service facts
+    service_facts:
+  - name: capture running services
+    set_fact:
+      running_services: "{{ ansible_facts.services | dict2items | selectattr('value.state', 'equalto', 'running') | map(attribute='key') }}"
+      all_services: "{{ ansible_facts.services | dict2items | map(attribute='key') }}"
+  - name: cleanup containerd
+    when: running_services | intersect(['docker', 'docker.service']) | length == 0
+    block:
+    - name: stop and disable containerd service
+      systemd_service:
+        name: containerd
+        state: stopped
+        enabled: false
+      when: all_services | intersect(['containerd', 'containerd.service']) | length > 0
+    - name: systemd daemon reload
+      systemd_service:
+        daemon_reload: true
+    - name: remove apt packages for containerd
+      apt:
+        name: containerd.io
+        state: absent
+        purge: true
+    - name: remove containerd configs
+      file:
+        path: "{{ item }}"
+        state: absent
+      loop:
+      - /etc/systemd/system/containerd.service.d
+      - /etc/systemd/system/containerd.service
+  - name: install docker
+    include_role:
+      name: geerlingguy.docker
+    when: not ansible_check_mode and dry_run_mode != "true"
+- import_playbook: nvidia-container-toolkit-install.yml
+  when: not ansible_check_mode and dry_run_mode != "true"
+- hosts: all
+  become: true
+  tasks:
+  - name: restart docker
+    systemd_service:
+      state: restarted
+      name: docker
+    when: state == "present" and not ansible_check_mode and dry_run_mode != "true"

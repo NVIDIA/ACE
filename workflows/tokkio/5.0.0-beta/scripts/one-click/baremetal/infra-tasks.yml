@@ -1,0 +1,82 @@
+schema_version: '0.0.10'
+tasks:
+- name: authorize-ssh-keys-for-clusters
+  play: authorize-ssh-keys
+  when_dry_run: skip
+  targets:
+  - "{{ task_each_vars.value.targets.all }}"
+  for_each: "{{ iac.clusters }}"
+  config:
+    user: "{{ ansible_user }}"
+    keys: "{{ task_each_vars.value.additional_ssh_public_keys }}"
+- name: authorize-ssh-keys-for-jump-hosts
+  play: authorize-ssh-keys
+  when_dry_run: skip
+  targets:
+  - "{{ task_each_vars.value.target }}"
+  for_each: "{{ iac.jump_hosts }}"
+  config:
+    user: "{{ ansible_user }}"
+    keys: "{{ task_each_vars.value.additional_ssh_public_keys }}"
+- name: prepare-cns-for-install
+  play: cns-prepare
+  condition: "{{ state == 'present' }}"
+  when_dry_run: skip
+  targets:
+  - "{{ task_each_vars.value.targets.all }}"
+  for_each: "{{ iac.clusters | dict2items | selectattr('value.features', 'issuperset', ['cns']) | items2dict }}"
+- name: validate-cns
+  play: cns-validate
+  when_dry_run: skip
+  targets:
+  - "{{ task_each_vars.value.targets.all }}"
+  for_each: "{{ iac.clusters | dict2items | selectattr('value.features', 'issuperset', ['cns']) | items2dict }}"
+- name: install-cns
+  play: cns-install
+  when_dry_run: skip
+  targets:
+  - "{{ task_each_vars.value.targets.all }}"
+  for_each: "{{ iac.clusters | dict2items | selectattr('value.features', 'issuperset', ['cns']) | items2dict }}"
+- name: prepare-cns-for-uninstall
+  play: cns-prepare
+  when_dry_run: skip
+  condition: "{{ state == 'absent' }}"
+  targets:
+  - "{{ task_each_vars.value.targets.all }}"
+  for_each: "{{ iac.clusters | dict2items | selectattr('value.features', 'issuperset', ['cns']) | items2dict }}"
+- name: setup-pre-requisites-for-k8s-tasks
+  play: k8s-task-pre-requisites
+  targets:
+  - "{{ task_each_vars.value.targets.master }}"
+  for_each: "{{ iac.clusters | dict2items | selectattr('value.features', 'issuperset', ['cns']) | items2dict }}"
+  config: {}
+- name: setup-pre-requisites-for-helm-tasks
+  play: helm-task-pre-requisites
+  targets:
+  - "{{ task_each_vars.value.targets.master }}"
+  for_each: "{{ iac.clusters | dict2items | selectattr('value.features', 'issuperset', ['cns']) | items2dict }}"
+  config: {}
+- name: check-nvidia-gpu-operator-pods-up
+  play: check-all-pods-in-namespace-up
+  when_dry_run: skip
+  targets:
+  - "{{ task_each_vars.value.targets.master }}"
+  for_each: "{{ iac.clusters | dict2items | selectattr('value.features', 'issuperset', ['cns']) | items2dict }}"
+  config:
+    namespace: "nvidia-gpu-operator"
+- name: k8s-label
+  play: k8s-label
+  when_dry_run: skip
+  targets:
+  - "{{ task_each_vars.value.targets.all }}"
+  for_each: "{{ iac.clusters | dict2items | selectattr('value.features', 'issuperset', ['cns']) | items2dict }}"
+  config:
+    node_labels: "{{ task_each_vars.value.labels | default({}) }}"
+- name: k8s-taint
+  play: k8s-taint
+  when_dry_run: skip
+  targets:
+  - "{{ task_each_vars.value.targets.all }}"
+  for_each: "{{ iac.clusters | dict2items | selectattr('value.features', 'issuperset', ['cns']) | items2dict }}"
+  config:
+    node_taints: "{{ task_each_vars.value.taints | default([]) }}"

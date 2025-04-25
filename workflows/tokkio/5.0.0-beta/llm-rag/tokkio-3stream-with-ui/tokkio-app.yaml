@@ -1,0 +1,159 @@
+---
+specVersion: 2.5.0
+version: 5.0.0-beta
+name: tokkio-app
+description: UCS Tokkio App
+secrets:
+  k8sSecret/ngc-api-key-secret/NGC_CLI_API_KEY:
+    k8sSecret:
+      secretName: ngc-api-key-secret
+      key: NGC_CLI_API_KEY
+  k8sSecret/nvidia-api-key-secret/NVIDIA_API_KEY:
+    k8sSecret:
+      secretName: nvidia-api-key-secret
+      key: NVIDIA_API_KEY
+  k8sSecret/openai-key-secret/OPENAI_API_KEY:
+    k8sSecret:
+      secretName: openai-key-secret
+      key: OPENAI_API_KEY
+  k8sSecret/elevenlabs-api-key-secret/ELEVENLABS_API_KEY:
+    k8sSecret:
+      secretName: elevenlabs-api-key-secret
+      key: ELEVENLABS_API_KEY
+dependencies:
+  - ucf.svc.ace-controller:1.0.0-beta
+  - ucf.svc.core.redis-timeseries:0.0.22
+  - ucf.svc.core.redis:0.0.21
+  - ucf.svc.ia-animation-graph-microservice:1.1.0
+  - ucf.svc.ia-unreal-renderer-microservice:0.1.2
+  - ucf.svc.tokkio.anim-graph-sdr-envoy:0.2.1
+  - ucf.svc.tokkio.ace-controller-sdr-envoy:0.2.1
+  - ucf.svc.tokkio.ingress-mgr:0.2.43
+  - ucf.svc.tokkio.ue-renderer-sdr-envoy:0.2.1
+  - ucf.svc.tokkio.ui:6.5.11
+  - ucf.svc.vms:1.2.54
+  - ucf.svc.ace-configurator:1.0.0
+components:
+  - name: tokkio-ingress-mgr
+    type: ucf.svc.tokkio.ingress-mgr
+    parameters:
+      imagePullSecrets:
+        - name: ngc-docker-reg-secret
+    files:
+      crt.pem: ./config/ssl/crt.pem
+      key.pem: ./config/ssl/key.pem
+  - name: redis
+    type: ucf.svc.core.redis
+    parameters:
+      imagePullSecrets:
+        - name: ngc-docker-reg-secret
+  - name: redis-timeseries
+    type: ucf.svc.core.redis-timeseries
+    parameters:
+      imagePullSecrets:
+        - name: ngc-docker-reg-secret
+  - name: ace-controller
+    type: ucf.svc.ace-controller
+    parameters:
+      imagePullSecrets:
+        - name: ngc-docker-reg-secret
+    secrets:
+      openai-key-secret: k8sSecret/openai-key-secret/OPENAI_API_KEY
+      nvidia-api-key-secret: k8sSecret/nvidia-api-key-secret/NVIDIA_API_KEY
+      elevenlabs-api-key-secret: k8sSecret/elevenlabs-api-key-secret/ELEVENLABS_API_KEY
+    files:
+      config.yaml: ./config/ace-controller/config.yaml
+  - name: vms
+    type: ucf.svc.vms
+    parameters:
+      imagePullSecrets:
+        - name: ngc-docker-reg-secret
+  - name: tokkio-ui
+    type: ucf.svc.tokkio.ui
+    parameters:
+      imagePullSecrets:
+        - name: ngc-docker-reg-secret
+    files:
+      crt.pem: ./config/ssl/crt.pem
+      key.pem: ./config/ssl/key.pem
+  - name: animation-graph
+    type: ucf.svc.ia-animation-graph-microservice
+    parameters:
+      imagePullSecrets:
+        - name: ngc-docker-reg-secret
+    secrets:
+      ngc-api-key-secret: k8sSecret/ngc-api-key-secret/NGC_CLI_API_KEY
+  - name: anim-graph-sdr
+    type: ucf.svc.tokkio.anim-graph-sdr-envoy
+    parameters:
+      imagePullSecrets:
+        - name: ngc-docker-reg-secret
+  - name: ace-controller-sdr
+    type: ucf.svc.tokkio.ace-controller-sdr-envoy
+    parameters:
+      imagePullSecrets:
+        - name: ngc-docker-reg-secret
+  - name: unreal-renderer
+    type: ucf.svc.ia-unreal-renderer-microservice
+    parameters:
+      imagePullSecrets:
+        - name: ngc-docker-reg-secret
+        - name: ghcr-docker-reg-secret
+  - name: ue-renderer-sdr
+    type: ucf.svc.tokkio.ue-renderer-sdr-envoy
+    parameters:
+      imagePullSecrets:
+        - name: ngc-docker-reg-secret
+  - name: renderer-adapter-endpoint
+    type: ucf.svc.external-endpoint
+    parameters:
+      service: localhost
+      port: 31111
+  - name: ace-configurator
+    type: ucf.svc.ace-configurator
+    parameters:
+      imagePullSecrets:
+        - name: ngc-docker-reg-secret
+  - name: riva-speech-endpoint
+    type: ucf.svc.external-endpoint
+    parameters:
+      service: riva-speech
+      port: 50051
+  - name: a2f-endpoint
+    type: ucf.svc.external-endpoint
+    parameters:
+      service: a2f-a2f-deployment-a2f-service
+      port: 50010
+connections:
+  vms/redis: redis-timeseries/redis
+  ace-controller/redis: redis-timeseries/redis
+  ace-controller/riva-speech: riva-speech-endpoint/endpoint
+  ace-controller/animgraph-http: anim-graph-sdr/http-envoy
+  ace-controller/animgraph-grpc: anim-graph-sdr/grpc-envoy
+  ace-controller/a2f-grpc: a2f-endpoint/endpoint
+  tokkio-ingress-mgr/redis: redis/redis
+  tokkio-ingress-mgr/redis-ts: redis-timeseries/redis
+  tokkio-ingress-mgr/vms: vms/vms
+  tokkio-ingress-mgr/ace-controller-sdr: ace-controller-sdr/websocket-envoy
+  tokkio-ingress-mgr/tokkio-ui: tokkio-ui/tokkio-ui
+  tokkio-ui/ingress: tokkio-ingress-mgr/ingress
+  ace-controller-sdr/redis: redis-timeseries/redis
+  ace-controller-sdr/ace-controller: ace-controller/http-api
+  ace-controller-sdr/vms: vms/vms
+  anim-graph-sdr/redis: redis-timeseries/redis
+  anim-graph-sdr/anim-graph: animation-graph/http-api
+  anim-graph-sdr/vms: vms/vms
+  ue-renderer-sdr/redis: redis-timeseries/redis
+  ue-renderer-sdr/vms: vms/vms
+  ue-renderer-sdr/renderer: unreal-renderer/http-api
+  unreal-renderer/anim-source: anim-graph-sdr/grpc-envoy
+  unreal-renderer/prop-api: renderer-adapter-endpoint/endpoint
+  animation-graph/redis: redis-timeseries/redis
+label:
+  - apps/base
+  - 3-stream
+  - llm-rag-pipecat
+  - 3d-ue
+  - tracing-on
+  - vision-off
+  - ui-on/tokkio-app

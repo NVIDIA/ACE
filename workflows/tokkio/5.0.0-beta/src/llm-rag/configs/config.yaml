@@ -1,0 +1,90 @@
+Pipeline:
+    # Only one of the following LLM service configurations will be active based on this setting:
+    # - "NvidiaLLMService" - Uses the NvidiaLLMService configuration
+    # - "NvidiaRAGService" - Uses the NvidiaRAGService configuration
+    # - "OpenAILLMService" - Uses the OpenAILLMService configuration
+    llm_processor: "NvidiaLLMService" # OR NvidiaLLMService OR NvidiaRAGService OR OpenAILLMService
+    filler:
+        - "Let me think"
+        - "Hmmm"
+    time_delay: 2.0
+
+UserPresenceProcesssor:
+    welcome_message: "Hello"
+    farewell_message: "Bye"
+
+ProactivityProcessor:
+    timer_duration: 100
+    default_message: "I'm here if you need me!"
+
+OpenAILLMContext:
+    name: "Aki"
+    prompt: "You are {name}, a virtual marketing and communications expert at Nvidia.
+            You are a digital human brought to life with NVIDIA Digital Human Blueprint for Customer Service using
+            microservices like Audio2Face-3D for facial animation, Riva (spelled Reeva) Parakeet for speech recognition
+            and you use Elevenlabs for text to speech. It includes the open source ACE controller to orchestrate all
+            the modules and allowing you to be streamed to a web browser. With this blueprint, NVIDIA partners can now
+            build and customize Digital humans for their use case. You are not allowed to make any stock investment
+            recommendations or compare NVIDIA to its competitors. Beyond your professional expertise, you are a passionate
+            advocate for STEM education with keen interest in gaming and enhancement in tech. Your favorite graphics card
+            is RTX4090 but you're eyeing the new RTX5090. Do not respond with a bulleted or numbered list. You have a
+            bubbly personality. Respond with one sentence or less than 100 characters. Keep the conversation engaging
+            and ask follow ups. DO NOT INCLUDE SPECIAL CHARACTERS, MARKDOWN, EMOJIS, OR ANYTHING ELSE BESIDES TEXT IN
+            YOUR RESPONSE. Keep your answers factual and don't make up facts."
+
+# This configuration is only used when llm_processor is set to "NvidiaRAGService"
+NvidiaRAGService:
+    use_knowledge_base: true
+    max_tokens: 1000
+    rag_server_url: "http://0.0.0.0:8081"
+    collection_name: "collection_name"
+    suffix_prompt: "Respond with one sentence or less than 75 characters."
+
+# This configuration is only used when llm_processor is set to "NvidiaLLMService"
+NvidiaLLMService:
+    model: "meta/llama-3.1-8b-instruct"
+
+# This configuration is only used when llm_processor is set to "OpenAILLMService"
+OpenAILLMService:
+    model: "gpt-4o"
+
+CustomViewProcessor:
+    confidence_threshold: 0.37
+    top_n: 2
+
+FacialGestureProviderProcessor:
+    user_stopped_speaking_gesture: "Taunt"
+    start_interruption_gesture: "Pensive"
+    probability: 0.5
+
+# ADVANCED CONFIGURATION SECTION BELOW
+# AnimationGraph service configuration is only needed if your 3D avatar scene has support for gestures and postures.
+# Changing these values will not have an effect unless your scene supports them.
+AnimationGraphService:
+    animation_types:
+        posture:
+            duration_relevant_animation_name: "posture"
+            animations:
+                posture:
+                    default_clip_id: "Attentive"
+                    clips:
+                        - clip_id: Talking
+                          description: "Small gestures with hand and upper body: Avatar is talking"
+                          duration: -1
+                          meaning: Emphasizing that Avatar is talking
+                        - clip_id: Listening
+                          description: "Small gestures with hand and upper body: Avatar is listening"
+                          duration: -1
+                          meaning: Emphasizing that one is listening
+                        - clip_id: Idle
+                          description: "Small gestures with hand and upper body: Avatar is idle"
+                          duration: -1
+                          meaning: Show the user that the avatar is waiting for something to happen
+                        - clip_id: Thinking
+                          description: "Gestures with hand and upper body: Avatar is thinking"
+                          duration: -1
+                          meaning: Show the user that the avatar thinking about his next answer or is trying to remember something
+                        - clip_id: Attentive
+                          description: "Small gestures with hand and upper body: Avatar is attentive"
+                          duration: -1
+                          meaning: Show the user that the avatar is paying attention to the user

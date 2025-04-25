@@ -1,0 +1,38 @@
+[project]
+name = "tokkio-llm-rag-example"
+version = "0.1.50-beta"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "nvidia-pipecat",
+    "opentelemetry-sdk==1.31.1",
+    "opentelemetry-exporter-otlp-proto-grpc==1.31.1",
+    "opentelemetry-distro==0.52b1",
+    "watchfiles==1.0.4",
+    "watchdog==6.0.0",
+    "torch==2.6.0+cpu"
+]
+
+[tool.uv.sources]
+torch = { index = "pytorch" }
+
+# We support different ways on how you "import" the ACE Controller dependency: Depending on your use case, you can either:
+
+# Point to a local folder
+# nvidia-pipecat = { path = "../ace-controller", editable = true }
+
+[[tool.uv.index]]
+name = "pytorch"
+url = "https://download.pytorch.org/whl/cpu"
+explicit = true
+
+[dependency-groups]
+dev = [
+    "pytest>=8.3.4",
+    "pytest-asyncio>=0.24.0",
+]
+
+
+[tool.ruff]
+line-length = 120

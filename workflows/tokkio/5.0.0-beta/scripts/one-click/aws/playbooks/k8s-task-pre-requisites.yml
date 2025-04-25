@@ -1,0 +1,6 @@
+---
+- hosts: all
+  gather_facts: no
+  tasks:
+  - name: setup k8s pre requisites
+    include_tasks: tasks/k8s-task-pre-requisites.yml
