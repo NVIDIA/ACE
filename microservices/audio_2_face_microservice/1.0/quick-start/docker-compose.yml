@@ -15,7 +15,7 @@
 
 services:
   a2f-init:
-    image: nvcr.io/eevaigoeixww/animation/audio2face:1.0.11
+    image: nvcr.io/nvidia/ace/audio2face:1.0.11
     container_name: a2f-init-container
     entrypoint: >
       sh -c "./service/generate_trt_model.py built-in claire_v1.3 --fp16 &&
@@ -31,7 +31,7 @@ services:
               capabilities: [ gpu ]
 
   a2f-service:
-    image: nvcr.io/eevaigoeixww/animation/audio2face:1.0.11
+    image: nvcr.io/nvidia/ace/audio2face:1.0.11
     depends_on:
       a2f-init:
         condition: service_completed_successfully
@@ -50,7 +50,7 @@ services:
 
 
   a2f-controller:
-    image: nvcr.io/eevaigoeixww/animation/a2f_controller:1.0.6
+    image: nvcr.io/nvidia/ace/a2f_controller:1.0.6
     entrypoint: ./service/launch_service.py /configs/ac_a2f_config.yaml
     network_mode: "host"
     volumes:
