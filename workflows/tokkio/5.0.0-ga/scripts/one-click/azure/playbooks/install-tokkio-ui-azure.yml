@@ -1,0 +1,89 @@
+---
+- name: Setup tokkio UI
+  hosts: all
+  become: yes
+  gather_facts: yes
+  vars:
+    environment: "{{ environment }}"
+  tasks:
+    # - name: NGC CLI Setup
+    #   become: true
+    #   block:
+    #     - name: Download CLI
+    #       get_url:
+    #         url: https://ngc.nvidia.com/downloads/ngccli_linux.zip
+    #         dest: /tmp/ngccli_linux.zip
+    #         mode: 0664
+
+    #     - name: Install NGC CLI
+    #       unarchive:
+    #         src: /tmp/ngccli_linux.zip
+    #         dest: /usr/local/bin/
+    #         remote_src: yes
+
+    # - name: Debug script variable
+    #   debug:
+    #     msg: "Script: {{ task_config.script }}"
+    #   when: state == "present" and not ansible_check_mode and dry_run_mode != "true"
+
+
+    # - name: Debug environment variables
+    #   debug:
+    #     msg: "Environment: {{ task_config.environment }}"
+    #   when: state == "present" and not ansible_check_mode and dry_run_mode != "true"
+    - name: Create script to export environment variables
+      copy:
+        dest: "/mnt/tokkio-ui-env.sh"
+        content: |
+          #!/bin/bash
+
+    - name: Add system_env_vars variable to the tokkio-ui-env.sh script
+      lineinfile:
+        path: "/mnt/tokkio-ui-env.sh"
+        line: "export {{ item.key  }}=\"{{ item.value }}\""
+      with_dict: "{{ task_config.environment.system_env_vars }}"
+
+    - name: Add user_env_vars variable to the tokkio-ui-env.sh script
+      lineinfile:
+        path: "/mnt/tokkio-ui-env.sh"
+        line: "export {{ item.key  }}=\"{{ item.value }}\""
+      with_dict: "{{ task_config.environment.user_env_vars }}"
+
+    - name: Add resource_env_vars variable to the tokkio-ui-env.sh script
+      lineinfile:
+        path: "/mnt/tokkio-ui-env.sh"
+        line: "export {{ item.key  }}=\"{{ item.value }}\""
+      with_dict: "{{ task_config.environment.resource_env_vars }}"
+
+    - name: Ensure the export script is executable
+      file:
+        path: "/mnt/tokkio-ui-env.sh"
+        mode: '0755'
+
+    - name: Copy tokkio-ui setup script to target
+      copy:
+        src: "{{ task_config.script }}"
+        dest: "/mnt/install-tokkio-ui-azure.sh"
+        mode: '0755'
+
+    - name: Setting up Tokkio-UI
+      shell: |
+        . /mnt/tokkio-ui-env.sh
+        /mnt/install-tokkio-ui-azure.sh install
+      #environment: "{{ task_config.environment }}"
+      register: script_out
+      when: state == "present" and not ansible_check_mode and dry_run_mode != "true"
+
+    - name: Uninstall Tokkio-UI
+      shell: |
+        . /mnt/tokkio-ui-env.sh
+        /mnt/install-tokkio-ui-azure.sh uninstall
+      #environment: "{{ task_config.environment }}"
+      when: state != "present" and not ansible_check_mode and dry_run_mode != "true"
+      args:
+        executable: /bin/bash
+      register: script_out
+
+    # - name: Check script output
+    #   debug:
+    #     msg: "{{ script_out }}"

@@ -1,0 +1,25 @@
+apiVersion: v2
+name: tokkio
+version: 5.0.0-GA
+dependencies:
+  - name: tokkio-app
+    version: 5.0.0-GA
+    repository: file://tokkio-app-5.0.0-GA
+  - name: tokkio-ui
+    version: 6.6.17
+    repository: https://helm.ngc.nvidia.com/nvidia/ace
+    condition: tokkio-ui.enabled
+  - name: riva-api
+    version: 2.19.1
+    repository: https://helm.ngc.nvidia.com/nvidia/riva
+    condition: riva-api.enabled
+  - name: audio2face-3d
+    version: 1.3.16
+    repository: https://helm.ngc.nvidia.com/nim/nvidia
+    condition: audio2face-3d.enabled
+  - name: redis-timeseries
+    version: 0.0.23
+    repository: https://helm.ngc.nvidia.com/nvidia/ace
+  - name: tokkio-ingress
+    version: 0.0.9
+    repository: https://helm.ngc.nvidia.com/nvidia/ace

@@ -1,0 +1,71 @@
+schema_version: '0.0.10'
+tasks:
+- name: create-platform-namespace
+  play: k8s-manifest
+  targets:
+  - "{{ task_each_vars.value.targets.master }}"
+  for_each: "{{ iac.clusters | dict2items | selectattr('value.features', 'issuperset', ['app']) | items2dict }}"
+  config_files:
+  - k8s-manifest/namespace.yml
+  vars:
+    name: "{{ configs.foundational_chart_settings.k8s_namespace | default('platform') }}"
+
+- name: validate-platform-k8s-secrets-value
+  play: k8s-secret-check-empty
+  targets:
+  - "{{ task_each_vars.value.targets.master }}"
+  for_each: "{{ iac.clusters | dict2items | selectattr('value.features', 'issuperset', ['app']) | items2dict }}"
+  config:
+    k8s_secrets: "{{ configs.k8s_secrets }}"
+
+- name: k8s-secrets-platform
+  play: k8s-secret
+  targets:
+  - "{{ task_each_vars.value.targets.master }}"
+  for_each: "{{ iac.clusters | dict2items | selectattr('value.features', 'issuperset', ['app']) | items2dict }}"
+  config:
+    k8s_secrets: "{{ configs.k8s_secrets }}"
+    namespace: "{{ configs.foundational_chart_settings.k8s_namespace | default('platform') }}"
+
+- name: add-sysctl-settings
+  play: add-sysctl-config
+  targets: 
+  - "{{ task_each_vars.value.targets.master }}"
+  for_each: "{{ iac.clusters | dict2items | selectattr('value.features', 'issuperset', ['app']) | items2dict }}"
+  vars:
+    parameter: 'fs.inotify.max_user_instances'
+    value: '8192'
+
+- name: local-path-provisioner-chart
+  play: helm-release
+  targets:
+  - "{{ task_each_vars.value.targets.master }}"
+  for_each: "{{ iac.clusters | dict2items | selectattr('value.features', 'issuperset', ['app']) | items2dict }}"
+  condition: "{{ configs.foundational_chart_settings.local_path_provisioner_helm_chart.enable | default(true) | lower | bool }}"
+  config:
+    repo_name: "{{ configs.foundational_chart_settings.local_path_provisioner_helm_chart.repo.repo_name | default('containeroo') }}"
+    repo_url: "{{ configs.foundational_chart_settings.local_path_provisioner_helm_chart.repo.repo_url | default('https://charts.containeroo.ch') }}"
+    chart_ref: "{{ configs.foundational_chart_settings.local_path_provisioner_helm_chart.repo.chart_ref | default('local-path-provisioner') }}"
+    chart_version: "{{ configs.foundational_chart_settings.local_path_provisioner_helm_chart.repo.chart_version | default('0.0.32') }}"
+    namespace: "{{ configs.foundational_chart_settings.k8s_namespace | default('platform') }}"
+    release_name: "{{ configs.foundational_chart_settings.local_path_provisioner_helm_chart.repo.release_name | default('local-path-provisioner') }}"
+    values_files: "{{ [[dist_dir + '/config-files/helm-release/local-path-provisioner-override-values.yml'], configs.foundational_chart_settings.local_path_provisioner_helm_chart.repo.user_value_override_files | default([])] | flatten }}"
+    state: "{{ state | default('present') }}"
+
+- name: tokkio-observability-chart
+  play: helm-release
+  targets:
+  - "{{ task_each_vars.value.targets.master }}"
+  for_each: "{{ iac.clusters | dict2items | selectattr('value.features', 'issuperset', ['app']) | items2dict }}"
+  condition: "{{ configs.foundational_chart_settings.observability_helm_chart.enable | default(true) | lower | bool }}"
+  config:
+    repo_name: "{{ configs.foundational_chart_settings.observability_helm_chart.repo.repo_name | default('nvidia-ace') }}"
+    repo_url: "{{ configs.foundational_chart_settings.observability_helm_chart.repo.repo_url | default('https://helm.ngc.nvidia.com/nvidia/ace') }}"
+    repo_username: "$oauthtoken"
+    repo_password: "{{ secrets.ngc_cli_api_key }}"
+    chart_ref: "{{ configs.foundational_chart_settings.observability_helm_chart.repo.chart_ref | default('ucf-foundational-chart-observability-stack') }}"
+    chart_version: "{{ configs.foundational_chart_settings.observability_helm_chart.repo.chart_version | default('0.0.6') }}"
+    namespace: "{{ configs.foundational_chart_settings.k8s_namespace | default('platform') }}"
+    release_name: "{{ configs.foundational_chart_settings.observability_helm_chart.repo.release_name | default('obs') }}"
+    values_files: "{{ [configs.foundational_chart_settings.observability_helm_chart.repo.user_value_override_files | default([])] | flatten }}"
+    state: "{{ state | default('present') }}"

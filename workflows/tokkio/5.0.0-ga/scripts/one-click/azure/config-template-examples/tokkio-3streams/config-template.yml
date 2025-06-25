@@ -1,0 +1,82 @@
+schema_version: '0.0.10'
+name: '<replace-with-unique-deployment-name>'
+spec:
+  infra:
+    csp: 'azure'
+    backend:
+      tenant_id: "{{ lookup('env', 'ARM_TENANT_ID', default=Undefined) }}"
+      subscription_id: "{{ lookup('env', 'ARM_SUBSCRIPTION_ID', default=Undefined) }}"
+      client_id: "{{ lookup('env', 'ARM_CLIENT_ID', default=Undefined) }}"
+      client_secret: "{{ lookup('env', 'ARM_CLIENT_SECRET', default=Undefined) }}"
+      resource_group_name: '<replace-with-your-state-storage-account-resource-group-name>'
+      storage_account_name: '<replace-with-your-state-storage-account-name>'
+      container_name: '<replace-with-your-state-storage-container-name>'
+    provider:
+      tenant_id: "{{ lookup('env', 'ARM_TENANT_ID', default=Undefined) }}"
+      subscription_id: "{{ lookup('env', 'ARM_SUBSCRIPTION_ID', default=Undefined) }}"
+      client_id: "{{ lookup('env', 'ARM_CLIENT_ID', default=Undefined) }}"
+      client_secret: "{{ lookup('env', 'ARM_CLIENT_SECRET', default=Undefined) }}"
+    configs:
+      cns:
+        override_values:
+          cns_nvidia_driver: yes
+      user_access_cidrs:
+        - '<replace-with-list-of-user-ip-cidrs-from-where-application-ui-and-api-will-be-allowed-access>'
+      dev_access_cidrs:
+        - '<replace-with-list-of-developer-ip-cidrs-from-where-ssh-access-should-be-allowed>'
+      location: '<replace-with-azure-region-to-create-resources-in>'
+      ssh_public_key: "{{ lookup('file', lookup('env', 'HOME') + '<replace-with-relative-path-of-public-ssh-key-w.r.t.-user-home-directory>') }}"
+      ssh_private_key_path: "{{ lookup('env', 'HOME') + '<replace-with-relative-path-of-private-ssh-key-w.r.t.-user-home-directory>' }}"
+      dns_and_certs_configs:
+        resource_group: '<replace-with-pre-requisites-resource-group-name>'
+        dns_zone: '<replace-with-your-base-domain>'
+        wildcard_cert: '<replace-with-the-name-of-the-wildcard-certificate-of-the-above-base-domain>'
+      include_ui_custom_domain: false
+      clusters:
+        app:
+          private_instance: true
+          master:
+            size: 'Standard_NC64as_T4_v3'
+          features:
+            cns: true
+            app: true
+        turn:
+          private_instance: false
+          master:
+            size: 'Standard_B2s_v2'
+          features:
+            coturn: true
+  platform:
+    secrets:
+      ngc_cli_api_key: "{{ lookup('env', 'NGC_CLI_API_KEY', default=Undefined) }}"
+  app:
+    configs:
+      app_settings:
+        k8s_secrets:
+          - name: 'ngc-api-key-secret'
+            type: 'Opaque'
+            entries:
+              - key: NGC_CLI_API_KEY
+                value: "{{ lookup('env', 'NGC_CLI_API_KEY', default=Undefined) }}"
+          - name: 'openai-key-secret'
+            type: 'Opaque'
+            entries:
+              - key: OPENAI_API_KEY
+                value: "{{ lookup('env', 'OPENAI_API_KEY', default=Undefined) }}"
+          - name: 'nvidia-api-key-secret'
+            type: 'Opaque'
+            entries:
+              - key: NVIDIA_API_KEY
+                value: "{{ lookup('env', 'NVIDIA_API_KEY', default=Undefined) }}"
+          - name: 'ngc-docker-reg-secret'
+            type: 'dockerconfigjson'
+            registry_name: "nvcr.io"
+            username: '$oauthtoken'
+            password: "{{ lookup('env', 'NGC_CLI_API_KEY', default=Undefined) }}"
+          - name: 'elevenlabs-api-key-secret'
+            type: 'Opaque'
+            entries:
+              - key: ELEVENLABS_API_KEY
+                value: "{{ lookup('env', 'ELEVENLABS_API_KEY', default=Undefined) }}"
+    secrets:
+      ngc_cli_api_key: "{{ lookup('env', 'NGC_CLI_API_KEY', default=Undefined) }}"

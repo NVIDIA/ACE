@@ -1,0 +1,73 @@
+schema_version: '0.0.10'
+name: '<replace-with-unique-deployment-name>'
+spec:
+  infra:
+    csp: 'bm'
+    backend: {}
+    provider: {}
+    configs:
+      cns:
+        override_values:
+          cns_nvidia_driver: yes
+      ssh_public_key: "{{ lookup('file', lookup('env', 'HOME') + '<replace-with-relative-path-of-public-ssh-key-w.r.t.-user-home-directory>') }}"
+      ssh_private_key_path: "{{ lookup('env', 'HOME') + '<replace-with-relative-path-of-private-ssh-key-w.r.t.-user-home-directory>' }}"
+      additional_ssh_public_keys: []
+      clusters:
+        app:
+          master:
+            user: "{{ lookup('env', 'APP_HOST_SSH_USER', default=Undefined) }}"
+            host: "{{ lookup('env', 'APP_HOST_IPV4_ADDR', default=Undefined) }}"
+          ports:
+            ui:
+              port: 30111
+              protocol: "https"
+            api:
+              port: 30888
+              protocol: "https"
+            grafana:
+              port: 32300
+            ace_configurator:
+              port: 30180
+          features:
+            cns: true
+            app: true
+        turn:
+          master:
+            user: "{{ lookup('env', 'COTURN_HOST_SSH_USER', default=Undefined) }}"
+            host: "{{ lookup('env', 'COTURN_HOST_IPV4_ADDR', default=Undefined) }}"
+          features:
+            coturn: true
+  platform:
+    secrets:
+      ngc_cli_api_key: "{{ lookup('env', 'NGC_CLI_API_KEY') }}"
+  app:
+    configs:
+      app_settings:
+        k8s_secrets:
+          - name: 'ngc-api-key-secret'
+            type: 'Opaque'
+            entries:
+              - key: NGC_CLI_API_KEY
+                value: "{{ lookup('env', 'NGC_CLI_API_KEY', default=Undefined) }}"
+          - name: 'openai-key-secret'
+            type: 'Opaque'
+            entries:
+              - key: OPENAI_API_KEY
+                value: "{{ lookup('env', 'OPENAI_API_KEY', default=Undefined) }}"
+          - name: 'nvidia-api-key-secret'
+            type: 'Opaque'
+            entries:
+              - key: NVIDIA_API_KEY
+                value: "{{ lookup('env', 'NVIDIA_API_KEY', default=Undefined) }}"
+          - name: 'ngc-docker-reg-secret'
+            type: 'dockerconfigjson'
+            registry_name: "nvcr.io"
+            username: '$oauthtoken'
+            password: "{{ lookup('env', 'NGC_CLI_API_KEY', default=Undefined) }}"
+          - name: 'elevenlabs-api-key-secret'
+            type: 'Opaque'
+            entries:
+              - key: ELEVENLABS_API_KEY
+                value: "{{ lookup('env', 'ELEVENLABS_API_KEY', default=Undefined) }}"
+    secrets:
+      ngc_cli_api_key: "{{ lookup('env', 'NGC_CLI_API_KEY', default=Undefined) }}"

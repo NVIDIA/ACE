@@ -1,0 +1,37 @@
+# SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-License-Identifier: Apache-2.0
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+---
+- hosts: all
+  gather_facts: yes
+  become: false
+  tasks:
+  - name: determine config path
+    when: task_config.config_sub_path is defined
+    set_fact:
+      config_path: "{{ ansible_user_dir }}/.docker/{{ task_config.config_sub_path }}/config.json"
+  - name: login to docker registry
+    docker_login:
+      registry: "{{ task_config.registry }}"
+      username: "{{ task_config.username }}"
+      password: "{{ task_config.password }}"
+      config_path: "{{ config_path | default(omit) }}"
+    when: state == "present" and not ansible_check_mode and dry_run_mode != "true"
+  - name: logout of docker registry
+    docker_login:
+      registry: "{{ task_config.registry }}"
+      state: absent
+      config_path: "{{ config_path | default(omit) }}"
+    when: state != "present" and not ansible_check_mode and dry_run_mode != "true"

@@ -1,0 +1,43 @@
+kubeconfig: "{{ task_vars.kubeconfig | default(omit) }}"
+definition:
+  apiVersion: networking.k8s.io/v1
+  kind: Ingress
+  metadata:
+    annotations:
+      kubernetes.io/ingress.class: nginx
+    name: tokkio-logging-es-logging-stack-elastic-kibana
+    namespace: "{{ task_vars.namespace }}"
+  spec:
+    rules:
+    - host: "{{ task_vars.elastic_domain }}"
+      http:
+        paths:
+        - backend:
+            service:
+              name: "{{ task_vars.ops_es_cluster_name }}-master"
+              port:
+                number: 9200
+          path: /
+          pathType: Prefix
+    - host: "{{ task_vars.kibana_domain }}"
+      http:
+        paths:
+        - backend:
+            service:
+              name: tokkio-logging-es-kibana
+              port:
+                number: 5601
+          path: /
+          pathType: Prefix
+    - host: "{{ task_vars.grafana_domain }}"
+      http:
+        paths:
+        - backend:
+            service:
+              name: mdx-kube-prometheus-stack-grafana
+              port:
+                number: 80
+          path: /
+          pathType: Prefix
+  status:
+    loadBalancer: {}

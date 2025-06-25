@@ -1,0 +1,17 @@
+- name: Configure and apply sysctl settings
+  hosts: master
+  become: yes
+  tasks:
+    - name: Add "{{ task_vars.parameter }}" to sysctl.conf
+      ansible.builtin.lineinfile:
+        path: /etc/sysctl.conf
+        line: "{{ task_vars.parameter }}=${{ task_vars.value }}"
+        state: present
+
+    - name: Apply sysctl changes
+      ansible.posix.sysctl:
+        name: "{{ task_vars.parameter }}"
+        value: "{{ task_vars.value }}"
+        state: present
+        sysctl_set: yes
+        reload: yes

@@ -1,0 +1,140 @@
+schema_version: '0.0.10'
+name: '<replace-with-unique-name>'
+spec:
+  infra:
+    csp: 'aws'
+    backend:
+      access_key: "{{ lookup('env', 'AWS_ACCESS_KEY_ID', default=Undefined) }}"
+      secret_key: "{{ lookup('env', 'AWS_SECRET_ACCESS_KEY', default=Undefined) }}"
+      dynamodb_table: '<replace-with-pre-created-deployment-state-dynamo-db-table-name>'
+      bucket: '<replace-with-pre-created-deployment-state-bucket-name>'
+      region: '<replace-with-aws-region-where-pre-created-deployment-state-bucket-exists>'
+      encrypt: true
+    provider:
+      access_key: "{{ lookup('env', 'AWS_ACCESS_KEY_ID', default=Undefined) }}"
+      secret_key: "{{ lookup('env', 'AWS_SECRET_ACCESS_KEY', default=Undefined) }}"
+    configs:
+      cns:
+        # version: <replace-with-desired-cns-version-defaults-to-"14.0">
+        # git_ref: <replace-with-git-commit-hash-defaults-to-v24.11.2>
+        override_values:
+          cns_nvidia_driver: <replace-with-yes-or-no-yes-when-need-to-install-nvidia-driver-using-runfile>
+          #gpu_driver_version: <replace-with-desired-gpu-driver-version>
+      user_access_cidrs:
+        - '<replace-with-list-of-user-ip-cidrs-from-where-application-ui-and-api-will-be-allowed-access>'
+      dev_access_cidrs:
+        - '<replace-with-list-of-developer-ip-cidrs-from-where-ssh-access-should-be-allowed>'
+      region: '<replace-with-aws-region-to-create-resources-in>'
+      ssh_public_key: "{{ lookup('file', lookup('env', 'HOME') + 'replace-with-ssh-pub-key-path') }}"
+      ssh_private_key_path: "{{ lookup('env', 'HOME') + 'replace-with-ssh-pem-key-path' }}"
+      additional_ssh_public_keys: []
+      clusters:
+        app:
+          private_instance: false
+          master:
+            type: '<replace-with-desired-gpu-instance-type>'
+          ports:
+            api:
+              port: 30443
+              protocol: 'https'
+            grafana:
+              port: 32300
+              protocol: 'http'
+            ace_configurator:
+              port: 30180
+              protocol: 'http'
+            ui:
+              port: 30111
+              protocol: 'https'
+          features:
+            cns: true
+            app: true
+            coturn: true
+
+  platform:
+    # configs:
+    #   foundational_chart_settings:
+    #     k8s_namespace: '<replace-with-k8s-namespace-for-all-foundational-chart-to-deploy-defaults-to-platform>'
+    #     local_path_provisioner_helm_chart:
+    #       repo:
+    #         enable: <true/false-defaults-to-true>
+    #         repo_name: '<replace-with-helm-repo-name-defaults-to-containeroo>'
+    #         repo_url: '<replace-with-app-chart-helm-repo-url-defaults-to-https://charts.containeroo.ch>'
+    #         chart_name: '<replace-with-app-chart-name-defaults-to-local-path-provisioner>'
+    #         chart_version: '<replace-with-chart-version-defaults-to-0.0.32>'
+    #         release_name: '<replace-with-release-name-for-helm-deploy-defaults-to-local-path-provisioner>'
+    #         user_value_override_files: ['list-of-absolute-path-of-value-override-files']
+    #     observability_helm_chart:
+    #       repo:
+    #         enable: <true/false-defaults-to-true>
+    #         repo_name: '<replace-with-helm-repo-name-defaults-to-nvidia-ace>'
+    #         repo_url: '<replace-with-app-chart-helm-repo-url-defaults-to-https://helm.ngc.nvidia.com/nvidia/ace>'
+    #         chart_name: '<replace-with-app-chart-name-defaults-to-ucf-foundational-chart-observability-stack>'
+    #         chart_version: '<replace-with-chart-version-defaults-to-0.0.6>'
+    #         release_name: '<replace-with-release-name-for-helm-deploy-defaults-to-obs>'
+    #         user_value_override_files: ['list-of-absolute-path-of-value-override-files']
+    #   k8s_secrets:
+    #     - name: 'ngc-docker-reg-secret'
+    #       type: 'dockerconfigjson'
+    #       registry_name: "nvcr.io"
+    #       username: '$oauthtoken'
+    #       password: "{{ lookup('env', 'NGC_CLI_API_KEY', default=Undefined) }}"
+    secrets:
+      ngc_cli_api_key: "{{ lookup('env', 'NGC_CLI_API_KEY', default=Undefined) }}"
+  app:
+    configs:
+      app_settings:
+        # k8s_namespace: '<replace-with-k8s-namespace-for-app-chart-to-deploy-defaults-to-app>'
+        # helm_chart:
+        #   repo:
+        #     enable: <true/false-defaults-to-true>
+        #     repo_url: '<replace-with-app-chart-helm-repo-url-defaults-to-https://helm.ngc.nvidia.com/nvidia/ace>'
+        #     chart_name: '<replace-with-app-chart-name-defaults-to-tokkio-3stream-with-ui>'
+        #     chart_version: '<replace-with-chart-version-defaults-to-5.0.0-GA>'
+        #     release_name: '<replace-with-release-name-for-helm-deploy-defaults-to-tokkio-app>'
+        #     user_value_override_files: ['list-of-absolute-path-of-value-override-files']
+        #   local:
+        #       enable: <true/false-defaults-to-false>
+        #       path: '<absolute-path-of-helm-chart-present-locally>'
+        #       release_name: '<replace-with-release-name-for-helm-deploy-defaults-to-tokkio-app>'
+        #       user_value_override_files: ['list-of-absolute-path-of-value-override-files']
+        k8s_secrets:
+          - name: 'ngc-api-key-secret'
+            type: 'Opaque'
+            entries:
+              - key: NGC_CLI_API_KEY
+                value: "{{ lookup('env', 'NGC_CLI_API_KEY', default=Undefined) }}"
+          - name: 'openai-key-secret'
+            type: 'Opaque'
+            entries:
+              - key: OPENAI_API_KEY
+                value: "{{ lookup('env', 'OPENAI_API_KEY', default=Undefined) }}"
+          - name: 'nvidia-api-key-secret'
+            type: 'Opaque'
+            entries:
+              - key: NVIDIA_API_KEY
+                value: "{{ lookup('env', 'NVIDIA_API_KEY', default=Undefined) }}"
+          - name: 'ngc-docker-reg-secret'
+            type: 'dockerconfigjson'
+            registry_name: "nvcr.io"
+            username: '$oauthtoken'
+            password: "{{ lookup('env', 'NGC_CLI_API_KEY', default=Undefined) }}"
+          - name: 'elevenlabs-api-key-secret'
+            type: 'Opaque'
+            entries:
+              - key: ELEVENLABS_API_KEY
+                value: "{{ lookup('env', 'ELEVENLABS_API_KEY', default=Undefined) }}"
+      #     # NOTE: Uncomment and pass correct value for username & password for ghcr.io for UE specific scenarios.
+      #     - name: 'ghcr-docker-reg-secret'
+      #       type: 'dockerconfigjson'
+      #       registry_name: "ghcr.io"
+      #       username: "{{ lookup('env', 'GITHUB_USERNAME', default=Undefined) }}"
+      #       password: "{{ lookup('env', 'GITHUB_ACCESS_TOKEN', default=Undefined) }}"
+      # # NOTE: Uncomment and pass non default value for username & password for coturn when turn_server_provider = coturn.
+      # turn_server_settings:
+      #   coturn:
+      #     username: '<replace-with-a-username-to-use-for-the-turnserver-defaults-to-foo>'
+      #     password: '<replace-with-a-password-to-use-for-the-turnserver-defaults-to-bar>'
+      #     realm: '<replace-with-a-realm-to-use-for-the-turnserver-defaults-to-mydummyt.org>'
+    secrets:
+      ngc_cli_api_key: "{{ lookup('env', 'NGC_CLI_API_KEY', default=Undefined) }}"

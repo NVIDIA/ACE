@@ -1,0 +1,32 @@
+# SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-License-Identifier: Apache-2.0
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+---
+- hosts: all
+  gather_facts: yes
+  tasks:
+  - name: setup pre requisites
+    include_tasks: tasks/k8s-task-pre-requisites.yml
+  - name: apply patch
+    ignore_errors: "{{ task_config.ignore_errors | default(false) }}"
+    kubernetes.core.k8s_json_patch:
+      kubeconfig: "{{ task_config.kubeconfig | default(omit) }}"
+      context: "{{ task_config.context | default(omit) }}"
+      api_version: "{{ task_config.api_version | default('v1') }}"
+      kind: "{{ task_config.kind }}"
+      namespace: "{{ task_config.namespace }}"
+      name: "{{ task_config.name }}"
+      patch:
+        "{{ task_config.patch }}"
