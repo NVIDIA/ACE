@@ -1,0 +1,160 @@
+schema_version: '0.0.10'
+tasks:
+- name: app-pre-requisite
+  play: app-pre-requisites
+  targets:
+  - "{{ task_each_vars.value.targets.master }}"  
+  for_each: "{{ iac.clusters | dict2items | selectattr('value.features', 'issuperset', ['app']) | items2dict }}"
+
+- name: create-app-namespace
+  play: k8s-manifest
+  targets:
+  - "{{ task_each_vars.value.targets.master }}"
+  for_each: "{{ iac.clusters | dict2items | selectattr('value.features', 'issuperset', ['app']) | items2dict }}"
+  config_files:
+  - k8s-manifest/namespace.yml
+  vars:
+    name: "{{ configs.app_settings.k8s_namespace | default('app') }}"
+
+- name: validate-app-k8s-secrets-value
+  play: k8s-secret-check-empty
+  targets:
+  - "{{ task_each_vars.value.targets.master }}"
+  for_each: "{{ iac.clusters | dict2items | selectattr('value.features', 'issuperset', ['app']) | items2dict }}"
+  config:
+    k8s_secrets: "{{ configs.app_settings.k8s_secrets }}"
+
+- name: validate-rp-k8s-secrets-value
+  play: k8s-secret-check-empty
+  targets:
+  - "{{ task_each_vars.value.targets.master }}"
+  for_each: "{{ iac.clusters | dict2items | selectattr('value.features', 'issuperset', ['rp']) | items2dict }}"
+  config:
+    k8s_secrets: "{{ configs.turn_server_settings.rp.k8s_secrets }}"
+
+- name: app-k8s-secrets
+  play: k8s-secret
+  targets:
+  - "{{ task_each_vars.value.targets.master }}"
+  for_each: "{{ iac.clusters | dict2items | selectattr('value.features', 'issuperset', ['app']) | items2dict }}"
+  config:
+    k8s_secrets: "{{ configs.app_settings.k8s_secrets }}"
+    namespace: "{{ configs.app_settings.k8s_namespace | default('app') }}"
+#below plays are for rp server configuration 
+- name: create-namespace-for-rp
+  play: k8s-manifest
+  targets:
+  - "{{ task_each_vars.value.targets.master }}"
+  for_each: "{{ iac.clusters | dict2items | selectattr('value.features', 'issuperset', ['rp']) | items2dict }}"
+  config_files:
+  - k8s-manifest/namespace.yml
+  vars:
+    name: "{{ configs.turn_server_settings.rp.k8s_namespace | default('rp') }}"
+
+- name: rp-k8s-secrets
+  play: k8s-secret
+  targets:
+  - "{{ task_each_vars.value.targets.master }}"
+  for_each: "{{ iac.clusters | dict2items | selectattr('value.features', 'issuperset', ['rp']) | items2dict }}"
+  config:
+    k8s_secrets: "{{ configs.turn_server_settings.rp.k8s_secrets }}"
+    namespace: "{{ configs.turn_server_settings.rp.k8s_namespace | default('rp') }}"
+
+- name: rp-get-nic-name
+  play: get-network-interface
+  targets:
+  - "{{ task_each_vars.value.targets.master }}"
+  for_each: "{{ iac.clusters | dict2items | selectattr('value.features', 'issuperset', ['rp']) | items2dict }}"
+
+- name: rp-app-chart-install
+  play: helm-release
+  targets: 
+  - "{{ task_each_vars.value.targets.master }}"
+  for_each: "{{ iac.clusters | dict2items | selectattr('value.features', 'issuperset', ['rp']) | items2dict }}"
+  vars:
+    network_interface_name: "{{ lookup('file', dist_dir + '/' + ansible_hostname + '/nic_name') }}"
+  config:
+    repo_name: "rp-repo"
+    repo_url: "{{ configs.turn_server_settings.rp.helm_chart.repo.repo_url | default('https://helm.ngc.nvidia.com/nvidia/ace') }}"
+    repo_username: "$oauthtoken"
+    repo_password: "{{ secrets.ngc_cli_api_key }}"
+    chart_ref: "{{ configs.turn_server_settings.rp.helm_chart.repo.chart_name | default('rproxy') }}"
+    chart_version: "{{ configs.turn_server_settings.rp.helm_chart.repo.chart_version | default('0.0.8') }}"
+    namespace: "{{ configs.turn_server_settings.rp.k8s_namespace | default('rp') }}"
+    release_name: "{{ configs.turn_server_settings.rp.helm_chart.repo.release_name | default('rp') }}"
+    state: "{{ state | default('present') }}"
+    values_files: "{{ [[dist_dir + '/config-files/helm-release/rproxy-override-values.yml'], [ configs.turn_server_settings.rp.helm_chart.repo.user_value_override_files | default([])]] | flatten }}"
+
+- name: coturn-get-nic-name
+  play: get-network-interface
+  targets:
+  - "{{ task_each_vars.value.targets.master }}"
+  for_each: "{{ iac.clusters | dict2items | selectattr('value.features', 'issuperset', ['coturn']) | items2dict }}"
+
+- name: coturn-setup-script
+  play: setup-coturn
+  targets:
+  - "{{ task_each_vars.value.targets.master }}"
+  for_each: "{{ iac.clusters | dict2items | selectattr('value.features', 'issuperset', ['coturn']) | items2dict }}"
+  config:
+    script: "{{ playbook_dir }}/scripts/coturn-setup.sh"
+    environment:
+      TURNSERVER_REALM: "{{ configs.turn_server_settings.coturn.realm | default('mydummyt.org')  }}"
+      TURNSERVER_USERNAME: "{{ configs.turn_server_settings.coturn.username | default('foo')  }}"
+      TURNSERVER_PASSWORD: "{{ configs.turn_server_settings.coturn.password | default('bar')  }}"
+      TURNSERVER_PUBLIC_IP: "{{ iac.clusters.app.ip_addresses.public_ip }}"
+      TURNSERVER_PRIVATE_IP: "{{ iac.clusters.app.ip_addresses.private_ip }}"
+      LISTENING_DEVICE: "{{ lookup('file', tmp_dir + '/' + ansible_hostname + '/nic_name') }}"
+
+- name: tokkio-app
+  play: helm-release
+  targets:
+  - "{{ task_each_vars.value.targets.master }}"
+  for_each: "{{ iac.clusters | dict2items | selectattr('value.features', 'issuperset', ['app']) | items2dict }}"
+  condition: "{{ (configs.app_settings.helm_chart.repo.enable | default(true) == true) and (configs.app_settings.helm_chart.local.enable | default(false) == false) }}"
+  vars: 
+    twilio_account_sid: "{{ configs.turn_server_settings.twilio.account_sid | default('') }}"
+    twilio_auth_token: "{{ configs.turn_server_settings.twilio.auth_token | default('') }}"
+    use_twilio_stun_turn: "{{ iac.clusters.app.use_twilio_stun_turn | lower | bool }}"
+    turnurl_conn_string: "{{ configs.turn_server_settings.coturn.username | default('foo') }}:{{ configs.turn_server_settings.coturn.password | default('bar') }}@{{ iac.clusters.app.ip_addresses.public_ip | default('127.0.0.1') }}:3478"
+    # reverse_proxy_server_address : "{{ iac.clusters.turn.ip_addresses.private_ip | default('') }}" # lite version doesn't support reverse proxy
+    # use_reverse_proxy: "{{ iac.clusters.app.use_reverse_proxy | lower | bool }}"
+    enable_idp_auth: "{{ configs.app_settings.enable_idp_auth | default(false) | lower | bool }}"
+    turn_server_conn: "{{ iac.clusters.app.ip_addresses.public_ip | default('127.0.0.1') }}:3478"
+    turn_username: "{{ configs.turn_server_settings.coturn.username | default('foo') }}"
+    turn_password: "{{ configs.turn_server_settings.coturn.password | default('bar') }}"
+  config:
+    repo_name: "tokkio-app"
+    repo_url: "{{ configs.app_settings.helm_chart.repo.repo_url | default('https://helm.ngc.nvidia.com/nvidia/ace') }}"
+    repo_username: "$oauthtoken"
+    repo_password: "{{ secrets.ngc_cli_api_key }}"
+    chart_ref: "{{ configs.app_settings.helm_chart.repo.chart_name | default('tokkio-3stream-with-ui') }}"
+    chart_version: "{{ configs.app_settings.helm_chart.repo.chart_version | default('5.0.0-GA') }}"
+    namespace: "{{ configs.app_settings.k8s_namespace | default('app') }}"
+    release_name: "{{ configs.app_settings.helm_chart.repo.release_name | default('tokkio-app') }}"
+    state: "{{ state | default('present') }}"
+    values_files: "{{ [[dist_dir + '/config-files/helm-release/tokkio-app-audio-video-app.yml'], [ configs.app_settings.helm_chart.repo.user_value_override_files | default([])]] | flatten }}"
+
+- name: tokkio-app-local-chart
+  play: helm-release
+  targets:
+  - "{{ task_each_vars.value.targets.master }}"
+  for_each: "{{ iac.clusters | dict2items | selectattr('value.features', 'issuperset', ['app']) | items2dict }}"
+  condition: "{{ configs.app_settings.helm_chart.local.enable | default(false) == true }}"
+  vars: 
+    twilio_account_sid: "{{ configs.turn_server_settings.twilio.account_sid | default('') }}"
+    twilio_auth_token: "{{ configs.turn_server_settings.twilio.auth_token | default('') }}"
+    use_twilio_stun_turn: "{{ iac.clusters.app.use_twilio_stun_turn | lower | bool }}"
+    turnurl_conn_string: "{{ configs.turn_server_settings.coturn.username | default('foo') }}:{{ configs.turn_server_settings.coturn.password | default('bar') }}@{{ iac.clusters.app.ip_addresses.public_ip | default('127.0.0.1') }}:3478"
+    # reverse_proxy_server_address : "{{ iac.clusters.turn.ip_addresses.private_ip | default('') }}"
+    # use_reverse_proxy: "{{ iac.clusters.app.use_reverse_proxy | lower | bool }}"
+    enable_idp_auth: "{{ configs.app_settings.enable_idp_auth | default(false) | lower | bool }}"
+    turn_server_conn: "{{ iac.clusters.app.ip_addresses.public_ip | default('127.0.0.1') }}:3478"
+    turn_username: "{{ configs.turn_server_settings.coturn.username | default('foo') }}"
+    turn_password: "{{ configs.turn_server_settings.coturn.password | default('bar') }}"
+  config:
+    local_chart: "{{ configs.app_settings.helm_chart.local.path }}"
+    namespace: "{{ configs.app_settings.k8s_namespace | default('app') }}"
+    release_name: "{{ configs.app_settings.helm_chart.local.release_name | default('tokkio-app') }}"
+    state: "{{ state | default('present') }}"
+    values_files: "{{ [[dist_dir + '/config-files/helm-release/tokkio-app-audio-video-app.yml'], [ configs.app_settings.helm_chart.local.user_value_override_files | default([])]] | flatten }}"

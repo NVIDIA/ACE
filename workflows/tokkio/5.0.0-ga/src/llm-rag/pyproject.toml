@@ -1,0 +1,42 @@
+[project]
+name = "tokkio-llm-rag-example"
+version = "0.1.0"
+description = "tokkio llm rag example"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "nvidia-pipecat",
+    "opentelemetry-sdk==1.31.1",
+    "opentelemetry-exporter-otlp-proto-grpc==1.31.1",
+    "opentelemetry-distro==0.52b1",
+    "watchfiles==1.0.4",
+    "watchdog==6.0.0",
+    "torch==2.6.0+cpu",
+    "h11==0.16.0",
+    "setuptools==78.1.1",
+    "protobuf>=5.29.5"
+]
+
+[[tool.uv.index]]
+name = "pytorch"
+url = "https://download.pytorch.org/whl/cpu"
+explicit = true
+
+[tool.uv.sources]
+torch = { index = "pytorch" }
+
+# Uncomment this to use local ACE Controller source instead of pypi released nvidia-pipecat wheel (if you need to edit code in ace controller as well)
+# nvidia-pipecat = { path = "../ace-controller", editable = true }
+
+
+
+[dependency-groups]
+dev = [
+    "pytest>=8.3.4",
+    "pytest-asyncio>=0.24.0",
+    "pytest-cov>=6.0.0"
+]
+
+
+[tool.ruff]
+line-length = 120

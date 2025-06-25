@@ -1,0 +1,134 @@
+# SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-License-Identifier: Apache-2.0
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+---
+- hosts: master
+  gather_facts: true
+  become: false
+  tasks:
+  - name: check if cluster is ready
+    shell: kubectl get --raw='/readyz'
+    ignore_errors: true
+    no_log: true
+    register: cluster_ready_result
+    when: state == "present" and not ansible_check_mode and dry_run_mode != "true"
+  - name: publish cluster readiness
+    delegate_to: localhost
+    copy:
+      content: "{{ cluster_ready_result.rc == 0 }}"
+      dest: "{{ tmp_task_dir }}/cluster-ready"
+    when: state == "present" and not ansible_check_mode and dry_run_mode != "true"
+  - name: check if cluster is live
+    shell: kubectl get --raw='/livez'
+    ignore_errors: true
+    no_log: true
+    register: cluster_live_result
+    when: state == "present" and not ansible_check_mode and dry_run_mode != "true"
+  - name: publish cluster liveness
+    delegate_to: localhost
+    copy:
+      content: "{{ cluster_live_result.rc == 0 }}"
+      dest: "{{ tmp_task_dir }}/cluster-live"
+    when: state == "present" and not ansible_check_mode and dry_run_mode != "true"
+  - name: create cns info directory
+    file:
+      path: "{{ ansible_user_dir }}/cns-info"
+      state: directory
+      mode: '0755'
+    when: state == "present" and not ansible_check_mode and dry_run_mode != "true"
+  - name: check if cluster config is unchanged
+    block:
+    - name: create cns-info config file
+      ansible.builtin.file:
+        path: "{{ ansible_user_dir }}/cns-info/config.yml"
+        state: touch
+    - name: read any existing cns-info config
+      ansible.builtin.slurp:
+        src: "{{ ansible_user_dir }}/cns-info/config.yml"
+      register: existing_cns_config_yml
+    - name: register config changes
+      ansible.utils.fact_diff:
+        before: "{{ existing_cns_config_yml.content | b64decode | from_yaml  | default({})}}"
+        after: "{{ configs.cns  | default({}) }}"
+      register: cns_config_changes
+    - name: publish config unchanged result
+      delegate_to: localhost
+      copy:
+        content: "{{ cns_config_changes.diff_lines | length == 0 }}"
+        dest: "{{ tmp_task_dir }}/config-unchanged"
+    no_log: true
+    when: state == "present" and not ansible_check_mode and dry_run_mode != "true"
+  - name: check if cluster inventory is unchanged
+    block:
+    - name: create cns-info inventory file
+      ansible.builtin.file:
+        path: "{{ ansible_user_dir }}/cns-info/inventory.yml"
+        state: touch
+    - name: read any existing cns-info inventory
+      ansible.builtin.slurp:
+        src: "{{ ansible_user_dir }}/cns-info/inventory.yml"
+      register: existing_cns_inventory_yml
+    - name: register inventory changes
+      ansible.utils.fact_diff:
+        before: "{{ existing_cns_inventory_yml.content | b64decode | from_yaml }}"
+        after: "{{ (lookup('file', tmp_dir + '/inventory.yml') | from_yaml).cns_clusters.children }}"
+      register: cns_inventory_changes
+    - name: publish config unchanged result
+      delegate_to: localhost
+      copy:
+        content: "{{ cns_inventory_changes.diff_lines | length == 0 }}"
+        dest: "{{ tmp_task_dir }}/inventory-unchanged"
+    no_log: true
+    when: state == "present" and not ansible_check_mode and dry_run_mode != "true"
+- hosts: all
+  gather_facts: false
+  become: false
+  tasks:
+  - name: register cluster readiness
+    set_fact:
+      cluster_ready: "{{ lookup('file', tmp_task_dir + '/cluster-ready') }}"
+    when: state == "present" and not ansible_check_mode and dry_run_mode != "true"
+  - name: register cluster liveness
+    set_fact:
+      cluster_live: "{{ lookup('file', tmp_task_dir + '/cluster-live') }}"
+    when: state == "present" and not ansible_check_mode and dry_run_mode != "true"
+  - name: register config unchanged
+    set_fact:
+      config_unchanged: "{{ lookup('file', tmp_task_dir + '/config-unchanged') }}"
+    when: state == "present" and not ansible_check_mode and dry_run_mode != "true"
+  - name: register inventory unchanged
+    set_fact:
+      inventory_unchanged: "{{ lookup('file', tmp_task_dir + '/inventory-unchanged') }}"
+    when: state == "present" and not ansible_check_mode and dry_run_mode != "true"
+- name: install cns
+  when: state == "present" and not ansible_check_mode and dry_run_mode != "true" and not (cluster_ready and cluster_live and config_unchanged and inventory_unchanged)
+  import_playbook: "{{ tmp_dir }}/cns/playbooks/cns-installation.yaml"
+- hosts: master
+  gather_facts: false
+  become: false
+  tasks:
+  - name: update master with applied config
+    when: state == "present" and not ansible_check_mode and dry_run_mode != "true" and not (cluster_ready and cluster_live and config_unchanged and inventory_unchanged)
+    copy:
+      content: "{{ (configs.cns if 'cns' in configs else {}) | to_nice_yaml }}"
+      dest: "{{ ansible_user_dir }}/cns-info/config.yml"
+  - name: update master with applied inventory
+    when: state == "present" and not ansible_check_mode and dry_run_mode != "true" and not (cluster_ready and cluster_live and config_unchanged and inventory_unchanged)
+    copy:
+      content: "{{ (lookup('file', tmp_dir + '/inventory.yml') | from_yaml).cns_clusters.children | to_nice_yaml }}"
+      dest: "{{ ansible_user_dir }}/cns-info/inventory.yml"
+- name: uninstall cns
+  when: state != "present" and not ansible_check_mode and dry_run_mode != "true"
+  import_playbook: "{{ tmp_dir }}/cns/playbooks/cns-uninstall.yaml"

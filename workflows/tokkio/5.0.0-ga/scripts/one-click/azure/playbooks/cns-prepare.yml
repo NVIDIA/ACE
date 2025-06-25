@@ -1,0 +1,65 @@
+# SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-License-Identifier: Apache-2.0
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+---
+- hosts: localhost
+  connection: local
+  gather_facts: false
+  become: false
+  tasks:
+  - name: install git
+    become: true
+    apt:
+      name: git
+      state: present
+  - name: clone cns git repo
+    block:
+    - name: remove any existing cns git source directory
+      file:
+        path: "{{ tmp_dir }}/cns"
+        state: absent
+    - name: clone cns git repo
+      git:
+        repo: https://github.com/NVIDIA/cloud-native-stack.git
+        version: "{{ configs.cns.git_ref | default('v24.11.2') }}"
+        dest: "{{ tmp_dir }}/cns"
+  - name: capture cns version
+    set_fact:
+      cns_version: "{{ configs.cns.version | default('14.0') if configs.cns is defined else '14.0' }}"
+  - name: populate cns version
+    copy:
+      content: "cns_version: {{ cns_version }}"
+      dest: "{{ tmp_dir }}/cns/playbooks/cns_version.yaml"
+  - name: populate cns override values
+    copy:
+      content: "{{ configs.cns.override_values | default({}) if configs.cns is defined else {} | to_nice_yaml }}"
+      dest: "{{ tmp_dir }}/cns/playbooks/cns_override_values.yaml"
+  - name: check values for cns version exists
+    stat:
+      path: "{{ tmp_dir }}/cns/playbooks/cns_values_{{ cns_version }}.yaml"
+    register: cns_values_for_version
+  - name: populate cns version values when not exists
+    copy:
+      content: "{}"
+      dest: "{{ tmp_dir }}/cns/playbooks/cns_values_{{ cns_version }}.yaml"
+    when: not cns_values_for_version.stat.exists
+  - name: prepare cns values
+    shell: |
+      yq -sy -w 1000 '.[0] * .[1]' {{ tmp_dir }}/cns/playbooks/cns_values_{{ cns_version }}.yaml {{ tmp_dir }}/cns/playbooks/cns_override_values.yaml | sed -e "s/: 'yes'$/: yes/g" -e "s/: 'no'$/: no/g"
+    register: cns_values
+  - name: populate cns values
+    copy:
+      content: "{{ cns_values.stdout }}"
+      dest: "{{ tmp_dir }}/cns/playbooks/cns_values.yaml"

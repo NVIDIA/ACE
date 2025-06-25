@@ -1,0 +1,1 @@
+The content in this directoy contains the necessary resource to get you started with any customizations, but you will also need access to one of the prebuilt chart from NGC and install UCS tools as prerequisites.  Find more detals [here](https://docs.nvidia.com/ace/tokkio/5.0.0-beta/customization-methods/customize-with-rebuild.html). 

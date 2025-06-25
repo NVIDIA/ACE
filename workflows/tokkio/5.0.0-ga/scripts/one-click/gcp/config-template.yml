@@ -1,0 +1,167 @@
+schema_version: '0.0.10'
+name: '<replace-with-unique-name>'
+spec:
+  infra:
+    csp: 'gcp'
+    backend:
+      bucket: '<replace-with-pre-created-deployment-state-bucket-name>'
+      credentials: "{{ lookup('env', 'CLOUDSDK_AUTH_CREDENTIAL_FILE_OVERRIDE', default=Undefined) }}"
+    provider:
+      project: "{{ lookup('env', 'CLOUDSDK_CORE_PROJECT', default=Undefined) }}"
+      credentials: "{{ lookup('env', 'CLOUDSDK_AUTH_CREDENTIAL_FILE_OVERRIDE', default=Undefined) }}"
+    configs:
+      cns:
+        # version: <replace-with-desired-cns-version-defaults-to-14.0>
+        # git_ref: <replace-with-git-commit-hash-defaults-to-v24.11.2>
+        override_values:
+          cns_nvidia_driver: <replace-with-yes-or-no-yes-if-install-gpu-driver-using-runc-file>
+          #gpu_driver_version: <replace-with-desired-gpu-driver-version>
+      user_access_cidrs:
+        - '<replace-with-list-of-user-ip-cidrs-from-where-application-ui-and-api-will-be-allowed-access>'
+      dev_access_cidrs:
+        - '<replace-with-list-of-developer-ip-cidrs-from-where-ssh-access-should-be-allowed>'
+      region: '<replace-with-gcp-region-to-create-resources-in>'
+      ui_bucket_location:
+        location: '<replace-with-gcp-location-to-create-ui-bucket-in>'
+        region: '<replace-with-gcp-region-to-create-ui-bucket-in>'
+        alternate_region: '<replace-with-gcp-region-to-be-used-to-create-ui-bucket-that-need-dual-region-in>'
+      ssh_public_key: "{{ lookup('file', lookup('env', 'HOME') + 'replace-with-ssh-pub-key-path') }}"
+      ssh_private_key_path: "{{ lookup('env', 'HOME') + 'replace-with-ssh-pem-key-path' }}"
+      additional_ssh_public_keys: []
+      dns_zone_name: '<replace-with-the-name-of-the-dns-zone-under-which-apps-will-be-registered>'
+      # api_sub_domain: '<replace-with-the-subdomain-to-be-used-for-the-api-defaults-to-$name-api>'
+      # ui_sub_domain: '<replace-with-the-subdomain-to-be-used-for-the-ui-defaults-to-$name-ui>'
+      # grafana_sub_domain: '<replace-with-subdomain-to-be-used-for-grafana-defaults-to-$name-grafana>'
+      # ace_configurator_sub_domain: '<replace-with-subdomain-to-be-used-for-ace-configurator-defaults-to-$name-ace-configurator>'
+      #turn_server_provider: '<one-of-allowed-implementation-rp|coturn|twilio-defaults-to-coturn>'
+      enable_cdn: <replace-with-bool-true-or-false-true-if-ui-needs-to-be-served-via-cdn-cache>
+      clusters:
+        app:
+          private_instance: true
+          master:
+            type: '<replace-with-desired-instance-type>'
+            guest_accelerators:
+            - type: '<replace-with-desired-gpu-type>'
+              count: '<replace-with-number-of-gpu>'
+          features:
+            cns: true
+            app: true
+        turn:
+          private_instance: false
+          master:
+            type: '<replace-with-desired-instance-type>'
+            guest_accelerators: []
+          features:
+            cns: <true-when-turn_server_provider-is-rp-otherwise-false>
+            rp: <true-when-turn_server_provider-is-rp-otherwise-false>
+            coturn: <true-when-turn_server_provider-is-coturn-otherwise-false>
+  platform:
+    # configs:
+    #   foundational_chart_settings:
+    #     k8s_namespace: '<replace-with-k8s-namespace-for-all-foundational-chart-to-deploy-defaults-to-platform>'
+    #     local_path_provisioner_helm_chart:
+    #       repo:
+    #         enable: <true/false-defaults-to-true>
+    #         repo_name: '<replace-with-helm-repo-name-defaults-to-containeroo>'
+    #         repo_url: '<replace-with-app-chart-helm-repo-url-defaults-to-https://charts.containeroo.ch>'
+    #         chart_name: '<replace-with-app-chart-name-defaults-to-local-path-provisioner>'
+    #         chart_version: '<replace-with-chart-version-defaults-to-0.0.32>'
+    #         release_name: '<replace-with-release-name-for-helm-deploy-defaults-to-local-path-provisioner>'
+    #         user_value_override_files: ['list-of-absolute-path-of-value-override-files']
+    #     observability_helm_chart:
+    #       repo:
+    #         enable: <true/false-defaults-to-true>
+    #         repo_name: '<replace-with-helm-repo-name-defaults-to-nvidia-ace>'
+    #         repo_url: '<replace-with-app-chart-helm-repo-url-defaults-to-https://helm.ngc.nvidia.com/nvidia/ace>'
+    #         chart_name: '<replace-with-app-chart-name-defaults-to-ucf-foundational-chart-observability-stack>'
+    #         chart_version: '<replace-with-chart-version-defaults-to-0.0.6>'
+    #         release_name: '<replace-with-release-name-for-helm-deploy-defaults-to-obs>'
+    #         user_value_override_files: ['list-of-absolute-path-of-value-override-files']
+    #   k8s_secrets:
+    #     - name: 'ngc-docker-reg-secret'
+    #       type: 'dockerconfigjson'
+    #       registry_name: "nvcr.io"
+    #       username: '$oauthtoken'
+    #       password: "{{ lookup('env', 'NGC_CLI_API_KEY', default=Undefined) }}"
+    secrets:
+      ngc_cli_api_key: "{{ lookup('env', 'NGC_CLI_API_KEY', default=Undefined) }}"
+  app:
+    configs:
+      app_settings:
+        # k8s_namespace: '<replace-with-k8s-namespace-for-app-chart-to-deploy-defaults-to-app>'
+        # helm_chart:
+        #   repo:
+        #     enable: <true/false-defaults-to-true>
+        #     repo_url: '<replace-with-app-chart-helm-repo-url-defaults-to-https://helm.ngc.nvidia.com/nvidia/ace>'
+        #     chart_name: '<replace-with-app-chart-name-defaults-to-tokkio-3stream-no-ui>'
+        #     chart_version: '<replace-with-chart-version-defaults-to-5.0.0-GA>'
+        #     release_name: '<replace-with-release-name-for-helm-deploy-defaults-to-tokkio-app>'
+        #     user_value_override_files: ['list-of-absolute-path-of-value-override-files']
+        #   local:
+        #       enable: <true/false-defaults-to-false>
+        #       path: '<absolute-path-of-helm-chart-present-locally>'
+        #       release_name: '<replace-with-release-name-for-helm-deploy-defaults-to-tokkio-app>'
+        #       user_value_override_files: ['list-of-absolute-path-of-value-override-files']
+        k8s_secrets:
+          - name: 'ngc-api-key-secret'
+            type: 'Opaque'
+            entries:
+              - key: NGC_CLI_API_KEY
+                value: "{{ lookup('env', 'NGC_CLI_API_KEY', default=Undefined) }}"
+          - name: 'openai-key-secret'
+            type: 'Opaque'
+            entries:
+              - key: OPENAI_API_KEY
+                value: "{{ lookup('env', 'OPENAI_API_KEY', default=Undefined) }}"
+          - name: 'nvidia-api-key-secret'
+            type: 'Opaque'
+            entries:
+              - key: NVIDIA_API_KEY
+                value: "{{ lookup('env', 'NVIDIA_API_KEY', default=Undefined) }}"
+          - name: 'ngc-docker-reg-secret'
+            type: 'dockerconfigjson'
+            registry_name: "nvcr.io"
+            username: '$oauthtoken'
+            password: "{{ lookup('env', 'NGC_CLI_API_KEY', default=Undefined) }}"
+          - name: 'elevenlabs-api-key-secret'
+            type: 'Opaque'
+            entries:
+              - key: ELEVENLABS_API_KEY
+                value: "{{ lookup('env', 'ELEVENLABS_API_KEY', default=Undefined) }}"
+      # turn_server_settings:
+      #   # NOTE: Uncomment/update the below coturn section - in case turn_server_provider = rp
+      #   rp:
+      #     k8s_namespace: '<replace-with-k8s-namespace-for-rp-chart-to-deploy-defaults-to-rp>'
+      #     helm_chart:
+      #       repo:
+      #         repo_url: '<replace-with-rp-chart-helm-repo-url-defaults-to-https://helm.ngc.nvidia.com/nvidia/ace>'
+      #         chart_name: '<replace-with-rp-chart-name-defaults-to-rproxy>'
+      #         chart_version: '<replace-with-chart-version-defaults-to-0.0.8>'
+      #         release_name: '<replace-with-release-name-for-helm-deploy-defaults-to-rp>'
+      #     k8s_secrets:
+      #       - name: 'ngc-docker-reg-secret'
+      #         type: 'dockerconfigjson'
+      #         registry_name: "nvcr.io"
+      #         username: '$oauthtoken'
+      #         password: "{{ lookup('env', 'NGC_CLI_API_KEY', default=Undefined) }}"
+      #   # NOTE: Uncomment/update the below coturn section - in case turn_server_provider = coturn
+      #   coturn:
+      #     username: '<replace-with-a-username-to-use-for-the-turnserver-defaults-to-foo>'
+      #     password: '<replace-with-a-password-to-use-for-the-turnserver-defaults-to-bar>'
+      #     realm: '<replace-with-a-realm-to-use-for-the-turnserver-defaults-to-mydummyt.org>'
+      #   # NOTE: # Uncomment and pass correct value for account_sid & auth_token for account_sid & account_sid  when turn_server_provider = twilio.
+      #   twilio:
+      #     account_sid: '<replace-with-correct-twilio-account_sid-value-defaults-to-empty-string>'
+      #     auth_token: '<replace-with-correct-twilio-auth_token-value-defailts-to-empty-string>'
+      # ui_settings:
+      #   resource:
+      #     ngc:
+      #       org: '<replace-with-ngc-org-defaults-to-nvidia>'
+      #       team: '<replace-with-ngc-team-defaults-to-ace>'
+      #       name: '<replace-with-ngc-resource-name-defaults-to-tokkio-ui-web-assets>'
+      #       version: '<replace-with-resource-version-defaults-to-6.6.16>'
+      #       file: '<replace-with-resource-file-name-defaults-to-ui.tar.gz>'
+      #   # NOTE: Uncomment user_env_vars when you need to pass ui configuration. it should be key: value format and its case sensitive.
+      #   user_env_vars:
+    secrets:
+      ngc_cli_api_key: "{{ lookup('env', 'NGC_CLI_API_KEY', default=Undefined) }}"

@@ -1,0 +1,124 @@
+---
+specVersion: 2.5.0
+version: 5.0.0-GA
+name: tokkio-app
+description: UCS Tokkio App
+secrets:
+  k8sSecret/ngc-api-key-secret/NGC_CLI_API_KEY:
+    k8sSecret:
+      secretName: ngc-api-key-secret
+      key: NGC_CLI_API_KEY
+  k8sSecret/nvidia-api-key-secret/NVIDIA_API_KEY:
+    k8sSecret:
+      secretName: nvidia-api-key-secret
+      key: NVIDIA_API_KEY
+  k8sSecret/openai-key-secret/OPENAI_API_KEY:
+    k8sSecret:
+      secretName: openai-key-secret
+      key: OPENAI_API_KEY
+  k8sSecret/elevenlabs-api-key-secret/ELEVENLABS_API_KEY:
+    k8sSecret:
+      secretName: elevenlabs-api-key-secret
+      key: ELEVENLABS_API_KEY
+dependencies:
+  - ucf.svc.ace-configurator:1.0.0
+  - ucf.svc.ace-controller:1.0.2
+  - ucf.svc.ia-animation-graph-microservice:1.1.0
+  - ucf.svc.ia-unreal-renderer-microservice:0.1.3
+  - ucf.svc.tokkio.ace-controller-sdr-envoy:0.2.3
+  - ucf.svc.tokkio.anim-graph-sdr-envoy:0.2.3
+  - ucf.svc.tokkio.ue-renderer-sdr-envoy:0.2.3
+  - ucf.svc.vms:1.2.54
+components:
+  - name: a2f-endpoint
+    type: ucf.svc.external-endpoint
+    parameters:
+      service: a2f-a2f-deployment-a2f-service
+      port: 50010
+  - name: ace-configurator
+    type: ucf.svc.ace-configurator
+    parameters:
+      imagePullSecrets:
+        - name: ngc-docker-reg-secret
+  - name: ace-controller
+    type: ucf.svc.ace-controller
+    parameters:
+      imagePullSecrets:
+        - name: ngc-docker-reg-secret
+    secrets:
+      openai-key-secret: k8sSecret/openai-key-secret/OPENAI_API_KEY
+      nvidia-api-key-secret: k8sSecret/nvidia-api-key-secret/NVIDIA_API_KEY
+      elevenlabs-api-key-secret: k8sSecret/elevenlabs-api-key-secret/ELEVENLABS_API_KEY
+    files:
+      config.yaml: ./config/ace-controller/config.yaml
+  - name: ace-controller-sdr
+    type: ucf.svc.tokkio.ace-controller-sdr-envoy
+    parameters:
+      imagePullSecrets:
+        - name: ngc-docker-reg-secret
+  - name: anim-graph-sdr
+    type: ucf.svc.tokkio.anim-graph-sdr-envoy
+    parameters:
+      imagePullSecrets:
+        - name: ngc-docker-reg-secret
+  - name: animation-graph
+    type: ucf.svc.ia-animation-graph-microservice
+    parameters:
+      imagePullSecrets:
+        - name: ngc-docker-reg-secret
+    secrets:
+      ngc-api-key-secret: k8sSecret/ngc-api-key-secret/NGC_CLI_API_KEY
+  - name: renderer-adapter-endpoint
+    type: ucf.svc.external-endpoint
+    parameters:
+      service: localhost
+      port: 31111
+  - name: riva-speech-endpoint
+    type: ucf.svc.external-endpoint
+    parameters:
+      service: riva-speech
+      port: 50051
+  - name: redis-timeseries-endpoint
+    type: ucf.svc.external-endpoint
+    parameters:
+      service: redis-timeseries
+      port: 6379
+  - name: ue-renderer-sdr
+    type: ucf.svc.tokkio.ue-renderer-sdr-envoy
+    parameters:
+      imagePullSecrets:
+        - name: ngc-docker-reg-secret
+  - name: unreal-renderer
+    type: ucf.svc.ia-unreal-renderer-microservice
+    parameters:
+      imagePullSecrets:
+        - name: ngc-docker-reg-secret
+  - name: vms
+    type: ucf.svc.vms
+    parameters:
+      imagePullSecrets:
+        - name: ngc-docker-reg-secret
+connections:
+  vms/redis: redis-timeseries-endpoint/endpoint
+  ace-controller/redis: redis-timeseries-endpoint/endpoint
+  ace-controller/riva-speech: riva-speech-endpoint/endpoint
+  ace-controller/animgraph-http: anim-graph-sdr/http-envoy
+  ace-controller/animgraph-grpc: anim-graph-sdr/grpc-envoy
+  ace-controller/a2f-grpc: a2f-endpoint/endpoint
+  ace-controller-sdr/redis: redis-timeseries-endpoint/endpoint
+  ace-controller-sdr/ace-controller: ace-controller/http-api
+  ace-controller-sdr/vms: vms/vms
+  anim-graph-sdr/redis: redis-timeseries-endpoint/endpoint
+  anim-graph-sdr/anim-graph: animation-graph/http-api
+  anim-graph-sdr/vms: vms/vms
+  ue-renderer-sdr/redis: redis-timeseries-endpoint/endpoint
+  ue-renderer-sdr/vms: vms/vms
+  ue-renderer-sdr/renderer: unreal-renderer/http-api
+  unreal-renderer/anim-source: anim-graph-sdr/grpc-envoy
+  unreal-renderer/prop-api: renderer-adapter-endpoint/endpoint
+  animation-graph/redis: redis-timeseries-endpoint/endpoint
+label:
+  - apps/base
+  - 6-stream
+  - tracing-on
+  - ui-off/tokkio-app

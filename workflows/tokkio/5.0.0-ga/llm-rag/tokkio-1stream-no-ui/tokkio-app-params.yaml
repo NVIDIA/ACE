@@ -1,0 +1,258 @@
+---
+ace-controller:
+  DEV: "1"
+  replicas: 1
+  OTEL_SDK_DISABLED: 'false'
+  OTEL_SERVICE_NAME: ace-controller
+  OTEL_EXPORTER_OTLP_ENDPOINT: http://obs-opentelemetry-collector.platform.svc.cluster.local:4317
+  OTEL_EXPORTER_OTLP_PROTOCOL: grpc
+animation-graph:
+  animationOutput:
+    audioSampleRate: 16000
+  resourceDownload:
+    image: nvcr.io/nvidia/ace/ngc-resource-downloader:1.2.0
+    remoteResourcePath: nvidia/ace/default-avatar-scene:1.1.5
+    secretName: ngc-api-key-secret
+  animationServer:
+    maxStreamCapacity: 1
+  nvidiaVisibleDevices:
+    - 1
+vms:
+  applicationSpecs:
+    vms:
+      containers:
+        vms-container:
+          env:
+            - name: NODE_IP
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.hostIP
+      securityContext:
+        fsGroup: 1000
+  configs:
+    rtsp_streams.json:
+      streams:
+        - audio:
+            bits_per_sample: 32
+            codec: pcm
+            enabled: true
+            port: 30032
+            sample_rate_Hz: 44100
+          enabled: false
+          name: Tokkio_Avatar
+          stream_in: udp
+          video:
+            codec: h264
+            framerate: 30
+            port: 30031
+    vst_config.json:
+      data:
+        always_recording: true
+        enable_avsync_udp_input: true
+        enable_silent_audio_in_udp_input: false
+        enable_udp_input_dump: false
+        gpu_indices: []
+        use_external_peerconnection: true
+        use_software_path: false
+        use_standalone_udp_input: false
+        use_webrtc_hw_dec: true
+        use_webrtc_inbuilt_encoder: ''
+        webrtc_in_fixed_resolution: 1280x720
+        webrtc_in_max_framerate: 30
+        webrtc_out_default_resolution: 1920x1080
+        webrtc_out_enc_preset: ultra_fast
+        webrtc_out_enc_quality_tuning: ultra_low_latency
+        webrtc_out_set_idr_interval: 30
+      debug:
+        enable_network_bandwidth_notification: true
+      network:
+        coturn_turnurl_list_with_secret: null
+        enable_grpc: true
+        grpc_server_port: 50051
+        max_webrtc_in_connections: 3
+        max_webrtc_out_connections: 8
+        ntp_servers: null
+        reverse_proxy_server_address: 0.0.0.0:100
+        rtsp_streaming_over_tcp: true
+        static_turnurl_list: []
+        stunurl_list:
+          - stun.l.google.com:19302
+          - stun1.l.google.com:19302
+        twilio_account_sid: '0000000000000000000000000000000000'
+        twilio_auth_token: '00000000000000000000000000000000'
+        udp_drop_on_latency: false
+        udp_latency_ms: 200
+        use_coturn_auth_secret: false
+        use_reverse_proxy: false
+        use_twilio_stun_turn: false
+        webrtc_in_audio_sender_max_bitrate: 128000
+        webrtc_in_video_bitrate_thresold_percentage: 50
+        webrtc_in_video_degradation_preference: detail
+        webrtc_in_video_sender_max_framerate: 30
+        webrtc_peer_conn_timeout_sec: 20
+        webrtc_port_range:
+          max: 30030
+          min: 30001
+        webrtc_video_quality_tunning:
+          resolution_1080:
+            bitrate_range:
+              - 8000
+              - 20000
+            bitrate_start: 10000
+            qp_range_I:
+              - 10
+              - 30
+            qp_range_P:
+              - 10
+              - 30
+          resolution_1440:
+            bitrate_range:
+              - 10000
+              - 30000
+            bitrate_start: 20000
+            qp_range_I:
+              - 0
+              - 15
+            qp_range_P:
+              - 0
+              - 15
+          resolution_2160:
+            bitrate_range:
+              - 30000
+              - 50000
+            bitrate_start: 35000
+            qp_range_I:
+              - 0
+              - 20
+            qp_range_P:
+              - 0
+              - 20
+          resolution_480:
+            bitrate_range:
+              - 800
+              - 3000
+            bitrate_start: 1000
+            qp_range_I:
+              - 10
+              - 30
+            qp_range_P:
+              - 10
+              - 30
+          resolution_720:
+            bitrate_range:
+              - 3000
+              - 10000
+            bitrate_start: 5000
+            qp_range_I:
+              - 10
+              - 30
+            qp_range_P:
+              - 10
+              - 30
+      notifications:
+        enable_notification: true
+        message_broker_topic: vst_events
+        redis_server_env_var: REDIS_TIMESERIES_SERVICE_HOST:6379
+        use_message_broker: redis
+      security:
+        enable_user_cleanup: true
+        multi_user_extra_options:
+          - Secure
+          - SameSite=none
+        session_max_age_sec: 2592000
+        use_http_digest_authentication: false
+        use_https: false
+        use_multi_user: false
+    vst_storage.json:
+      total_video_storage_size_MB: 100000
+  storageClaims:
+    local-storage:
+      spec:
+        resources:
+          requests:
+            storage: 10Gi
+  ucfVisibleGpus:
+    - 0
+unreal-renderer:
+  applicationSpecs:
+    deployment:
+      containers:
+        adapter:
+          image:
+            pullPolicy: IfNotPresent
+            repository: nvcr.io/nvidia/ace/renderer-adapter
+            tag: 5.0.0
+          ports:
+            - containerPort: 31111
+              name: adapter
+              protocol: TCP
+          env:
+            - name: PIXEL_STREAMER_URI
+              value: ws://localhost:8080
+            - name: VST_GRPC_URI
+              value: vms-vms-svc:50051
+            - name: LOG_LEVEL
+              value: info
+  window:
+    width: 1280
+    height: 720
+  resourceDownload:
+    remoteResourcePath:
+      unrealEngineProject: nvidia/ace/unreal-renderer-aki-asset:0.1.1
+    secretName: ngc-api-key-secret
+    image: nvcr.io/nvidia/ace/ngc-resource-downloader:1.2.0
+  deployment:
+    additionalStartupArgs: "-PixelStreamingEncoderCodec=VP8"
+  unrealEngine:
+    signallingServerImage: pixelstreamingunofficial/pixel-streaming-signalling-server
+  replicas: '1'
+  ucfVisibleGpus:
+    - 1
+ue-renderer-sdr:
+  sdrMaxReplicas: '1'
+  wlThreshold: '1'
+ace-controller-sdr:
+  sdrMaxReplicas: '1'
+  wlThreshold: "1"
+  disableTracing: 'false'
+  otelExporterOtlpEndpoint: http://obs-opentelemetry-collector.platform.svc.cluster.local:4317
+  otelExporterOpencensusEndpoint: "obs-opentelemetry-collector.platform.svc.cluster.local:55678"
+anim-graph-sdr:
+  disableTracing: 'false'
+  otelExporterOtlpEndpoint: http://obs-opentelemetry-collector.platform.svc.cluster.local:4317
+  otelExporterOpencensusEndpoint: "obs-opentelemetry-collector.platform.svc.cluster.local:55678"
+ace-configurator:
+  configurator:
+    config: |
+      ---
+      services:
+        ace-controller-ace-controller-deployment:
+          app-storage-volume:
+            container_name: ace-controller-container
+            refresh_policy:
+              type: HotReload
+            config_type: Pv
+        a2f-a2f-deployment:
+          a2f-configs-cm:
+            refresh_policy:
+              type: Restart
+            config_type: Cm
+        ia-unreal-renderer-microservice-deployment:
+          asset-volume:
+            container_name: ms
+            refresh_policy:
+              type: Restart
+            config_type: Pv
+        ia-animation-graph-microservice-deployment:
+          ia-animation-graph-microservice-configs:
+            refresh_policy:
+              type: Restart
+            config_type: Cm
+          ia-animation-graph-microservice-params:
+            refresh_policy:
+              type: Restart
+            config_type: Cm
+          asset-volume:
+            refresh_policy:
+              type: Restart
+            config_type: Pv

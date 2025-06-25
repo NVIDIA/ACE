@@ -1,0 +1,108 @@
+# SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-License-Identifier: Apache-2.0
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+---
+- hosts: all
+  gather_facts: yes
+  become: false
+  tasks:
+  - name: check if docker-compose for task exists
+    stat:
+      path: "{{ ansible_user_dir }}/{{ task_config.name }}/docker-compose.yml"
+    register: task_docker_compose
+  - name: prepare configs
+    when: not ansible_check_mode and dry_run_mode != "true"
+    block:
+    - name: create temporary compose directory
+      tempfile:
+        state: directory
+        suffix: "-{{ task_config.name }}-compose"
+      register: tmp_compose_dir
+    - name: prepare docker-compose.yml
+      copy:
+        content: "{{ task_config.content }}"
+        dest: "{{ tmp_compose_dir.path }}/docker-compose.yml"
+    - name: copy dependencies
+      copy:
+        src: "{{ item }}"
+        dest: "{{ tmp_compose_dir.path }}"
+      loop: "{{ task_config.dependencies | default([]) }}"
+    - name: compare temporary compose directory with existing compose directory
+      when: task_docker_compose.stat.exists
+      command: "diff -r {{ tmp_compose_dir.path }} {{ ansible_user_dir }}/{{ task_config.name }}"
+      ignore_errors: true
+      no_log: true
+      register: change_in_compose_spec
+  - name: bring down existing services
+    when: not ansible_check_mode and dry_run_mode != "true" and task_docker_compose.stat.exists and change_in_compose_spec.rc > 0
+    block:
+    - debug:
+        msg: "remove running service for {{ task_config.name }}"
+    - name: remove running services
+      community.docker.docker_compose_v2:
+        project_src: "{{ ansible_user_dir }}/{{ task_config.name }}"
+        state: absent
+      ignore_errors: true
+      no_log: true
+    - name: remove any existing local compose directory
+      become: true
+      file:
+        path: "{{ ansible_user_dir }}/{{ task_config.name }}"
+        state: absent
+  - name: copy to compose directory from temporary compose directory
+    when: not ansible_check_mode and dry_run_mode != "true" and (not task_docker_compose.stat.exists or change_in_compose_spec.rc > 0)
+    copy:
+      remote_src: true
+      src: "{{ tmp_compose_dir.path }}/"
+      dest: "{{ ansible_user_dir }}/{{ task_config.name }}"
+      mode: '0755'
+  - name: cleanup temporary compose directory
+    when: tmp_compose_dir.path is defined
+    file:
+      path: "{{ tmp_compose_dir.path }}"
+      state: absent
+  - name: bring down services
+    when: not ansible_check_mode and dry_run_mode != "true" and (state != "present" or (task_config.state | default("present")) != "present")
+    block:
+    - debug:
+        msg: "bring down service for {{ task_config.name }}"
+    - name: stop services
+      community.docker.docker_compose_v2:
+        project_src: "{{ ansible_user_dir }}/{{ task_config.name }}"
+        state: absent
+      register: stop_output
+    - name: verify services were stopped successfully
+      assert:
+        that:
+        - "not stop_output.failed"
+  - name: bring up services
+    when: not ansible_check_mode and dry_run_mode != "true" and state == "present" and  (task_config.state | default("present")) == "present"
+    block:
+    - debug:
+        msg: "bring up service for {{ task_config.name }}"
+    - name: determine config path
+      when: task_config.config_sub_path is defined
+      set_fact:
+        config_path: "{{ ansible_user_dir }}/.docker/{{ task_config.config_sub_path }}"
+    - name: create and start services
+      community.docker.docker_compose_v2:
+        project_src: "{{ ansible_user_dir }}/{{ task_config.name }}"
+      environment:
+        DOCKER_CONFIG: "{{ config_path | default(omit) }}"
+      register: start_output
+    - name: verify services were started successfully
+      assert:
+        that:
+        - "not start_output.failed"

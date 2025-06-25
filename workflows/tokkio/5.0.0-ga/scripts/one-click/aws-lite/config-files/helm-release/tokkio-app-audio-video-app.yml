@@ -1,0 +1,14 @@
+tokkio-app:
+  vms:
+    configs:
+      vst_config.json:
+        network:
+          twilio_account_sid: "{{ task_vars.twilio_account_sid }}"
+          twilio_auth_token: "{{ task_vars.twilio_auth_token }}"
+          use_twilio_stun_turn: {{ task_vars.use_twilio_stun_turn | bool | lower }}
+          static_turnurl_list:
+          - "{{ task_vars.turnurl_conn_string }}"
+
+  ia-unreal-renderer-microservice:
+    configs:
+      IAUEMS_SIGNALLING_SERVER_PEER_CONNECTION_OPTIONS: "{\"iceServers\": [{\"urls\": [\"turn:{{ task_vars.turn_server_conn }}\"], \"username\": \"{{ task_vars.turn_username }}\", \"credential\": \"{{ task_vars.turn_password }}\"}], \"iceTransportPolicy\": \"relay\"}"

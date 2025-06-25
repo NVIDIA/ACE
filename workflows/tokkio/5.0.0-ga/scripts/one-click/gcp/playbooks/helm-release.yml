@@ -1,0 +1,132 @@
+# SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-License-Identifier: Apache-2.0
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+---
+- hosts: all
+  gather_facts: yes
+  tasks:
+  - name: check chart repo details
+    fail:
+      msg: repo_name is required when repo_url is provided and vice-versa
+    when: (task_config.repo_name is defined) != (task_config.repo_url is defined)
+  - name: check local chart details
+    fail:
+      msg: chart_ref is not supported for local charts
+    when: (task_config.local_chart is defined) == (task_config.chart_ref is defined)
+  - name: check chart source
+    fail:
+      msg: multiple chart sources cannot be provided
+    when: "[(task_config.repo_url is defined | string), (task_config.git_repo is defined | string), (task_config.local_chart is defined | string)] | select('match', 'True') | length > 1"
+  - name: setup helm pre requisites
+    include_tasks: tasks/helm-task-pre-requisites.yml
+  - name: add repo
+    kubernetes.core.helm_repository:
+      repo_name: "{{ task_config.repo_name }}"
+      repo_url: "{{ task_config.repo_url }}"
+      repo_username: "{{ task_config.repo_username | default(None) }}"
+      repo_password: "{{ task_config.repo_password | default(None) }}"
+      force_update: true
+    when: task_config.repo_name is defined and task_config.repo_url is defined
+  - name: clone git repo
+    when: task_config.git_repo is defined
+    block:
+    - name: create git sources directories
+      file:
+        path: "{{ ansible_user_dir }}/helm-git-sources/ns-{{ task_config.namespace }}/release-{{ task_config.release_name }}"
+        state: directory
+        mode: '0755'
+    - name: clone git repo
+      git:
+        repo: "{{ task_config.git_repo }}"
+        version: "{{ task_config.git_repo_version | default(omit) }}"
+        dest: "{{ ansible_user_dir }}/helm-git-sources/ns-{{ task_config.namespace }}/release-{{ task_config.release_name }}"
+  - name: copy local chart
+    when: task_config.local_chart is defined
+    block:
+    - name: remove any existing local chart directory
+      file:
+        path: "{{ ansible_user_dir }}/helm-local-charts/ns-{{ task_config.namespace }}/release-{{ task_config.release_name }}"
+        state: absent
+    - name: create local chart directory
+      file:
+        path: "{{ ansible_user_dir }}/helm-local-charts/ns-{{ task_config.namespace }}/release-{{ task_config.release_name }}"
+        state: directory
+        mode: '0755'
+    - name: copy local chart
+      copy:
+        src: "{{ task_config.local_chart }}"
+        dest: "{{ ansible_user_dir }}/helm-local-charts/ns-{{ task_config.namespace }}/release-{{ task_config.release_name }}"
+  - name: create values files directories
+    file:
+      path: "{{ ansible_user_dir }}/helm-values/ns-{{ task_config.namespace }}/release-{{ task_config.release_name }}"
+      state: directory
+      mode: '0755'
+    when: task_config.values_files is defined
+  - name: prep values files
+    include_tasks: tasks/helm-release-prep-values.yml
+    loop: "{{ task_config.values_files }}"
+    when: task_config.values_files is defined
+  - name: install release
+    kubernetes.core.helm:
+      release_name: "{{ task_config.release_name }}"
+      chart_ref: "{{ task_config.repo_name }}/{{ task_config.chart_ref }}"
+      chart_version: "{{ task_config.chart_version | default(omit)  }}"
+      release_namespace: "{{ task_config.namespace }}"
+      create_namespace: true
+      release_values: "{{ task_config.release_values | default(omit) }}"
+      values_files: "{{ [ansible_user_dir + '/helm-values/ns-' + task_config.namespace + '/release-' + task_config.release_name + '/'] | product(task_config.values_files | default([]) | map('basename')) | map('join') | list }}"
+      release_state: "{{ task_config.state | default('present') }}"
+      kubeconfig: "{{ task_config.kubeconfig | default(omit) }}"
+      context: "{{ task_config.context | default(omit) }}"
+    when: task_config.repo_name is defined and task_config.repo_url is defined and task_config.git_repo is not defined
+  - name: install release
+    kubernetes.core.helm:
+      release_name: "{{ task_config.release_name }}"
+      chart_ref: "{{ ansible_user_dir }}/helm-git-sources/ns-{{ task_config.namespace }}/release-{{ task_config.release_name }}/{{ task_config.chart_ref }}"
+      chart_version: "{{ task_config.chart_version | default(omit)  }}"
+      release_namespace: "{{ task_config.namespace }}"
+      create_namespace: true
+      release_values: "{{ task_config.release_values | default(omit) }}"
+      values_files: "{{ [ansible_user_dir + '/helm-values/ns-' + task_config.namespace + '/release-' + task_config.release_name + '/'] | product(task_config.values_files | default([]) | map('basename')) | map('join') | list }}"
+      release_state: "{{ task_config.state | default('present') }}"
+      kubeconfig: "{{ task_config.kubeconfig | default(omit) }}"
+      context: "{{ task_config.context | default(omit) }}"
+    when: task_config.git_repo is defined
+  - name: install release
+    kubernetes.core.helm:
+      release_name: "{{ task_config.release_name }}"
+      chart_ref: "{{ ansible_user_dir }}/helm-local-charts/ns-{{ task_config.namespace }}/release-{{ task_config.release_name }}/{{ task_config.local_chart | basename }}"
+      chart_version: "{{ task_config.chart_version | default(omit)  }}"
+      release_namespace: "{{ task_config.namespace }}"
+      create_namespace: true
+      release_values: "{{ task_config.release_values | default(omit) }}"
+      values_files: "{{ [ansible_user_dir + '/helm-values/ns-' + task_config.namespace + '/release-' + task_config.release_name + '/'] | product(task_config.values_files | default([]) | map('basename')) | map('join') | list }}"
+      release_state: "{{ task_config.state | default('present') }}"
+      kubeconfig: "{{ task_config.kubeconfig | default(omit) }}"
+      context: "{{ task_config.context | default(omit) }}"
+    when: task_config.local_chart is defined
+  - name: install release
+    kubernetes.core.helm:
+      release_name: "{{ task_config.release_name }}"
+      chart_ref: "{{ task_config.chart_ref }}"
+      chart_version: "{{ task_config.chart_version | default(omit)  }}"
+      release_namespace: "{{ task_config.namespace }}"
+      create_namespace: true
+      release_values: "{{ task_config.release_values | default(omit) }}"
+      values_files: "{{ [ansible_user_dir + '/helm-values/ns-' + task_config.namespace + '/release-' + task_config.release_name + '/'] | product(task_config.values_files | default([]) | map('basename')) | map('join') | list }}"
+      release_state: "{{ task_config.state | default('present') }}"
+      kubeconfig: "{{ task_config.kubeconfig | default(omit) }}"
+      context: "{{ task_config.context | default(omit) }}"
+    when: not (task_config.repo_name is defined or task_config.repo_url is defined or task_config.git_repo is defined or task_config.local_chart is defined)

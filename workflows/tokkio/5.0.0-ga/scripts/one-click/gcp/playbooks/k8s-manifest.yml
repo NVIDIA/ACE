@@ -1,0 +1,43 @@
+# SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-License-Identifier: Apache-2.0
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+---
+- hosts: all
+  gather_facts: yes
+  tasks:
+  - name: setup pre requisites
+    include_tasks: tasks/k8s-task-pre-requisites.yml
+  - name: download manifest from url
+    set_fact:
+      manifest_from_url_path: "{{ ansible_user_dir }}/{{ task_config.url | basename }}"
+    when: task_config.url is defined
+  - name: download manifest from url
+    ignore_errors: "{{ task_config.ignore_errors | default(false) }}"
+    get_url:
+      url: "{{ task_config.url }}"
+      dest: "{{ manifest_from_url_path }}"
+      mode: '0664'
+    when: task_config.url is defined
+  - name: install manifest
+    ignore_errors: "{{ task_config.ignore_errors | default(false) }}"
+    kubernetes.core.k8s:
+      kubeconfig: "{{ task_config.kubeconfig | default(omit) }}"
+      context: "{{ task_config.context | default(omit) }}"
+      state: "{{ state | default('present') }}"
+      namespace: "{{ task_config.namespace | default(omit) }}"
+      kind: "{{ task_config.kind | default(omit) }}"
+      src: "{{ manifest_from_url_path | default(omit) }}"
+      definition:
+        "{{ task_config.definition | default(omit) }}"

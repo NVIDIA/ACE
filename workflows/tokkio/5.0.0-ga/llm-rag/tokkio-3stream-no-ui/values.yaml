@@ -1,0 +1,421 @@
+riva-api:
+  enabled: true
+  fullnameOverride: riva-speech
+  riva:
+    visibleGpus: '0'
+  modelRepoGenerator:
+    imagePullSecret: ngc-docker-reg-secret
+    ngcSecret: ngc-api-key-secret
+    ngcSecretKey: NGC_CLI_API_KEY
+    ngcModelConfigs:
+      triton0:
+        models:
+          - nvidia/riva/rmir_asr_parakeet_1-1b_en_us_str_silero:2.19.0.1
+  persistentVolumeClaim:
+    usePVC: true
+    storageClassName: mdx-local-path
+    storageAccessMode: ReadWriteOnce
+    storageSize: 5Gi
+    workdirClaimName: riva-speech-skills-local-storage-pvc
+    keepPVC: true
+  compatGpuCheckTimeout: 1m
+audio2face-3d:
+  enabled: true
+  a2f:
+    applicationSpecs:
+      a2f-deployment:
+        containers:
+          a2f-container:
+            env:
+              - name: NVIDIA_VISIBLE_DEVICES
+                value: '0'
+    configs:
+      deployment_config.yaml:
+        endpoints:
+          unidirectional:
+            client:
+              url: anim-graph-sdr-envoy-sdr-deployment-grpc-envoy-service:8100
+      stylization_config.yaml:
+        # These are the default emotions applied at the beginning of any audio clip.
+        # Their values range from 0.0 to 1.0
+        default_beginning_emotions:
+          amazement: 0.0
+          anger: 0.0
+          cheekiness: 0.0
+          disgust: 0.0
+          fear: 0.0
+          grief: 0.0
+          joy: 0.0
+          outofbreath: 0.0
+          pain: 0.0
+          sadness: 0.0
+        a2e:
+          enabled: false
+          live_transition_time: 0.5
+          post_processing_params:
+            emotion_contrast: 1.0 # Increases the spread between emotion values by pushing them higher or lower
+            emotion_strength: 1.0 # Sets the strength of generated emotions relative to neutral emotion
+            enable_preferred_emotion: true # Activate blending preferred emotion with auto-emotion
+            live_blend_coef: 0.7 # Coefficient for exponential smoothing of emotion
+            max_emotions: 6 # Sets a firm limit on the quantity of emotion sliders engaged by A2E - emotions with the highest weight will be prioritized
+            preferred_emotion_strength: 0.0 # Sets the strength of the preferred emotion (if is loaded) relative to generated emotions
+        a2f:
+          # A2F model, can be one of james_v2.3, claire_v2.3 or mark_v2.3
+          inference_model_id: james_v2.3
+          blendshape_id: james_topo2_v2.3
+          tongue_blendshape_id: james_tongue_v1.0
+          enable_tongue_blendshapes: true
+          face_params:
+            eyelid_offset: 0.0 # Adjusts the default pose of eyelid open-close
+            face_mask_level: 0.6 # Determines the boundary between the upper and lower regions of the face
+            face_mask_softness: 0.0085 # Determines how smoothly the upper and lower face regions blend on the boundary
+            input_strength: 1.0 # Controls the magnitude of the input audio
+            lip_close_offset: -0.02 # Adjusts the default pose of lip close-open
+            lip_open_offset: -0.03756145387887955 # Adjusts the default pose of lip open-close
+            lower_face_smoothing: 0.01 # Applies temporal smoothing to the lower face motion
+            lower_face_strength: 1.0 # Controls the range of motion on the lower regions of the face
+            skin_strength: 1.4 # Controls the range of motion of the skin
+            upper_face_smoothing: 0.001 # Applies temporal smoothing to the upper face motion
+            upper_face_strength: 1.0 # Controls the range of motion on the upper regions of the face
+          blendshape_params: # Modulates the effect of each blendshapes. Gain * w + offset
+            enable_clamping_bs_weight: false
+            weight_multipliers:
+              BrowDownLeft: 2.0
+              BrowDownRight: 2.0
+              BrowInnerUp: 2.0
+              BrowOuterUpLeft: 2.0
+              BrowOuterUpRight: 2.0
+              CheekPuff: 1.5
+              CheekSquintLeft: 2.0
+              CheekSquintRight: 2.0
+              EyeBlinkLeft: 1
+              EyeBlinkRight: 1
+              EyeLookDownLeft: 1
+              EyeLookDownRight: 1
+              EyeLookInLeft: 1
+              EyeLookInRight: 1
+              EyeLookOutLeft: 1
+              EyeLookOutRight: 1
+              EyeLookUpLeft: 1
+              EyeLookUpRight: 1
+              EyeSquintLeft: 1
+              EyeSquintRight: 1
+              EyeWideLeft: 1.5
+              EyeWideRight: 1.5
+              JawForward: 0
+              JawLeft: 1
+              JawOpen: 0.6
+              JawRight: 1
+              MouthClose: 0.3
+              MouthDimpleLeft: 1
+              MouthDimpleRight: 1
+              MouthFrownLeft: 1
+              MouthFrownRight: 1
+              MouthFunnel: 2.0
+              MouthLeft: 0.405
+              MouthLowerDownLeft: 1.2
+              MouthLowerDownRight: 1.2
+              MouthPressLeft: 1
+              MouthPressRight: 1
+              MouthPucker: 2.0
+              MouthRight: 0.4
+              MouthRollLower: 1.5
+              MouthRollUpper: 1.3
+              MouthShrugLower: 1.4
+              MouthShrugUpper: 1.1
+              MouthSmileLeft: 1.283
+              MouthSmileRight: 1.3
+              MouthStretchLeft: 0.5
+              MouthStretchRight: 0.5
+              MouthUpperUpLeft: 0.7
+              MouthUpperUpRight: 0.7
+              NoseSneerLeft: 1
+              NoseSneerRight: 1
+              TongueOut: 1
+            weight_offsets:
+              BrowDownLeft: 0
+              BrowDownRight: 0
+              BrowInnerUp: 0
+              BrowOuterUpLeft: 0
+              BrowOuterUpRight: 0
+              CheekPuff: 0
+              CheekSquintLeft: 0
+              CheekSquintRight: 0
+              EyeBlinkLeft: 0
+              EyeBlinkRight: 0
+              EyeLookDownLeft: 0
+              EyeLookDownRight: 0
+              EyeLookInLeft: 0
+              EyeLookInRight: 0
+              EyeLookOutLeft: 0
+              EyeLookOutRight: 0
+              EyeLookUpLeft: 0
+              EyeLookUpRight: 0
+              EyeSquintLeft: 0
+              EyeSquintRight: 0
+              EyeWideLeft: 0
+              EyeWideRight: 0
+              JawForward: 0
+              JawLeft: 0
+              JawOpen: 0
+              JawRight: 0
+              MouthClose: 0
+              MouthDimpleLeft: 0
+              MouthDimpleRight: 0
+              MouthFrownLeft: 0
+              MouthFrownRight: 0
+              MouthFunnel: 0
+              MouthLeft: 0
+              MouthLowerDownLeft: 0
+              MouthLowerDownRight: 0
+              MouthPressLeft: 0
+              MouthPressRight: 0
+              MouthPucker: 0
+              MouthRight: 0
+              MouthRollLower: 0
+              MouthRollUpper: 0
+              MouthShrugLower: 0
+              MouthShrugUpper: 0
+              MouthSmileLeft: 0
+              MouthSmileRight: 0
+              MouthStretchLeft: -0.2
+              MouthStretchRight: -0.2
+              MouthUpperUpLeft: 0
+              MouthUpperUpRight: 0
+              NoseSneerLeft: 0
+              NoseSneerRight: 0
+              TongueOut: 0
+            active_poses:
+              EyeBlinkLeft: 1
+              EyeLookDownLeft: 0
+              EyeLookInLeft: 0
+              EyeLookOutLeft: 0
+              EyeLookUpLeft: 0
+              EyeSquintLeft: 1
+              EyeWideLeft: 1
+              EyeBlinkRight: 1
+              EyeLookDownRight: 0
+              EyeLookInRight: 0
+              EyeLookOutRight: 0
+              EyeLookUpRight: 0
+              EyeSquintRight: 1
+              EyeWideRight: 1
+              JawForward: 1
+              JawLeft: 1
+              JawRight: 1
+              JawOpen: 1
+              MouthClose: 1
+              MouthFunnel: 1
+              MouthPucker: 1
+              MouthLeft: 1
+              MouthRight: 1
+              MouthSmileLeft: 1
+              MouthSmileRight: 1
+              MouthFrownLeft: 1
+              MouthFrownRight: 1
+              MouthDimpleLeft: 1
+              MouthDimpleRight: 1
+              MouthStretchLeft: 1
+              MouthStretchRight: 1
+              MouthRollLower: 1
+              MouthRollUpper: 1
+              MouthShrugLower: 1
+              MouthShrugUpper: 1
+              MouthPressLeft: 1
+              MouthPressRight: 1
+              MouthLowerDownLeft: 1
+              MouthLowerDownRight: 1
+              MouthUpperUpLeft: 1
+              MouthUpperUpRight: 1
+              BrowDownLeft: 1
+              BrowDownRight: 1
+              BrowInnerUp: 1
+              BrowOuterUpLeft: 1
+              BrowOuterUpRight: 1
+              CheekPuff: 1
+              CheekSquintLeft: 1
+              CheekSquintRight: 1
+              NoseSneerLeft: 1
+              NoseSneerRight: 1
+              TongueOut: 0
+            cancel_poses:
+              EyeBlinkLeft: -1
+              EyeLookDownLeft: -1
+              EyeLookInLeft: -1
+              EyeLookOutLeft: -1
+              EyeLookUpLeft: -1
+              EyeSquintLeft: -1
+              EyeWideLeft: -1
+              EyeBlinkRight: -1
+              EyeLookDownRight: -1
+              EyeLookInRight: -1
+              EyeLookOutRight: -1
+              EyeLookUpRight: -1
+              EyeSquintRight: -1
+              EyeWideRight: -1
+              JawForward: -1
+              JawLeft: -1
+              JawRight: -1
+              JawOpen: -1
+              MouthClose: -1
+              MouthFunnel: -1
+              MouthPucker: -1
+              MouthLeft: -1
+              MouthRight: -1
+              MouthSmileLeft: -1
+              MouthSmileRight: -1
+              MouthFrownLeft: -1
+              MouthFrownRight: -1
+              MouthDimpleLeft: -1
+              MouthDimpleRight: -1
+              MouthStretchLeft: -1
+              MouthStretchRight: -1
+              MouthRollLower: -1
+              MouthRollUpper: -1
+              MouthShrugLower: -1
+              MouthShrugUpper: -1
+              MouthPressLeft: -1
+              MouthPressRight: -1
+              MouthLowerDownLeft: -1
+              MouthLowerDownRight: -1
+              MouthUpperUpLeft: -1
+              MouthUpperUpRight: -1
+              BrowDownLeft: -1
+              BrowDownRight: -1
+              BrowInnerUp: -1
+              BrowOuterUpLeft: -1
+              BrowOuterUpRight: -1
+              CheekPuff: -1
+              CheekSquintLeft: -1
+              CheekSquintRight: -1
+              NoseSneerLeft: -1
+              NoseSneerRight: -1
+              TongueOut: -1
+            symmetry_poses:
+              EyeBlinkLeft: 0
+              EyeLookDownLeft: -1
+              EyeLookInLeft: -1
+              EyeLookOutLeft: -1
+              EyeLookUpLeft: -1
+              EyeSquintLeft: -1
+              EyeWideLeft: 1
+              EyeBlinkRight: 0
+              EyeLookDownRight: -1
+              EyeLookInRight: -1
+              EyeLookOutRight: -1
+              EyeLookUpRight: -1
+              EyeSquintRight: -1
+              EyeWideRight: 1
+              JawForward: -1
+              JawLeft: -1
+              JawRight: -1
+              JawOpen: -1
+              MouthClose: -1
+              MouthFunnel: -1
+              MouthPucker: -1
+              MouthLeft: -1
+              MouthRight: -1
+              MouthSmileLeft: 2
+              MouthSmileRight: 2
+              MouthFrownLeft: 3
+              MouthFrownRight: 3
+              MouthDimpleLeft: 4
+              MouthDimpleRight: 4
+              MouthStretchLeft: 5
+              MouthStretchRight: 5
+              MouthRollLower: -1
+              MouthRollUpper: -1
+              MouthShrugLower: -1
+              MouthShrugUpper: -1
+              MouthPressLeft: 6
+              MouthPressRight: 6
+              MouthLowerDownLeft: 7
+              MouthLowerDownRight: 7
+              MouthUpperUpLeft: 8
+              MouthUpperUpRight: 8
+              BrowDownLeft: 10
+              BrowDownRight: 10
+              BrowInnerUp: -1
+              BrowOuterUpLeft: 9
+              BrowOuterUpRight: 9
+              CheekPuff: -1
+              CheekSquintLeft: 11
+              CheekSquintRight: 11
+              NoseSneerLeft: 12
+              NoseSneerRight: 12
+              TongueOut: -1
+tokkio-ui:
+  egress:
+    ingress:
+      address: tokkio-ingress # Address of the Tokkio Ingress Manager service
+      port: 8443
+  uiConfig:
+    config:
+      enable_countdown: false
+      countdown_duration: 180
+      enable_feedback: false
+      enable_mic: true
+      enable_fullscreen_toggle: true
+      enable_start_page: false
+      enable_top_bar: true
+      enable_logs: true
+      enable_overlay: true
+      enable_custom_view: true
+      enable_asr_transcripts: true
+      enable_tts_transcripts: true
+      app_title: NVIDIA
+      enable_error_code: true
+      enable_detailed_error_messages: true
+      enable_pip: false
+  enabled: false
+tokkio-ingress:
+  egress:
+    redisTs:
+      address: redis-timeseries
+      port: 6379
+    vms:
+      address: vms-vms-svc
+      port: 30000
+    aceController:
+      address: ace-controller-sdr-envoy-sdr-deployment-websocket-envoy-service
+      port: 8200
+  service:
+    type: NodePort
+    ports:
+      - name: ingress
+        nodePort: 30888
+        port: 8000
+        protocol: TCP
+        targetPort: ingress
+      - name: ingress-tls
+        nodePort: 30443
+        port: 8443
+        protocol: TCP
+        targetPort: ingress-tls
+      - name: health
+        nodePort: 30801
+        port: 8001
+        protocol: TCP
+        targetPort: lifecycle
+  configs:
+    ingress:
+      MAX_NUM_SESSION: 3
+      ENABLE_TRACING: true
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://obs-opentelemetry-collector.platform.svc.cluster.local:4317
+      OTEL_EXPORTER_OTLP_PROTOCOL: grpc
+tokkio-app:
+  ue-renderer-sdr-envoy:
+    applicationSpecs:
+      sdr-deployment:
+        securityContext:
+          runAsNonRoot: false
+  anim-graph-sdr-envoy:
+    applicationSpecs:
+      sdr-deployment:
+        securityContext:
+          runAsNonRoot: false
+  ace-controller-sdr-envoy:
+    applicationSpecs:
+      sdr-deployment:
+        securityContext:
+          runAsNonRoot: false

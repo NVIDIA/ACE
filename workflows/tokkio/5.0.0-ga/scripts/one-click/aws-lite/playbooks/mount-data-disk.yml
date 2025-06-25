@@ -1,0 +1,30 @@
+---
+- name: Mount data disk on /opt
+  hosts: all
+  become: yes
+  gather_facts: yes
+  # vars:
+  #   environment: "{{ environment }}"
+  tasks:
+    - name: Debug script variable
+      debug:
+        msg: "Script: {{ task_config.script }}"
+
+    # - name: Debug environment variables
+    #   debug:
+    #     msg: "Environment: {{ task_config.environment }}"
+
+    - name: Copy mount-data-disk.sh setup script to target
+      copy:
+        src: "{{ task_config.script }}"
+        dest: "/mnt/mount-data-disk.sh"
+        mode: '0755'
+
+    - name: Run mount-data-disk.sh setup script
+      shell: "/mnt/mount-data-disk.sh"
+      # environment: "{{ task_config.environment }}"
+      register: script_out
+
+    # - name: Check script output
+    #   debug:
+    #     msg: "{{ script_out }}"

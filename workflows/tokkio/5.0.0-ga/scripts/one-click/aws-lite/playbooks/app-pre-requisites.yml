@@ -1,0 +1,12 @@
+---
+- hosts: all
+  gather_facts: no
+  tasks:
+  - name: install required packages
+    become: yes
+    become_user: root
+    apt:
+      state: present
+      update_cache: yes
+      name: 
+        - unzip

@@ -1,0 +1,23 @@
+kubeconfig: "{{ task_vars.kubeconfig | default(omit) }}"
+definition:
+  apiVersion: v1
+  kind: ConfigMap
+  metadata:
+    name: script-config
+    namespace: "{{ task_vars.namespace }}"
+  data:
+    update_es_replicas.sh: |
+      set -x
+      while true; do
+        date
+        if [ "\$(curl -s -o /dev/null -w '%{http_code}' http://tokkio-logging-es-cluster-master:9200/_cluster/health)" -ne 200 ]; then
+          echo "setting index.number_of_replicas to 0"
+          curl "tokkio-logging-es-cluster-master-headless:9200/_settings/index.number_of_replicas?pretty";
+          curl -X PUT "tokkio-logging-es-cluster-master-headless:9200/_settings" -H "Content-Type: application/json" -d '{"index":{"number_of_replicas":0}}'
+          echo "showing updated index.number_of_replicas"
+          curl "tokkio-logging-es-cluster-master-headless:9200/_settings/index.number_of_replicas?pretty"
+        else
+          echo "response is \$(curl -s -o /dev/null -w '%{http_code}' http://tokkio-logging-es-cluster-master:9200/_cluster/health)"
+        fi
+        sleep 10
+      done
