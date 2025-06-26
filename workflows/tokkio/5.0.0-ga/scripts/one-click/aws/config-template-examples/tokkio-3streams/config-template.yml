@@ -13,7 +13,6 @@ spec:
     provider:
       access_key: "{{ lookup('env', 'AWS_ACCESS_KEY_ID', default=Undefined) }}"
       secret_key: "{{ lookup('env', 'AWS_SECRET_ACCESS_KEY', default=Undefined) }}"
-      additional_ssh_public_keys: []
     configs:
       cns:
         override_values:
@@ -25,6 +24,7 @@ spec:
       region: '<replace-with-resources-deployment-region>'
       ssh_public_key: "{{ lookup('file', lookup('env', 'HOME') + '<replace-with-relative-path-of-public-ssh-key-w.r.t.-user-home-directory>') }}"
       ssh_private_key_path: "{{ lookup('env', 'HOME') + '<replace-with-relative-path-of-private-ssh-key-w.r.t.-user-home-directory>' }}"
+      additional_ssh_public_keys: []
       base_domain: '<replace-with-your-base-domain>'
       cdn_cache_enabled: false
       clusters:
